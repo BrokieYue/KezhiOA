@@ -1,0 +1,304 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script>
+    var Curr;
+    var VINState=1;
+    $(function () {
+        initControl();
+     
+        select();
+        $("#CurrStation").change(function () {
+            var codeid = $("#CurrStation").val();
+            $.ajax({
+                url: "/ProduceManage/AVIOutIn/GetStation",
+                dataType: "json",
+                async: false,
+                data: { codeid: codeid },
+                success: function (data) {
+                    Curr = data.Result;
+                }
+            });
+        });
+        gridList();
+        
+        $(window).resize(function () {
+            $("#gridList").setGridWidth($(window).width());
+        });
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/ProduceManage/AVIOutIn/GetPlanJson" ,
+            height: $(window).height() - 155,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                //{ label: "工单ID", name: "OrderID", align: 'center', hidden: true },
+                //{ label: "工单号", name: "OrderNo", width: 250, align: 'center' },
+                { label: "VIN码ID", name: "VINID", align: 'center', hidden: true },
+                { label: "VIN码", name: "VINNo", width: 180, align: 'center' },
+
+                      {
+                          label: '焊装是否快速通道', name: 'BIWFastTract', width: 100, align: 'center', formatter: function (cellvalue, options, rowObject) {
+                              if ($.trim(rowObject.BIWFastTract) == 0) {
+                                  return '否';
+                              }
+                              if ($.trim(rowObject.BIWFastTract) == 1) {
+                                  return '是';
+                              }
+                              
+                          }
+                      },
+           {
+               label: '涂装是否快速通道', name: 'PaintFastTract', width: 100, align: 'center', formatter: function (cellvalue, options, rowObject) {
+                   if ($.trim(rowObject.PaintFastTract) == 0) {
+                       return '否';
+                   }
+                   if ($.trim(rowObject.PaintFastTract) == 1) {
+                       return '是';
+                   }
+
+               }
+           },
+                { label: "整车编码ID", name: "VID", align: 'center', hidden: true },
+                { label: "整车编码", name: "VCode", width:160, align: 'center' },
+                { label: "整车描述", name: "VDesc", width: 200, align: 'center' },
+              
+                       {
+                           label: '车间', name: 'CurrPlant', width: 140, align: 'center', formatter: function (cellvalue, options, rowObject) {
+                               if ($.trim(rowObject.CurrPlant) == $.trim("StampingShop")) {
+                                   return '<span >冲压车间</span>';
+                               }
+                               if ($.trim(rowObject.CurrPlant) == $.trim("AssemblyShop")) {
+                                   return '<span >总装车间</span>';
+                               }
+                               if ($.trim(rowObject.CurrPlant) == $.trim("PaintShop")) {
+                                   return '<span >涂装车间</span>';
+                               }
+                               if ($.trim(rowObject.CurrPlant) == $.trim("WeldingShop")) {
+                                   return '<span >焊装车间</span>';
+                               }
+                               if ($.trim(rowObject.CurrPlant) == $.trim("InspectionShop")) {
+                                   return '<span >交检车间</span>';
+                               }
+                           }
+                       },
+                { label: "当前站点", name: "CurrStation", width: 100, align: 'center' },
+
+                      {
+                          label: 'VIN状态', name: 'VINState', width: 100, align: 'center', formatter: function (cellvalue, options, rowObject) {
+                              if ($.trim(rowObject.VINState) == 0) {
+                                  return '未生产';
+                              }
+                              if ($.trim(rowObject.VINState) == 1) {
+                                  return '已开始';
+                              }
+                              if ($.trim(rowObject.VINState) == 2) {
+                                  return '报废';
+                              }
+                              if ($.trim(rowObject.VINState) == 3) {
+                                  return '切出中';
+                              }
+                              if ($.trim(rowObject.VINState) == 4) {
+                                  return '返修';
+                              }
+                              if ($.trim(rowObject.VINState) == 5) {
+                                  return '已完成';
+                              }
+                              if ($.trim(rowObject.VINState) == 6) {
+                                  return '切入等待';
+                              }
+                          }
+                      },
+              {
+                  label: '过点时间', name: 'PassTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                      if (cellvalue != null && cellvalue != "") {
+                          return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                      } else {
+
+                          return '<span >' + "" + '</span>';
+                      }
+                  }
+
+              },
+
+               {
+                   label: '上线时间', name: 'StartTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                       if (cellvalue != null && cellvalue != "") {
+                           return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                       } else {
+
+                           return '<span >' + "" + '</span>';
+                       }
+                   }
+
+               },
+       
+             
+               { label: "备注", name: "F_Description", width: 150, align: 'center' },
+
+            ],
+            pager: "#gridPager",
+            sortname: 'PassTime asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 20,
+            postData: { CurrStation: Curr, VINState: VINState },
+            rowList: [20, 50, 100],
+            viewrecords: true
+  
+          
+        });
+        $("#btn_search").click(function () {
+         
+            $gridList.jqGrid('setGridParam', {
+                postData: { CurrStation: Curr, VINState: VINState }, page: 1
+            }).trigger('reloadGrid');
+        });
+ 
+    }
+
+    //function btn_add() {
+    //    $.modalOpen({
+    //        id: "Form",
+    //        title: "新建",
+    //        url: "",
+    //        width: "400px",
+    //        height: "300px",
+    //        callBack: function (iframeId) {
+    //            top.frames[iframeId].submitForm();
+    //        }
+    //    });
+    //}
+    //function btn_edit() {
+    //    var keyValue = $("#gridList").jqGridRowValue().F_Id;
+
+    //    $.modalOpen({
+    //        id: "Form",
+    //        title: "修改",
+    //        url: "",
+    //        width: "400px",
+    //        height: "300px",
+    //        callBack: function (iframeId) {
+    //            top.frames[iframeId].submitForm();
+    //        }
+    //    });
+    //}
+
+ 
+    function btn_add() {
+
+        var keyValue = $("#gridList").jqGridRowValue().F_Id
+        if (!keyValue) {
+       
+
+            $.modalAlert("请选择一条有效数据！", "warning")
+            return false;
+        }
+        var checkText = $("#CurrStation").find("option:selected").text();
+  
+        if (checkText.indexOf("焊涂") == 0) {
+            $.modalOpen({
+                id: "Form",
+                title: "焊涂快速通道设置",
+                url: "/ProduceManage/ExpressLane/Form?keyValue=" + keyValue + "&state=1",
+                width: "550px",
+                height: "300px",
+                callBack: function (iframeId) {
+                    top.frames[iframeId].submitForm();
+                }
+            });
+        } else if (checkText.indexOf("涂总") == 0) {
+            $.modalOpen({
+                id: "Form",
+                title: "涂总快速通道设置",
+                url: "/ProduceManage/ExpressLane/Form?keyValue=" + keyValue + "&state=2",
+                width: "400px",
+                height: "300px",
+                callBack: function (iframeId) {
+                    top.frames[iframeId].submitForm();
+                }
+            });
+        }
+              
+    }
+
+    function initControl() {
+        $("#CurrStation").bindSelect({
+            url: "/ProduceManage/ExpressLane/GetDicBaseList",
+            id: "F_Id",
+            text: "OpName"
+        });
+    }
+    function select() {
+        $.ajax({
+            url: "/ProduceManage/AVIOutIn/GetUserProcess",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                if (data.length > 0) {
+                    $("#CurrStation").val(data[0].F_Id);
+                }
+            }
+        });
+        
+        var codeid = $("#CurrStation").val();
+
+        $.ajax({
+            url: "/ProduceManage/AVIOutIn/GetStation",
+            dataType: "json",
+            async: false,
+            data: { codeid: codeid },
+            success: function (data) {
+                Curr = data.Result;
+            }
+        });
+
+    }
+    function radiofan() {
+
+    }
+    //清空文本框--bichen
+    function clean() {
+        $("#CurrStation").val("-1");
+    }
+</script>
+ 
+<div class="topPanel" style="  height: 65px">
+    <div class="toolbar" style="margin-top:8px">     
+        <div class="btn-group" id="btn1">
+            <a id="NF-import" authorize="yes" class="btn btn-primary " onclick="btn_add() "><i class="fa fa-road" style="vertical-align: middle;"></i>快速通道设置</a>
+        </div>      
+    </div>
+    <div class="search" style="margin-top:8px">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <select id="CurrStation" name="CurrStation" class="form-control" style="width: 200px;">
+                            <option value="-1">==请选择通道设置点==</option>
+                        </select>
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+                @* 清空文本框--bichen*@
+                <td>
+                    <div class="input-group">
+                        <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class=" fa fa-link"></i></button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+

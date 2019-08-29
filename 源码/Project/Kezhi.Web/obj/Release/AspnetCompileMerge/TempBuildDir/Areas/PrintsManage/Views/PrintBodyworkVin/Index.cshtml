@@ -1,0 +1,213 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script>
+    $(function () {
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/PrintsManage/PrintBodyworkVin/GetPlanJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "工单ID", name: "OrderID", align: 'center', hidden: true },
+                { label: "工单号", name: "OrderNo", width: 250, align: 'center' },
+                { label: "VIN码ID", name: "VINID", align: 'center', hidden: true },
+                { label: "VIN码", name: "VINNo", width: 280, align: 'center' },
+
+                { label: "整车编码ID", name: "VID", align: 'center', hidden: true },
+                { label: "整车编码", name: "VCode", width: 300, align: 'center' },
+                { label: "整车描述", name: "VDesc", width: 300, align: 'center' },
+
+                       {
+                           label: '车间', name: 'CurrPlant', width: 140, align: 'center', formatter: function (cellvalue, options, rowObject) {
+                               if ($.trim(rowObject.CurrPlant) == $.trim("StampingShop")) {
+                                   return '<span >冲压车间</span>';
+                               }
+                               if ($.trim(rowObject.CurrPlant) == $.trim("AssemblyShop")) {
+                                   return '<span >总装车间</span>';
+                               }
+                               if ($.trim(rowObject.CurrPlant) == $.trim("PaintShop")) {
+                                   return '<span >涂装车间</span>';
+                               }
+                               if ($.trim(rowObject.CurrPlant) == $.trim("WeldingShop")) {
+                                   return '<span >焊装车间</span>';
+                               }
+                               if ($.trim(rowObject.CurrPlant) == $.trim("InspectionShop")) {
+                                   return '<span >交检车间</span>';
+                               }
+                           }
+                       },
+                { label: "当前站点", name: "CurrStation", width: 100, align: 'center' },
+
+                      {
+                          label: 'VIN状态', name: 'VINState', width: 100, align: 'center', formatter: function (cellvalue, options, rowObject) {
+                              if ($.trim(rowObject.VINState) == 0) {
+                                  return '未生产';
+                              }
+                              if ($.trim(rowObject.VINState) == 1) {
+                                  return '已开始';
+                              }
+                              if ($.trim(rowObject.VINState) == 2) {
+                                  return '报废';
+                              }
+                              if ($.trim(rowObject.VINState) == 3) {
+                                  return '切出中';
+                              }
+                              if ($.trim(rowObject.VINState) == 4) {
+                                  return '返修';
+                              }
+                              if ($.trim(rowObject.VINState) == 5) {
+                                  return '已完成';
+                              }
+                              if ($.trim(rowObject.VINState) == 6) {
+                                  return '切入等待';
+                              }
+                          }
+                      },
+              {
+                  label: '过点时间', name: 'PassTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                      if (cellvalue != null && cellvalue != "") {
+                          return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                      } else {
+
+                          return '<span >' + "" + '</span>';
+                      }
+                  }
+
+              },
+                  {
+                      label: '上线时间', name: 'StartTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                          if (cellvalue != null && cellvalue != "") {
+                              return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                          } else {
+
+                              return '<span >' + "" + '</span>';
+                          }
+                      }
+
+                  },
+
+
+               { label: "备注", name: "F_Description", width: 150, align: 'center' },
+
+            ],
+            pager: "#gridPager",
+            sortname: 'CurrPlant asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true,
+            //postData: { VINCode: "&*" },
+            unwritten: false,  //设置无数据时提示文字不显示
+
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { VINNo: $("#VINNo").val(), OrderNo: $("#OrderNo").val(), VCode: $("#VCode").val(), starttime: $("#StartTime_start").val(), endtime: $("#StartTime_end").val(), CurrPlant: $("#CurrPlant").val() },
+            }).trigger('reloadGrid');
+        });
+    }
+
+    //function btn_add() {
+    //    $.modalOpen({
+    //        id: "Form",
+    //        title: "新建",
+    //        url: "",
+    //        width: "400px",
+    //        height: "300px",
+    //        callBack: function (iframeId) {
+    //            top.frames[iframeId].submitForm();
+    //        }
+    //    });
+    //}
+    //function btn_edit() {
+    //    var keyValue = $("#gridList").jqGridRowValue().F_Id;
+
+    //    $.modalOpen({
+    //        id: "Form",
+    //        title: "修改",
+    //        url: "",
+    //        width: "400px",
+    //        height: "300px",
+    //        callBack: function (iframeId) {
+    //            top.frames[iframeId].submitForm();
+    //        }
+    //    });
+    //}
+
+
+    //function btn_delete() {
+    //    $.deleteForm({
+    //        url: "",
+    //        param: { keyValue: $("#gridList").jqGridRowValue().F_Id },
+    //        success: function () {
+    //            $("#gridList").resetSelection();
+    //            $("#gridList").trigger("reloadGrid");
+    //        }
+    //    })
+    //}
+
+</script>
+<div class="topPanel">
+    @*<div class="toolbar">
+            <div class="btn-group">
+                <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+            </div>
+            <div class="btn-group">
+                <a id="NF-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建</a>
+            </div>
+            <div class="operate">
+                <ul class="nav nav-pills">
+                    <li class="first">已选中<span>1</span>项</li>
+                    <li><a id="NF-edit" authorize="yes" onclick="btn_edit()"><i class="fa fa-pencil-square-o"></i>修改</a></li>
+                    <li><a id="NF-delete" authorize="yes" onclick="btn_delete()"><i class="fa fa-trash-o"></i>删除</a></li>
+                </ul>
+                <a href="javascript:;" class="close"></a>
+            </div>
+            <script>$('.toolbar').authorizeButton()</script>
+        </div>*@
+    <div class="search">
+        <table>
+            <tr>
+
+                <td>
+                    <div class="input-group">
+
+                        <select id="CurrPlant" name="CurrPlant" class="form-control" style="width: 150px; margin-right:10px">
+                            <option value="">==请选择车间==</option>
+                            <option value="StampingShop">冲压车间</option>
+                            <option value="WeldingShop">焊装车间</option>
+                            <option value="PaintShop">涂装车间</option>
+                            <option value="AssemblyShop">总装车间</option>
+                            <option value="InspectionShop">交检车间</option>
+                        </select>
+                        <input id="VINNo" type="text" class="form-control" placeholder="VIN码号" style="width:230px; margin-right:10px">
+                        <input id="OrderNo" type="text" class="form-control" placeholder="工单号" style="width:230px; margin-right:10px">
+                        <input id="VCode" type="text" class="form-control" placeholder="整车编码" style="width:230px; margin-right:10px">
+                        <input id="StartTime_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm:ss', maxdateFmt: '#F{$dp.$D(\'StartTime_end\')}' })" placeholder="上线时间（开始）" style="width: 140px; margin-right: 10px">
+                        <input id="StartTime_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm:ss', mindateFmt: '#F{$dp.$D(\'StartTime_start\')}' })" placeholder="上线时间（结束）" style="width: 140px;">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+
+                </td>
+            </tr>
+
+        </table>
+
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+

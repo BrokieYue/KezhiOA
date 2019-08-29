@@ -1,0 +1,390 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+        initControl();
+        document.getElementById("BarCode").focus();
+    })
+
+    $(window).resize(function () {
+        $("#gridList").setGridWidth($(window).width());
+    })
+
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "",
+            height: $(window).height() - 440,
+            colModel: [
+                { label: '物料编码', name: 'ItemCode', width: 250, align: 'left', key: true },
+                { label: '物料名称', name: 'ItemName', width: 250, align: 'left' },
+                { label: '数量', name: 'Qty', width: 100, align: 'left' },
+                { label: '上线时间', name: 'OnlineTime', width: 230, align: 'left' },
+                { label: '上线操作员', name: 'Operator', width: 200, align: 'left' },
+                {
+                    label: '删除', name: '', index: 'delete', width: 50, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        var detail = "<img  onclick='btn_delete(\"" + rowObject.ItemCode + "\")'' title='删除操作' src='../../Content/js/wdtree/images/icons/Delete.png' style='padding:0px 10px'>";
+                        return detail;
+                    },
+                },
+            ],
+            pager: "#gridPager",
+            sortname: '',
+            viewrecords: false,
+            multiselect: false,//复选框
+            rowNum: 20,
+            unwritten: false,  //设置无数据时提示文字不显示
+            caption: "扫码上线列表",
+        });
+    }
+
+    document.onkeydown = function (e) {
+        
+        if (!e) e = window.event;
+        if ((e.keyCode || e.which) == 13) {
+            var vin = $("#BarCode").val();
+            var vinid;
+            if (vin == "") {
+                clearInit();
+                return false;
+            }
+            var Plant = $("#Plant").val();
+            var Process = $("#Process").val();
+            var Station = $("#Station").val();
+            if (Plant == 0 || Process == 0 || Station == 0) {
+                document.getElementById("tipTxt").innerText = "请选择正确的车间、工序、站点";
+
+                return false;
+            }
+            if (vin.length == 17) {
+                var selrow = $("#gridList").jqGrid('getRowData');
+                var allCountID = $("#gridList").jqGrid('getDataIDs');
+                var bord = false;
+                selrow.push($("#gridList").jqGrid('getRowData', allCountID[allCountID.length - 1]));
+                $.ajax({
+                    url: "/ProduceManage/KeyParts/ExistsVINJson?keyword=" + vin,
+                    dataType: "json",
+                    async: false,
+                    success: function (data) {
+                        if (data.VINID.length > 0) {
+                            vinid = data.VINID[0].VINID;
+                        } else {
+                            bord = true;
+                        }
+
+                    }
+
+                });
+                if (allCountID.length > 0 && vinid) {
+                    var _list = {};
+                    for (var i = 0; i < selrow.length; i++) {
+
+                        _list["selectedIDs[" + i + "].Plant"] = $("#Plant").val();
+                        _list["selectedIDs[" + i + "].OpID"] = $("#Process").val();
+                        _list["selectedIDs[" + i + "].StationID"] = $("#Station").val();
+                        _list["selectedIDs[" + i + "].VINID"] = vinid;
+                        _list["selectedIDs[" + i + "].VINCode"] = vin;
+                        _list["selectedIDs[" + i + "].ItemCode"] = selrow[i].ItemCode;
+                        _list["selectedIDs[" + i + "].BatchNo"] = selrow[i].BatchNo;
+                        _list["selectedIDs[" + i + "].Qty"] = selrow[i].Qty;
+                    }
+                    $.submitForm({
+                        url: "/ProduceManage/KeyParts/SubmitForm",
+                        param: _list,
+                        success: function () {
+                            $.currentWindow().$("#gridList").trigger("reloadGrid");
+                        }
+
+                    });
+                    $("#gridList").jqGrid("clearGridData");
+                      clearInit();
+                } else {
+                    if (bord) {
+                        var selrow2 = $("#gridList").jqGrid('getRowData');
+                        var allCountID = $("#gridList").jqGrid('getDataIDs');
+                        selrow2.push($("#gridList").jqGrid('getRowData', allCountID[allCountID.length - 1]));
+                        var item =false;
+                        if (allCountID.length > 0) {
+                            for (var i = 0; i < selrow2.length; i++) {
+                                if (vin == selrow[i].ItemCode) {
+                                    item = true;
+                                    var oldQty = selrow[i].Qty;
+                                    $("#gridList").setRowData(vin, { Qty: parseInt(oldQty) + 1 });
+                                    clearInit();
+                                    break;
+                                }
+                            }
+                            //if (item) {
+                            //    $('#gridList').datagrid('updateRow', {
+                            //        index: parseInt(item),
+                            //        row: {
+                            //            Qty: selrow[item].Qty + 1    //更新的值
+                            //        }
+                            //    });
+                            //} else 
+                            if (!item) {
+                                $.ajax({
+                                    url: "/ProduceManage/KeyParts/ExistsItemJson?keyword=" + vin,
+                                    dataType: "json",
+                                    async: false,
+                                    success: function (data) {
+                                        if (data.ItemName.length > 0) {
+                                            $('#gridList').addRowData(
+                                                 vin,
+                                                 {
+                                                     ItemCode: vin,
+                                                     ItemName: data.ItemName[0].ItemName,
+                                                     Qty: 1,
+                                                     OnlineTime: getNowFormatDate(),
+                                                     Operator: '@Kezhi.Code.OperatorProvider.Provider.GetCurrent().UserName'
+                                                 }
+                                             );
+                                            clearInit();
+                                        } else {
+                                            document.getElementById("tipTxt").innerText = "物料不存在！";
+                                            clearInit();
+                                            return false;
+                                        }
+
+                                    }
+
+                                });
+                            }
+                        } else {
+                            $.ajax({
+                                url: "/ProduceManage/KeyParts/ExistsItemJson?keyword=" + vin,
+                                dataType: "json",
+                                async: false,
+                                success: function (data) {
+                                    if (data.ItemName.length > 0) {
+                                        $('#gridList').addRowData(
+                                                 vin,
+                                                 {
+                                                     ItemCode: vin,
+                                                     ItemName: data.ItemName[0].ItemName,
+                                                     Qty: 1,
+                                                     OnlineTime: getNowFormatDate(),
+                                                     Operator: '@Kezhi.Code.OperatorProvider.Provider.GetCurrent().UserName'
+                                                 }
+                                             );
+                                        clearInit();
+                                             } else {
+                                                 document.getElementById("tipTxt").innerText = "物料不存在！";
+                                                 clearInit();
+                                                 return false;
+                                             }
+
+                                }
+
+                            });
+
+
+                                 }
+                             } else {
+                                 document.getElementById("tipTxt").innerText = "请先扫描物料";
+                                 clearInit();
+                                 return false;
+                             }
+                         }
+
+                     } else {
+                         var selrow2 = $("#gridList").jqGrid('getRowData');
+                         var allCountID = $("#gridList").jqGrid('getDataIDs');
+                         selrow2.push($("#gridList").jqGrid('getRowData', allCountID[allCountID.length - 1]));
+                         var item =false;
+                         if (allCountID.length > 0) {
+                             for (var i = 0; i < selrow.length; i++) {
+                                 if (vin == selrow[i].ItemCode) {
+                                     item = true;
+                                     var oldQty = selrow[i].Qty;
+                                     $("#gridList").setRowData(vin, { Qty: parseInt(oldQty) + 1 });
+                                     clearInit();
+                                     break;
+
+                                 }
+                             }
+                             if (!item) {
+                             //    $('#gridList').datagrid('updateRow', {
+                             //        index: parseInt(item),
+                             //        row: {
+                             //            Qty: selrow[item].Qty + 1    //更新的值
+                             //        }
+                             //    });
+                             //} else {
+                                 $.ajax({
+                                     url: "/ProduceManage/KeyParts/ExistsItemJson?keyword=" + vin,
+                                     dataType: "json",
+                                     async: false,
+                                     success: function (data) {
+                                         if (data.ItemName.length > 0) {
+                                             $('#gridList').addRowData(
+                                                          vin,
+                                                          {
+                                                              ItemCode: vin,
+                                                              ItemName: data.ItemName[0].ItemName,
+                                                              Qty: 1,
+                                                              OnlineTime: getNowFormatDate(),
+                                                              Operator: '@Kezhi.Code.OperatorProvider.Provider.GetCurrent().UserName'
+                                                          }
+                                                      );
+                                             clearInit();
+                                         } else {
+                                             document.getElementById("tipTxt").innerText = "物料不存在！";
+                                             clearInit();
+                                             return false;
+                                         }
+
+                                     }
+
+                                 });
+                             }
+                         } else {
+                             $.ajax({
+                                 url: "/ProduceManage/KeyParts/ExistsItemJson?keyword=" + vin,
+                                 dataType: "json",
+                                 async: false,
+                                 success: function (data) {
+                                     if (data.ItemName.length > 0) {
+                                         $('#gridList').addRowData(
+                                                         vin,
+                                                         {
+                                                             ItemCode: vin,
+                                                             ItemName: data.ItemName[0].ItemName,
+                                                             Qty: 1,
+                                                             OnlineTime: getNowFormatDate(),
+                                                             Operator: '@Kezhi.Code.OperatorProvider.Provider.GetCurrent().UserName'
+                                                         }
+                                                     );
+                                         clearInit();
+                                     } else {
+                                         document.getElementById("tipTxt").innerText = "物料不存在！";
+                                         clearInit();
+                                         return false;
+                                     }
+
+                                 }
+
+                             });
+
+
+                         }
+                     }
+                 }
+    }
+
+
+             function clearInit() {
+                  
+                 $('#BarCode').val("").focus();
+             }
+             function getNowFormatDate() {
+                 var now = new Date();
+
+                 var year = now.getFullYear();       //年
+                 var month = now.getMonth() + 1;     //月
+                 var day = now.getDate();            //日
+
+                 var hh = now.getHours();            //时
+                 var mm = now.getMinutes();          //分
+                 var ss = now.getSeconds();           //秒
+
+                 var clock = year + "-";
+
+                 if (month < 10)
+                     clock += "0";
+
+                 clock += month + "-";
+
+                 if (day < 10)
+                     clock += "0";
+
+                 clock += day + " ";
+
+                 if (hh < 10)
+                     clock += "0";
+
+                 clock += hh + ":";
+                 if (mm < 10) clock += '0';
+                 clock += mm + ":";
+
+                 if (ss < 10) clock += '0';
+                 clock += ss;
+                 return (clock);
+             }
+             function initControl() {
+
+                 //$("#Plant").bindSelect({
+                 //    url: "/ProduceManage/KeyParts/GetGroupPlant",
+                 //    id: "F_Id",
+                 //    text: "F_ItemName"
+                 //});
+                 $("#Process").bindSelect({
+                     url: "/SystemManage/User/GetProcessListJson",
+                     id: "F_Id",
+                     text: "OpName"
+                 });
+
+                 $("#Station").bindSelect({
+                     url: "/ProduceManage/KeyParts/GetGroupStation",
+                     id: "F_Id",
+                     text: "StationName"
+                 });
+             }
+             function btn_delete(rowKey) {
+                 
+                 $("#gridList").jqGrid("delRowData", rowKey);
+                 
+             }
+</script>
+<div id="areascontent">
+    <div class="rows" style="margin-bottom: 1%; border: 1px solid #e6e6e6; overflow: hidden; padding-left: 1px;">
+        <div style="border: none; border-radius: 0px; margin-bottom: 0px; box-shadow: none; -webkit-box-shadow: none; font-size: 20px">
+            <table style="border-collapse: separate; border-spacing: 0px 2px; width: 100%; height: 300px; padding-left: 10px;margin-top:5px;">
+                <tr>
+                    <td>
+                        当前车间：<select id="Plant" name="Plant" style="width: 180px; height: 24px; padding: 6px 12px; line-height: 1.42857143; color: blue; background-color: #fff; background-image: none; border: 1px solid #ddd; border-radius: 4px; -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075); box-shadow: inset 0 1px 1px rgba(0,0,0,.075); -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s; -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s; transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s">
+                            <option value="">==请选择==</option>
+                            <option value="StampingShop">冲压车间</option>
+                            <option value="WeldingShop">焊装车间</option>
+                            <option value="PaintShop">涂装车间</option>
+                            <option value="AssemblyShop">总装车间</option>
+                            <option value="InspectionShop">交检车间</option>
+                        </select>
+
+                    </td>
+                    <td>
+                        当前工序：<select id="Process" name="Process" style="width: 250px; height: 34px; padding: 6px 12px; line-height: 1.42857143; color: blue; background-color: #fff; background-image: none; border: 1px solid #ddd; border-radius: 4px; -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075); box-shadow: inset 0 1px 1px rgba(0,0,0,.075); -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s; -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s; transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s; ">
+                            <option value="0">==工序选择==</option>
+                        </select>
+                    </td>
+
+                    <td>
+                        当前站点：<select id="Station" name="Station" style="width: 250px; height: 34px; padding: 6px 12px; line-height: 1.42857143; color: blue; background-color: #fff; background-image: none; border: 1px solid #ddd; border-radius: 4px; -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075); box-shadow: inset 0 1px 1px rgba(0,0,0,.075); -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s; -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s; transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s; ">
+                            <option value="0">==站点选择==</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="70%" colspan="2">
+                        <input id="BarCode" type="text" placeholder="扫描条码" style="width:100%; height: 100px; font-size: 60px; float: left;background-color:yellow;">
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td height="50px;" colspan="3">
+                        <span id="tipTxt" style="font-size: 40px; float: left; color: red;"></span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="gridPanel" style="font-size:18px;">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>

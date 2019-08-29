@@ -1,0 +1,37 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    function btn_OpenloadLabor() {
+        $.modalOpen({
+            id: "Form",
+            title: "入库选择",
+            url: "/PressManage/PressStorage/UnloadLabor",
+            width: "900px",
+            height: "500px",
+            btn: null
+        });
+    }
+</script>
+
+
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+        <div style="padding-top: 20px; ">
+            <table class="form" style="text-align: center; border-collapse: separate; border-spacing: 0px 10px;">
+                <tr style="width:350px;">
+                    <td>
+                        <a    class="btn btn-primary " style="width: 150px; height: 40px; font-size: 24px;text-align:center" onclick="btn_import()">生产入库</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a class="btn btn-primary " style="width: 150px; height: 40px; font-size: 24px;text-align:center" onclick="btn_import()">委外件入库</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>
+

@@ -1,0 +1,102 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+
+    var keyValue = $.request("keyValue");
+    $(function () {
+        initControl();
+        if (!!keyValue) {
+            $.ajax({
+                url: "/OAManage/WorkDailyRecord/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                    console.log(data)
+                    $("#F_WorkUserId").append("<option  value='" + data.F_WorkUserId + "' selected>" + data.F_WorkUserName + "</option>")
+                    $("#F_WorkUserId").attr("disabled", "disabled")
+                }
+            });
+        }
+    });
+    function initControl() {
+       
+    
+    }
+    
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        $.submitForm({
+            url: "/OAManage/JobPerformance/SubmitFormPerformance?keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+  
+</script>
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">姓名</th>
+                    <td class="formValue">
+                        <select id="F_WorkUserId" name="F_WorkUserId" class="form-control required"></select>
+                    </td>
+                    <th class="formTitle">日期</th>
+                    <td class="formValue">
+                        <input id="F_WorkDate" name="F_WorkDate" type="text" class="form-control required " disabled>
+                    </td>
+                </tr>
+              
+                <tr>
+                    <th class="formTitle">上班地点</th>
+                    <td class="formValue" >
+                        <input id="F_WorkAddress" name="F_WorkAddress" type="text" class="form-control required " disabled>
+                    </td>
+                    <th class="formTitle">外场说明</th>
+                    <td class="formValue">
+                        <input id="F_WorkAddressCode" name="F_WorkAddressCode" type="text" class="form-control ">
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">出勤时间(H)</th>
+                    <td class="formValue">
+                        <input id="F_WorkedHours" name="F_WorkedHours" type="text" class="form-control ">
+                    </td>
+                    <th class="formTitle">已支付工时(H)</th>
+                    <td class="formValue">
+                        <input id="F_PayHours" name="F_PayHours" type="text" class="form-control ">
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">可调休工时(H)</th>
+                    <td class="formValue">
+                        <input id="F_RestHours" name="F_RestHours" type="text" class="form-control ">
+                    </td>
+                    <th class="formTitle">考核扣除工时(H)</th>
+                    <td class="formValue">
+                        <input id="F_DeductHours" name="F_DeductHours" type="text" class="form-control ">
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">饭贴</th>
+                    <td class="formValue">
+                        <input id="F_MealSubsidy" name="F_MealSubsidy" type="text" class="form-control ">
+                    </td>
+                    <th class="formTitle">津贴</th>
+                    <td class="formValue">
+                        <input id="F_WorkSubsidy" name="F_WorkSubsidy" type="text" class="form-control ">
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,87 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/LogisticManage/MaterialConsume/GetConsumeJson",
+            postData: {
+                DateStart: $('#DateStart').val(),
+                DateEnd: $('#DateEnd').val(),
+                keyword: $("#txt_keyword").val()
+            },
+            height: $(window).height() - 128,
+            colModel: [
+                         { label: '物料编号', name: 'MaterailCode', width: 150, align: 'center' },
+                         { label: '物料名称', name: 'MaterailCNName', width: 150, align: 'center' },
+                         { label: '工位号', name: 'StationCode', width: 150, align: 'center' },
+                         { label: '工位名称', name: 'StationName', width: 150, align: 'center' },
+                         { label: '消耗数量', name: 'ConsumeCount', width: 80, align: 'center' }
+            ],
+            pager: "#gridPager",
+            sortname: 'ConsumeCount',
+            rowNum: 10,
+            rowList: [10, 20, 30],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: {
+                    DateStart: $('#DateStart').val(),
+                    DateEnd: $('#DateEnd').val(),
+                    keyword: $("#txt_keyword").val()
+                },
+            }).trigger('reloadGrid');
+        });
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td style="padding-left: 10px;">
+                    <label for="PlanDateFrom">日期：</label>
+                </td>
+                <td>
+                    <div class="input-group">
+                        <input id="DateStart" value="@DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd")" name="DateStart" type="text" class="form-control input-wdatepicker" placeholder="" style="height: 28px; width: 150px;" onfocus="WdatePicker()">
+                    </div>
+                </td>
+                <td style="padding-left: 10px; padding-right: 10px">
+                    <label for="DateEnd">至</label>
+                </td>
+                <td>
+                    <div class="input-group">
+                        <input id="DateEnd" value="@DateTime.Now.ToString("yyyy-MM-dd")" name="DateEnd" type="text" class="form-control input-wdatepicker" placeholder="" style="height: 28px; width: 150px;" onfocus="WdatePicker()">
+                    </div>
+                </td>
+                <td></td>
+                <td style="padding-left: 10px;">
+                    <div class="input-group">
+                         <input id="txt_keyword" type="text" class="form-control" placeholder="物料/工位" style="width: 200px;">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+

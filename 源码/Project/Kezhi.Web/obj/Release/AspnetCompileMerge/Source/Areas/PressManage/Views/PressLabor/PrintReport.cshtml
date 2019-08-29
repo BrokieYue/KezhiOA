@@ -1,0 +1,108 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script src="~/Content/js/jqprint/jquery.jqprint-0.3.js"></script>
+<script src="~/Content/js/qrcode/jquery.qrcode.js"></script>
+<script src="~/Content/js/qrcode/qrcode.js"></script>
+<link media="print" href="~/Content/js/jqprint/jquery.jqprint.css" rel="stylesheet" />
+ 
+@model Kezhi.Domain.Entity.PressManage.PressUploadLaborViewEntity
+ 
+  <script>
+
+    var LineName;
+    var Batch =@Html.Raw(Json.Encode(@Model.BatchNo)) 
+         
+    $(function () {
+        top.$(".content-iframe").css("background-color", "#f9f9f9");
+        $(document).ready(function () {
+            $('#code').qrcode({
+                render: "table",
+                text: Batch,
+                width: "200",
+                height: "200"
+            });
+
+        })
+        
+       
+   
+    });
+
+    function btn_print() {
+        $("#print").jqprint();
+    }
+ 
+
+
+</script>
+
+<div style="position: absolute; top: 500px; right: 8px;">
+    <a class="btn btn-default " onclick="btn_print()"><i class="fa fa-print" style="margin-right: 5px; font-size: 20px;"></i>打印</a>
+</div>
+<div class="price-box"style="border: 1px solid #000">
+    <form id="form1">
+        <div id="print">
+            @*<div class="price-title">
+                   大成汽车·冲压车间
+                </div>
+                <div class="price-subtitle">
+
+                </div>*@
+            <div style="height:500px">
+           
+            </div>
+            <div class="price-info" style="border: 1px solid #000 ;padding:20px 20px">
+                <div class="price-title" id="LineName">
+                    @Model.ProductLineName 批次单
+                </div>
+                <table class="form" style="font-size:50px;">
+                    <tr>
+                        <th class="formTitle">批次号：</th>
+                        <td class="formValue" style="padding-right: 20px;" height="50px">
+                            <input value="@Model.BatchNo" type="text" class="form-control" />
+                        </td>
+                        <th class="formTitle"> </th>
+                        <td style="padding-left: 70px " rowspan="3" colspan="1" height="220px">
+                            <span id="code" style="width: 200px; height:200px">
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th class="formTitle">计划号：</th>
+                        <td class="formValue" style="padding-right: 20px;" height="50px">
+                            <input value="@Model.JobNo"   type="text" class="form-control " />
+                        </td>
+                        <th class="formTitle"></th>
+
+                    </tr>
+                    <tr>
+                        <th class="formTitle">物料编码：</th>
+                        <td class="formValue" style="padding-right: 20px;" height="50px">
+                            <input value="@Model.Vcode"   type="text" class="form-control" />
+                        </td>
+                        <th class="formTitle"></th>
+
+                    </tr>
+                    <tr>
+                        <th class="formTitle">报工数量：</th>
+                        <td class="formValue" style="padding-right: 20px;" height="50px">
+                            <input value="@Model.ProdPassQty"   type="text" class="form-control " />
+                        </td>
+                        <th class="formTitle">日&nbsp;&nbsp;&nbsp;&nbsp;期：</th>
+                        <td class="formValue" height="50px">
+                            <input type="text" class="form-control " value="@Kezhi.Code.Ext.ToMillisecondString(DateTime.Now)" />
+                        </td>
+                    </tr>
+                    <tr>
+
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+    </form>
+</div>

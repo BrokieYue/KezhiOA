@@ -1,0 +1,361 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+
+<script>
+    var keyValue = $.request("keyValue");
+    $(function () {
+        initControl();
+        if (!!keyValue) {
+            $.ajax({
+                url: "/BaseManage/VehicleCode/GetFormJson?keyValue" + keyValue,
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                }
+            });
+        }
+    });
+
+    function initControl() {
+        ////动力平台
+        //$("#PowerType").bindSelect({
+        //    url: "/BaseManage/VehicleCode/GetDicBaseList?pID=68aeeb20-03ef-42f9-a74e-d64a7265fee5",
+        //    id: "F_Id",
+        //    text: "F_ItemName" 
+        //});
+
+        //装配厂
+        $("#AssemblyPlantID").bindSelect({
+            url: "/BaseManage/VehicleCode/GetDicBaseList?pID=cb3075b9-d668-4c1a-8102-caa644a72111",
+            id: "F_Id",
+            text: "F_ItemName" 
+        });
+
+        //平台定义
+        $("#CarModel").bindSelect({
+            url: "/BaseManage/VehicleCode/GetDicBaseList?pID=9aa54f84-0756-4eee-8b6f-eab5b6e2c843",
+            id: "F_Id",
+            text: "F_ItemName" 
+        });
+        ////类别
+        //$("#CarType").bindSelect({
+        //    url: "/BaseManage/VehicleCode/GetDicBaseList?pID=42001a22-83d8-4e51-9699-cb4d80005c11",
+        //    id: "F_Id",
+        //    text: "F_ItemName" 
+        //});
+        ////顺序号
+        //$("#ProjectQue").bindSelect({
+        //    url: "/BaseManage/VehicleCode/GetDicBaseList?pID=e4365c22-80fb-4ff3-bd6a-95865b940466",
+        //    id: "F_Id",
+        //    text: "F_ItemName" 
+        //});
+        ////派生车型
+        //$("#InherCarType").bindSelect({
+        //    url: "/BaseManage/VehicleCode/GetDicBaseList?pID=368d5e2a-0984-4a7d-943b-45f03ab615b2",
+        //    id: "F_Id",
+        //    text: "F_ItemName" 
+        //});
+        //发动机厂家/型号
+        $("#EngineType").bindSelect({
+            url: "/BaseManage/VehicleCode/GetDicBaseList?pID=2e5b0569-1fb7-428e-b476-b5e5060596fc",
+            id: "F_Id",
+            text: "F_ItemName" 
+        });
+        //变速箱厂家/型式
+        $("#Gearbox").bindSelect({
+            url: "/BaseManage/VehicleCode/GetDicBaseList?pID=1ff33b3e-bf4f-4b31-9fde-9817d35b6dbe",
+            id: "F_Id",
+            text: "F_ItemName" 
+        });
+        //驱动形式
+        $("#Drive").bindSelect({
+            url: "/BaseManage/VehicleCode/GetDicBaseList?pID=e6c1d358-c3ec-4a79-becb-248cb0ac6990",
+            id: "F_Id",
+            text: "F_ItemName" 
+        });
+        //排放标准
+        $("#EmissionSTD").bindSelect({
+            url: "/BaseManage/VehicleCode/GetDicBaseList?pID=ad6dcb34-2e0c-446c-a54a-ab3d57a16426",
+            id: "F_Id",
+            text: "F_ItemName" 
+        });
+        //配置
+        $("#Config").bindSelect({
+            url: "/BaseManage/VehicleCode/GetDicBaseList?pID=50c34583-e450-4d58-b130-86f3cd08e5a8",
+            id: "F_Id",
+            text: "F_ItemName" 
+        });
+        //车身色系
+        $("#Outlook").bindSelect({
+            url: "/BaseManage/VehicleCode/GetDicBaseList?pID=7bd3a973-2453-4e0a-8ae2-be398d28edce",
+            id: "F_Id",
+            text: "F_ItemName" 
+        });
+        //内饰色系
+        $("#Inside").bindSelect({
+            url: "/BaseManage/VehicleCode/GetDicBaseList?pID=f1e79e62-3f3f-4e3c-8aa0-9f3525786325",
+            id: "F_Id",
+            text: "F_ItemName" 
+        });
+        //生产标识
+        $("#ProduceFlag").bindSelect({
+            url: "/BaseManage/VehicleCode/GetDicBaseList?pID=acabc883-df8a-47cf-9aaf-28a8bb20ea9e",
+            id: "F_Id",
+            text: "F_ItemName" 
+        });
+    }
+
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        var vCode = $("#VinValue").val();
+
+        if (vCode.length != 5)
+        {
+            $.modalAlert("4-8位代码段必须为5位长度，请重新输入！", "warning")
+            return false;
+        }
+
+        $.submitForm({
+            url: "/BaseManage/VehicleCode/SubmitForm?keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+
+    function CreateCode(id,v,vid,val) {
+        if (id == "")
+            return;
+        if (id == '*') {
+            document.getElementById("Vcode").value = replacePos($("#Vcode").val(), v, id);
+            return;
+        }
+        if (id == '**') {
+            var rtStr = replacePos($("#Vcode").val(), v, "*");
+            document.getElementById("Vcode").value = replacePos(rtStr, v + 1, "*");
+            return;
+        }
+        var str = $("#Vcode").val();
+        var cvr = $("#ItemName").val();
+        $.ajax({
+            url: "/BaseManage/VehicleCode/GetItemCode",
+            data: { keyword: id },
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                    if (data.Result.length > 0) {
+                        for(var i=0;i<data.Result.length;i++)
+                        {
+                            str = replacePos(str, v + i, data.Result.substr(i, 1));
+                        }
+                    }
+                    document.getElementById("Vcode").value = str;
+                }
+        });
+        document.getElementById(vid).value = val;
+        document.getElementById("ItemName").value = document.getElementById('Vin1').value + document.getElementById('Vin2').value +   document.getElementById('Vin3').value +   document.getElementById('Vin4').value +   document.getElementById('Vin5').value +   document.getElementById('Vin6').value +   document.getElementById('Vin7').value +   document.getElementById('Vin8').value;
+        //$.ajax({
+        //    url: "/BaseManage/VehicleCode/CreateDescription",
+        //    data: { keyword: id },
+        //    dataType: "json",
+        //    async: false,
+        //    success: function (data) {
+        //        if (data.Result.length > 0) {
+        //            for (var i = 0; i < data.Result.length; i++) {
+        //                cvr = cvr + data.Result.substr(i, 1);
+                       
+        //            }
+        //        }
+        //        //if (!!cvr) {
+        //        //    if (cvr.substring(1,cvr.length-1) != "-") {
+        //        //        alert(cvr.substring(1, cvr.length - 1));
+        //        //        cvr += "-"
+        //        //    }
+                   
+        //        //}
+        //        document.getElementById("ItemName").value = cvr;
+        //    }
+        //});
+
+    }
+
+    function replacePos(strObj, pos, replacetext)
+    {
+        var str = strObj.substr(0, pos-1) + replacetext + strObj.substring(pos, strObj.length);
+        return str;
+    }
+
+</script>
+
+
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">装配厂</th>
+                    <td class="formValue">
+                        <select id="AssemblyPlantID" name="AssemblyPlantID" class="form-control required" aria-readonly="True">
+                            <option value="">==请选择==</option>
+                        </select>
+                    </td>
+                    <th class="formTitle">车型平台</th>
+                    <td class="formValue">
+                        <select id="CarModel" name="CarModel" class="form-control required" onchange="CreateCode(this.options[this.options.selectedIndex].value, 1, 'Vin1', this.options[this.options.selectedIndex].text.split('|')[1])">
+                            <option value="">==请选择==</option>
+                        </select>
+                        <span style="display:none;" >
+                            <input id="Vin1" name="Vin1" type="text" />
+                        </span>
+                    </td>
+                </tr>       
+               @*  <tr>
+                        <th class="formTitle">类别</th>
+                        <td class="formValue">
+                            <select id="CarType" name="CarType" class="form-control" aria-readonly="True" onchange="CreateCode(this.options[this.options.selectedIndex].value,2)">
+                                <option value="*">==请选择==</option>
+                            </select>
+                        </td>*@
+                    @*<th class="formTitle">派生车型</th>
+                <td class="formValue">
+                    <select id="InherCarType" name="InherCarType" class="form-control" aria-readonly="True" onchange="CreateCode(this.options[this.options.selectedIndex].value,4)">
+                        <option value="*">==请选择==</option>
+                    </select>
+                </td>
+            </tr>*@
+               @* <tr>
+
+                <th class="formTitle">顺序号</th>
+                 <td class="formValue">
+                     <select id="ProjectQue" name="ProjectQue" class="form-control" aria-readonly="True" onchange="CreateCode(this.options[this.options.selectedIndex].value,3)">
+                         <option value="*">==请选择==</option>
+                     </select>
+                 </td>
+
+                </tr>*@
+                <tr>
+                    <th class="formTitle">发动机厂家/型号</th>
+                    <td class="formValue">
+                        <select id="EngineType" name="EngineType" class="form-control required" aria-readonly="True" onchange="CreateCode(this.options[this.options.selectedIndex].value, 5, 'Vin2', this.options[this.options.selectedIndex].text.split('|')[1])">
+                            <option value="">==请选择==</option>
+                        </select>
+                        <span style="display:none;">
+                            <input id="Vin2" name="Vin2" type="text" />
+                        </span>
+                    </td>
+                    <th class="formTitle">变速箱厂家/型式</th>
+                    <td class="formValue">
+                        <select id="Gearbox" name="Gearbox" class="form-control required" aria-readonly="True" onchange="CreateCode(this.options[this.options.selectedIndex].value, 7, 'Vin3', this.options[this.options.selectedIndex].text.split('|')[1])">
+                            <option value="">==请选择==</option>
+                        </select>
+                        <span style="display:none;">
+                            <input id="Vin3" name="Vin3" type="text" />
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">驱动形式</th>
+                    <td class="formValue">
+                        <select id="Drive" name="Drive" class="form-control required" aria-readonly="True" onchange="CreateCode(this.options[this.options.selectedIndex].value, 9, 'Vin4', this.options[this.options.selectedIndex].text.split('|')[1])">
+                            <option value="">==请选择==</option>
+                        </select>
+                        <span style="display:none;">
+                            <input id="Vin4" name="Vin4" type="text" />
+                        </span>
+                    </td>
+                    <th class="formTitle">排放标准</th>
+                    <td class="formValue">
+                        <select id="EmissionSTD" name="EmissionSTD" class="form-control required" aria-readonly="True" onchange="CreateCode(this.options[this.options.selectedIndex].value, 10, 'Vin5', this.options[this.options.selectedIndex].text.split('|')[1])">
+                            <option value="">==请选择==</option>
+                        </select>
+                        <span style="display:none;">
+                            <input id="Vin5" name="Vin5" type="text" />
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">配置</th>
+                    <td class="formValue">
+                        <select id="Config" name="Config" class="form-control" aria-readonly="True" onchange="CreateCode(this.options[this.options.selectedIndex].value, 11, 'Vin6', this.options[this.options.selectedIndex].text.split('|')[1])">
+                            <option value="**">==请选择==</option>
+                        </select>
+                        <span style="display:none;">
+                            <input id="Vin6" name="Vin6" type="text" />
+                        </span>
+                    </td>
+                    <th class="formTitle">车身色系</th>
+                    <td class="formValue">
+                        <select id="Outlook" name="Outlook" class="form-control required" aria-readonly="True" onchange="CreateCode(this.options[this.options.selectedIndex].value, 13, 'Vin7', this.options[this.options.selectedIndex].text.split('|')[1])">
+                            <option value="">==请选择==</option>
+                        </select>
+                        <span style="display:none;">
+                            <input id="Vin7" name="Vin7" type="text" />
+                        </span>
+                    </td>
+                </tr>
+                <tr>  
+                    <th class="formTitle">内饰色系</th>
+                    <td class="formValue">
+                        <select id="Inside" name="Inside" class="form-control required" aria-readonly="True" onchange="CreateCode(this.options[this.options.selectedIndex].value, 16, 'Vin8', this.options[this.options.selectedIndex].text.split('|')[1])">
+                            <option value="">==请选择==</option>
+                        </select>
+                        <span style="display:none;">
+                            <input id="Vin8" name="Vin8" type="text" />
+                        </span>
+                    </td>
+                    <th class="formTitle">生产标识</th>
+                    <td class="formValue">
+                        <select id="ProduceFlag" name="ProduceFlag" class="form-control required" aria-readonly="True">
+                            <option value="">==请选择==</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    @*<th class="formTitle">是否有天窗</th>
+                    <td class="formValue">
+                        <select id="SkylightMark" name="SkylightMark" class="form-control required" aria-readonly="True">
+                            <option value="">==请选择==</option>
+                            <option value="1">Y</option>
+                            <option value="0">N</option>
+                        </select>
+                    </td>*@
+                    <th class="formTitle">4-8位代码段</th>
+                    <td class="formValue">
+                        <input id="VinValue" name="VinValue" type="text" class="form-control required" maxlength="5" />
+                    </td>
+                    <th class="formTitle">整车编号</th>
+                    <td class="formValue">
+                        <input id="Vcode" name="Vcode" type="text" style="color:red;" class="form-control" readonly="readonly" value="******************" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">整车描述</th>
+                    <td class="formValue">
+                        <input id="ItemName" name="ItemName" type="text" class="form-control required" />
+                    </td>
+                    
+                </tr>
+                <tr>
+                    <th class="formTitle" valign="top" style="padding-top: 11px;">备注</th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="F_Description" name="F_Description" class="form-control" style="height: 60px;"></textarea>
+                    </td>
+                    @*<th class="formTitle" style="display:none;">动力类型</th>
+                    <td class="formValue" style="display:none;">
+                        <select id="PowerType" name="PowerType" class="form-control" onchange="CreateCode(this.options[this.options.selectedIndex].value,1)">
+                            <option value="*">==请选择==</option>
+                        </select>
+                    </td>*@
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>
+

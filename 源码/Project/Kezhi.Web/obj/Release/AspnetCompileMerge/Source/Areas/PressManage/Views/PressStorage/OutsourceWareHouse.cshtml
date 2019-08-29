@@ -1,0 +1,82 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+
+<script>
+
+    $(function () {
+        initControl();
+    })
+
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        $.submitForm({
+            url: "/PressManage/PressStorage/SubmitForm",
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+
+    function initControl() {
+        //仓库
+        $("#StorageID").bindSelect({
+            url: "/PressManage/PressStorage/GetStorageList?pID=9f8c65c8-67fd-4d76-a7ba-33b079547893",
+            id: "F_Id",
+            text: "F_ItemName"
+        })
+    }
+
+</script>
+
+
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">物料批次号</th>
+                    <td class="formValue">
+                        <input id="BatchNo" name="BatchNo" type="text" class="form-control required"  />
+                    </td>
+                    <th class="formTitle">物料编号</th>
+                    <td class="formValue">
+                        <input id="Vcode" name="Vcode" type="text" class="form-control required" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">物料特性值</th>
+                    <td class="formValue">
+                        <input id="LOT_Code" name="LOT_Code" type="text" class="form-control required" />
+                    </td>
+                    <th class="formTitle">入库数量</th>
+                    <td class="formValue">
+                        <input id="InvAmount" name="InvAmount" type="text" class="form-control required" onkeyup="value=value.replace(/[^\d]/g,'')" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">入库仓库</th>
+                    <td class="formValue">
+                        <select id="StorageID" name="StorageID" class="form-control required"> 
+                        <option value="">==库房选择==</option> </select>
+                    </td>
+                    <th class="formTitle">供应商名称</th>
+                    <td class="formValue">
+                        <input id="Supplier" name="Supplier" type="text" class="form-control required" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle" valign="top" style="padding-top: 11px;">入库说明</th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="InDesc" name="InDesc" class="form-control" style="height: 60px;"></textarea>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>
+

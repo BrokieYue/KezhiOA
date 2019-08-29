@@ -1,0 +1,105 @@
+﻿@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    var keyValue = $.request("keyValue");
+    $(function () {
+        initControl();
+        $.ajax({
+            url: "/StationManage/StationInfo/GetFormJson",
+            data: { keyValue: keyValue },
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                $("#form1").formSerialize(data);
+                $("#form1").find('.form-control,select,input').attr('readonly', 'readonly');
+                $("#form1").find('div.ckbox label').attr('for', '');
+            }
+        });
+    });
+    function initControl() {
+        $("#AreaCode").bindSelect({
+            url: "/StationManage/LineArea/GetAreaList",
+            id: "AreaCode",
+            text: "AreaCode"
+        });
+        $("#StationType").bindSelect();
+    }
+</script>
+
+<form id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+
+            <tr>
+                <th class="formTitle">区域编码</th>
+                <td class="formValue">
+                    <select id="AreaCode" name="AreaCode" class="form-control" aria-readonly="true">
+                    </select>
+                </td>
+                <th class="formTitle">区域名称</th>
+                <td class="formValue">
+                    <input id="AreaName" name="AreaName" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">工位编码</th>
+                <td class="formValue">
+                    <input id="StationCode" name="StationCode" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">工位名称</th>
+                <td class="formValue">
+                    <input id="StationName" name="StationName" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">工位描述</th>
+                <td class="formValue">
+                    <input id="StationDesc" name="StationDesc" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">工位序号</th>
+                <td class="formValue">
+                    <input id="StationNo" name="StationNo" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">工位类型</th>
+                <td class="formValue">
+                    <select id="StationType" name="StationType" class="form-control" aria-readonly="true">
+                        <option value="">==请选择==</option>
+                        <option value="0">手动工位</option>
+                        <option value="1">自动工位</option>
+                        <option value="2">上件工位</option>
+                        <option value="3">质量采集点</option>
+                        <option value="4">返修工位</option>
+                        <option value="5">上线工位</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">上件看板数量</th>
+                <td class="formValue">
+                    <input id="OnViewPanel" name="OnViewPanel" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">机器人数量</th>
+                <td class="formValue">
+                    <input id="RobotCount" name="RobotCount" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">PLC编码</th>
+                <td class="formValue">
+                    <input id="PLCCode" name="PLCCode" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle" style="padding-top: 5px;">备注
+                </th>
+                <td class="formValue" colspan="3">
+                    <textarea id="F_Description" name="F_Description" class="form-control" style="height: 60px;"></textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>

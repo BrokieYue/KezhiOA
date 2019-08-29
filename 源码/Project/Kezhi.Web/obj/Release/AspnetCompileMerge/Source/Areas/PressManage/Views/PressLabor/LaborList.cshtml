@@ -1,0 +1,541 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script language="javascript" src="~/Content/js/lodop/LodopFuncs.js"></script>
+<object id="LODOP_OB" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width=0 height=0>
+    <embed id="LODOP_EM" type="application/x-print-lodop" width=0 height=0 pluginspage="~/Content/js/lodop/install_lodop64.exe"></embed>
+</object>
+<script>
+    var LODOP;  //打印控件
+    var RealName;
+    $(function () {
+        gridList();
+        
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/PressManage/PressLabor/GetLaborQAJson",
+            height: $(window).height() - 132,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "批次号", name: "BatchNo", width: 120, align: 'left' },
+                {
+                    label: '状态', name: 'BatchStateStr', width: 70, align: 'left', formatter: function (cellvalue, options, rowObject) {
+
+                        if (rowObject.BatchState == 1) {
+                            return '<span>未入库</span>';
+                        }
+                        if (rowObject.BatchState == 2) {
+                            return '<span>已入库</span>';
+                        }
+                        if (rowObject.BatchState == 3) {
+                            return '<span>返工库</span>';
+                        }
+                        if (rowObject.BatchState == 4) {
+                            return '<span>AUDIT</span>';
+                        }
+                        if (rowObject.BatchState == 5) {
+                            return '<span>报废</span>';
+                        }
+                    }
+                },
+                {
+                    label: '质检状态', name: 'BatchQAFlagStr', width: 70, align: 'left', formatter: function (cellvalue, options, rowObject) {
+
+                        if (rowObject.BatchQAFlag == 1) {
+                            return '<span>未质检</span>';
+                        }
+                        if (rowObject.BatchQAFlag == 2) {
+                            return '<span>已质检</span>';
+                        }
+                    }
+                },
+                { label: '质检状态', name: 'BatchQAFlag', width: 130, align: 'left', hidden: true },
+                 { label: '状态号', name: 'BatchState', width: 130, align: 'left', hidden: true},
+                { label: '物料编号', name: 'Vcode', width: 130, align: 'left' },
+                  { label: '物料名称', name: 'ItemName', width: 100, align: 'left' },
+                
+                { label: '特性值', name: 'LOT_Code', width: 50, align: 'left' },
+                { label: '计划号', name: 'JobNo', width: 100, align: 'left' },
+                { label: '计划类型', name: 'Type_Name', width: 90, align: 'left' },
+                { label: '数量', name: 'ProdPassQty', width: 50, align: 'left' },
+
+                { label: '操作员', name: 'F_CreatorUserName', width: 80, align: 'left' },
+                {
+                    label: '报工时间', name: 'F_CreatorTime', width: 130, align: 'left',  formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "" && cellvalue != null && cellvalue != undefined)
+                            return   cellvalue.substr(0, 19)  ;
+                        else
+                            return '';
+                    }
+                },
+               { label: '拆单来源批次号', name: 'OrigBatchNo', width: 120, align: 'left' },
+                 { label: '质检人', name: 'QACreatorUserName', width: 80, align: 'left' },
+                {
+                    label: '质检时间', name: 'QACreatorTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "" && cellvalue != null && cellvalue != undefined)
+                            return cellvalue.substr(0, 19);
+                        else
+                            return '';
+                    }
+                },
+               { label: '备注', name: 'F_Description', width: 130, align: 'left' },
+               { label: '打印次数', name: 'PrintCount', width: 60, align: 'left' },
+
+            ],
+            pager: "#gridPager",
+            sortname: 'F_CreatorTime asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyword: $("#keywords").val(), typeCode: $("#Type_Code").val(), bState: $("#BatchState").val(), bSource: $("#BatchSource").val(), starttime: $("#DeliveryTime_start").val(), endtime: $("#DeliveryTime_end").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+    }
+    function PrintRepo() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        var batch = $("#gridList").jqGridRowValue().BatchNo;
+        var jobNo = $("#gridList").jqGridRowValue().JobNo;
+        var Vcode = $("#gridList").jqGridRowValue().Vcode;
+        var tQty = $("#gridList").jqGridRowValue().ProdPassQty;
+        var frequency = $("#gridList").jqGridRowValue().PrintCount;
+        var temName = $("#gridList").jqGridRowValue().ItemName;
+        var UserName = $("#gridList").jqGridRowValue().F_CreatorUserName;
+        var CreatorTime = $("#gridList").jqGridRowValue().F_CreatorTime;
+        var QAUserName = $("#gridList").jqGridRowValue().QACreatorUserName;
+        var QACreatorTime = $("#gridList").jqGridRowValue().QACreatorTime;
+        var QAFlag = $("#gridList").jqGridRowValue().BatchQAFlag
+        var BagBatch;
+        var State = $("#gridList").jqGridRowValue().BatchState;
+        if (!keyValue) {
+            $.modalAlert("请选中一行数据", "warning");
+            return false;
+        } else {
+            $.ajax({
+                url: "/PressManage/PressLabor/GetBagSn",
+                data: { BatchNo: batch },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    BagBatch = data.Result
+                    
+                }
+            });
+            //$.modalOpen({
+            //    id: "PrintReport",
+            //    title: "批次打印",
+            //    url: "/PressManage/PressLabor/PrintReport?keyValue=" + keyValue,
+            //    width: "1200px",
+            //    height: "1900px",
+            //    btn: null,
+
+            //});
+            //调用打印模板  -yangxin
+            CreateVINPrintPage(batch, jobNo, Vcode, tQty, BagBatch, temName, State, UserName, CreatorTime, QAFlag, QAUserName, QACreatorTime)
+            //调用打印预览方法 -yangxin
+            LODOP.PREVIEW();
+            //传值到后台更新打印次数--bichen
+            $.ajax({
+                url: "/PressManage/PressLabor/ComptSendJsons",
+                data: { keyValue: batch },
+                //type: "post",
+                async: false,
+                dataType: "json",
+                success: function (data) {
+                 //  window.location.href = '/PressManage/PressLabor/LaborList';
+                }
+            })
+
+        }
+    }
+    function CreateVINPrintPage(batch, jobNo, Vcode, tQty, ItemBagBatch, mName, State, UserName, CreatorTime, QAFlag, QAUserName, QACreatorTime) {
+        var date = getNowFormatDate();
+        var titleName = "";
+        LODOP = getLodop();
+     
+        if (State == 1 || State == 2 || State == 3 && QAFlag==2) {
+            titleName = "合格件批次单"
+        }
+        if (State == 3 && QAFlag != 2) {
+            titleName = "返工件批次单"
+        }
+        if (State == 5) {
+            titleName = "报废件批次单"
+        }
+
+        LODOP.PRINT_INITA(0, 0, 790, 1125, "冲压报工补打印");
+        LODOP.SET_PRINT_PAGESIZE(1, 0, 0, "A4");
+        LODOP.SET_PRINT_MODE("PRINT_NOCOLLATE", 1);
+        LODOP.ADD_PRINT_SHAPE(4, 588, 64, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 639, 64, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(597, 66, 631, 50, titleName);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 24);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 689, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 741, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 792, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 847, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 886, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 588, 64, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(656, 64, 105, 25, "零件号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(711, 64, 100, 24, "零件名称");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(758, 64, 100, 26, "捆包号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(812, 64, 100, 25, "生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(858, 64, 100, 28, "生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 927, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(897, 64, 100, 24, "批次数量");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(966, 64, 100, 50, "检验员");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+  
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+     
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 640, 175, 1, 440, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 1034, 64, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 1080, 64, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 588, 698, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 849, 353, 1, 185, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(854, 364, 120, 30, "原生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 847, 495, 1, 187, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(973, 370, 100, 40, "批次条码");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(901, 366, 100, 20, "原生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+   
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_TEXT(894, 176, 175, 31, tQty);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(1050, 69, 100, 20, "批次号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 27, 65, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 78, 65, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(36, 67, 631, 50, titleName);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 24);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 128, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 180, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 231, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 286, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 325, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 27, 65, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(95, 65, 105, 25, "零件号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(150, 65, 100, 24, "零件名称");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(197, 65, 100, 26, "捆包号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(251, 65, 100, 25, "生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(297, 65, 100, 28, "生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 366, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(336, 65, 100, 24, "批次数量");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(405, 65, 100, 50, "检验员");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+    
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+   
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 79, 176, 1, 440, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 473, 65, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 519, 65, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 27, 699, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 288, 354, 1, 185, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(295, 365, 105, 25, "原生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 286, 496, 1, 187, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(412, 371, 100, 40, "批次条码");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+  
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(340, 367, 100, 20, "原生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+  
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_TEXT(332, 180, 170, 26, tQty);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(489, 70, 100, 20, "批次号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+
+        LODOP.ADD_PRINT_TEXT(748, 178, 514, 41, ItemBagBatch);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(696, 178, 514, 41, mName);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(648, 178, 515, 41, Vcode);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(186, 180, 512, 41, ItemBagBatch);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(135, 179, 512, 41, mName);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(87, 179, 512, 41, Vcode);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_BARCODE(374, 553, 102, 94, "QRCode", batch);
+        LODOP.ADD_PRINT_BARCODE(938, 547, 102, 94, "QRCode", batch);
+
+        LODOP.ADD_PRINT_TEXT(1046, 185, 463, 30, batch);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 15);
+        LODOP.ADD_PRINT_TEXT(485, 180, 506, 30, batch);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 15);
+  
+        if (State == 3 && QAFlag != 2) {
+
+
+            LODOP.ADD_PRINT_SHAPE(4, 588, -40, 100, 60, 0, 1, "#000000");
+            LODOP.ADD_PRINT_SHAPE(4, 587, 704, 100, 60, 0, 1, "#000000");
+            LODOP.ADD_PRINT_SHAPE(4, -36, 705, 100, 90, 0, 1, "#000000");
+            LODOP.ADD_PRINT_SHAPE(4, -16, -39, 100, 70, 0, 1, "#000000");
+            LODOP.ADD_PRINT_SHAPE(4, 1037, 703, 100, 85, 0, 1, "#000000");
+            LODOP.ADD_PRINT_SHAPE(4, 1038, -31, 92, 81, 0, 1, "#000000");
+            LODOP.ADD_PRINT_SHAPE(4, 460, 705, 85, 60, 0, 1, "#000000");
+            LODOP.ADD_PRINT_SHAPE(4, 460, -40, 100, 60, 0, 1, "#000000");
+       
+        }  
+        if (State == 1 && QAFlag == 2) {
+
+            LODOP.ADD_PRINT_TEXT(896, 519, 165, 25, CreatorTime);//原生产日期
+            LODOP.ADD_PRINT_TEXT(335, 505, 185, 28, CreatorTime);//原生产日期
+            LODOP.ADD_PRINT_TEXT(292, 520, 165, 30, UserName);//原班组
+            LODOP.ADD_PRINT_TEXT(853, 519, 165, 30, UserName);//原班组
+            LODOP.ADD_PRINT_TEXT(800, 180, 512, 41, QACreatorTime);
+            LODOP.ADD_PRINT_TEXT(237, 179, 514, 41, QACreatorTime);
+            LODOP.ADD_PRINT_TEXT(855, 180, 171, 28, QAUserName);
+            LODOP.ADD_PRINT_TEXT(295, 181, 171, 28, QAUserName);
+        } else {
+            LODOP.ADD_PRINT_TEXT(896, 519, 165, 25, "");//原生产日期
+            LODOP.ADD_PRINT_TEXT(335, 505, 185, 28, "");//原生产日期
+            LODOP.ADD_PRINT_TEXT(292, 520, 165, 30, "");//原班组
+            LODOP.ADD_PRINT_TEXT(853, 519, 165, 30, "");//原班组
+            LODOP.ADD_PRINT_TEXT(800, 180, 512, 41, CreatorTime);
+            LODOP.ADD_PRINT_TEXT(237, 179, 514, 41, CreatorTime);
+            LODOP.ADD_PRINT_TEXT(855, 180, 171, 28, UserName);
+            LODOP.ADD_PRINT_TEXT(295, 181, 171, 28, UserName);
+
+
+        }
+        // LODOP.SET_PRINT_MODE("WINDOW_DEFPAGESIZE:打印机名称或序号", 纸张名称);
+        //LODOP.SET_PRINTER_INDEX("HP LaserJet Professional P1106 (副本 1)");
+        LODOP.SET_PRINT_PAGESIZE(1, 0, 0, "A4");//设置纸型
+        // LODOP.SET_PRINT_MODE("CATCH_PRINT_STATUS", true);
+    }
+    //返回当前时间    -yangxin
+    function getNowFormatDate() {
+        var now = new Date();
+
+        var year = now.getFullYear();       //年
+        var month = now.getMonth() + 1;     //月
+        var day = now.getDate();            //日
+
+        var hh = now.getHours();            //时
+        var mm = now.getMinutes();          //分
+        var ss = now.getSeconds();           //秒
+
+        var clock = year + "-";
+
+        if (month < 10)
+            clock += "0";
+
+        clock += month + "-";
+
+        if (day < 10)
+            clock += "0";
+
+        clock += day + " ";
+
+        if (hh < 10)
+            clock += "0";
+
+        clock += hh + ":";
+        if (mm < 10) clock += '0';
+        clock += mm + ":";
+
+        if (ss < 10) clock += '0';
+        clock += ss;
+        return (clock);
+    }
+
+    //返回上一层--bichen
+    function historyback() {
+        history.back(-1);
+    }
+    //清空文本框--bichen
+    function clean() {
+        $("#keywords").val("");
+        $("#Type_Code").val("");
+        $("#BatchState").val("");
+        $("#BatchSource").val("");
+        $("#DeliveryTime_start").val("");
+        $("#DeliveryTime_end").val("");
+    }
+    function btn_selete() {
+        var BatchNo = $("#gridList").jqGridRowValue().BatchNo;
+        var qaflag = $("#gridList").jqGridRowValue().BatchQAFlag;
+        if (BatchNo) {
+            if (qaflag == 2) {
+                $.modalOpen({
+                    id: "Index",
+                    title: "质检明细",
+                    url: "/QualitycheManage/StampingQuality/DetailListIndex?BatchNo=" + BatchNo + "",
+                    width: "1300px",
+                    height: "500px",
+                    btn: null,
+
+                });
+            }
+            else {
+                $.modalAlert("选择的批次未质检！", "warning")
+                return false;
+            }
+        } else {
+            $.modalAlert("请选择一条有效数据！", "warning")
+            return false;
+        }
+
+    }
+    function btn_edit() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        var BatchQAFlag = $("#gridList").jqGridRowValue().BatchQAFlag;
+        var BatchState = $("#gridList").jqGridRowValue().BatchState;
+        var ProdPassQty = $("#gridList").jqGridRowValue().ProdPassQty;
+        if (!!keyValue) {
+            if (BatchQAFlag != 1 || BatchState == 2 || BatchState == 5) {
+                $.modalAlert("已入库或已质检不能拆单！", "warning")
+                return false;
+            } else {
+                $.modalOpen({
+                    id: "Form",
+                    title: "批次拆分",
+                    url: "/PressManage/PressLabor/LaborListForm?keyValue=" + keyValue + "&ProdPassQty=" + ProdPassQty + "",
+                    width: "380px",
+                    height: "220px",
+                    callBack: function (iframeId) {
+                        top.frames[iframeId].submitForm();
+                    }
+                });
+            }
+           
+        } else {
+            $.modalAlert("请选中一行", "warning");
+            return false;
+        }
+    }
+</script>
+            <div class="topPanel">
+                <div class="toolbar">
+                    <div class="btn-group">
+                        <a id="btn_send" class="btn btn-primary " style="width: 100px;    text-align: center" onclick="PrintRepo()">打印</a>
+                    </div>
+                    <div class="btn-group">
+                        <a id="NF-selete" authorize="yes" class="btn btn-primary " onclick="btn_selete()"><i class="fa fa-search"></i>质检结果明细</a>
+                    </div>
+                    @*返回上一层--bichen*@
+                    <div class="btn-group">
+                        <a id="NF-edit" authorize="yes" class="btn btn-primary " onclick="btn_edit()"><i class="fa fa-edit"></i>批次拆单</a>
+                    </div>
+                </div>
+                <div class="search">
+                    <table>
+                        <tr>
+                            <td>
+                                <div class="input-group">
+                                    <input id="keywords" type="text" class="form-control" placeholder="批次号/物料编号" style="width: 200px; margin-right:10px">
+                                    <select id="Type_Code" name="Type_Code" class="form-control" style="width: 120px; margin-right: 5px">
+                                        <option value="">==计划类型==</option>
+                                        <option value="CA">冲压A计划</option>
+                                        <option value="CB">冲压B计划</option>
+                                        <option value="CL">落料计划</option>
+                                        <option value="CT">凸焊计划</option>
+                                    </select>
+                                    <select id="BatchState" name="BatchState" class="form-control" style="width:120px; margin-right:5px">
+                                        <option value="">==批次号状态==</option>
+                                        <option value="1">未入库</option>
+                                        <option value="2">已入库</option>
+                                        <option value="3">返工库</option>
+                                        <option value="4">AUDIT</option>
+                                    </select>
+                                    <select id="BatchSource" name="BatchSource" class="form-control" style="width:120px; margin-right:5px">
+                                        <option value="">==批次号来源==</option>
+                                        <option value="1">生产报工</option>
+                                        <option value="2">质检拆单</option>
+                                        <option value="3">挑件拆单</option>
+                                        <option value="4">合单</option>
+                                    </select>
+                                    <input id="DeliveryTime_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'DeliveryTime_end\')}' })" placeholder="报工时间（开始）" style="width: 120px; margin-right: 10px">
+                                    <input id="DeliveryTime_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'DeliveryTime_start\')}' })" placeholder="报工时间（结束）" style="width: 120px;">
+                                    <span class="input-group-btn">
+                                        <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                                    </span>                                    
+                                </div>
+                            </td>
+                            @* 清空文本框--bichen*@
+                            <td>
+                                <div class="input-group">
+                                    <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class=" fa fa-link"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                @*返回上一层--bichen*@
+            </div>
+
+            <div class="gridPanel">
+                <table id="gridList"></table>
+                <div id="gridPager"></div>
+            </div>
+
+

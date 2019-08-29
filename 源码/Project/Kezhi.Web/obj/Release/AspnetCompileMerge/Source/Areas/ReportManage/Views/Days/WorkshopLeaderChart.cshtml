@@ -1,0 +1,225 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>车间主任日报图形数据</title>
+    <link href="~/Content/css/framework-theme.css" rel="stylesheet" />
+    <script src="~/Content/js/jquery/jquery-2.1.1.min.js"></script>
+    <script src="~/Content/js/highcharts/highcharts.js"></script>
+    <script>
+        $(function () {
+            //线型图
+            $('#container').highcharts({
+                chart: {
+                    zoomType: 'x'
+                },
+                title: {
+                    text: '日生产计划完成情况',
+                },
+                subtitle: {
+                    text: document.ontouchstart === undefined ?
+                        '合格率：89.56%' :
+                        ''
+                },
+                xAxis: {
+                    categories: ['8点', '9点', '10点', '11点', '12点', '13点', '14点', '15点', '16点', '17点', '18点', '19点', '20点', '21点', '22点', '23点', '24点']
+                },
+                yAxis: {
+                    title: {
+                        text: '数量(件)'
+                    },
+                    plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#808080'
+                    }]
+                },
+                tooltip: {
+                    valueSuffix: '件'
+                },
+                plotOptions: {
+                    series: {
+                        cursor: 'pointer',
+                        point: {
+                            events: {
+                                click: function () {
+                                    alert(this.series.name + "," + this.x + "," + this.y)
+                                }
+                            }
+                        },
+                        marker: {
+                            lineWidth: 1
+                        }
+                    }
+                },
+                series: [{
+                    name: '计划数量',
+                    data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6,13,14,15,16,17]
+                }, {
+                    name: '生产数量',
+                    data: [9, 6, 3.5, 8.4, 13.5, 17.0, 18.6, 17.9, 14.3, 9.0, 3.9, 1.0,13.3,14.4,15.5,16.6,17.7]
+                }, {
+                    name: '合格数',
+                    data: [3.9, 4.2, 5.7, 8.5, 11.9, 15.2, 17.0, 16.6, 14.2, 10.3, 6.6, 4.8,13.8,14.7,15.8,16.5,17.9]
+                }]
+            });
+            //饼图(白天)
+            $('#container_pieChartDay').highcharts({
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false
+                },
+                title: {
+                    text: '主要指标达成情况(白班)'
+                },
+                tooltip: {
+                    headerFormat: '{series.name}<br>',
+                    pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                            style: {
+                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                            }
+                        }
+                    }
+                },
+                series: [{
+                    type: 'pie',
+                    name: '白班',
+                    data: [
+                        ['TTP', 45.0],
+                        ['顺序化率', 26.8],
+                        
+                        ['设备开动率', 8.5],
+                        ['白车身BCCP点PPK＞1.33占比 ', 6.2],
+                        ['千台车停线时间', 0.7]
+                    ]
+                }]
+            });
+            //饼图(晚上)
+            $('#container_pieChartNight').highcharts({
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false
+                },
+                title: {
+                    text: '主要指标达成情况(夜班)'
+                },
+                tooltip: {
+                    headerFormat: '{series.name}<br>',
+                    pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                            style: {
+                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                            }
+                        }
+                    }
+                },
+                series: [{
+                    type: 'pie',
+                    name: '夜班',
+                    data: [
+                        ['TTP', 45.0],
+                        ['顺序化率', 26.8],
+
+                        ['设备开动率', 8.5],
+                        ['白车身BCCP点PPK＞1.33占比 ', 6.2],
+                        ['千台车停线时间', 0.7]
+                    ]
+                }]
+            });
+            //柱状图
+            $('#container_Histogram').highcharts({
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: '运行时间分布'
+                },
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    categories: [
+                        '柔性线',
+                        '其他线'
+                    ],
+                    crosshair: true
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: '时间 (min)'
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                    '<td style="padding:0"><b>{point.y:.1f} min</b></td></tr>',
+                    footerFormat: '</table>',
+                    shared: true,
+                    useHTML: true
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    }
+                },
+                series: [{
+                    name: '工作总时间',
+                    data: [49.9, 71.5]
+                }, {
+                    name: '计划内停线',
+                    data: [83.6, 78.8]
+                }, {
+                    name: '计划运行',
+                    data: [48.9, 38.8]
+                }, {
+                    name: '实际运行',
+                    data: [42.4, 33.2]
+                }
+                , {
+                    name: '设备',
+                    data: [42.4, 33.2]
+                }
+                
+                ]
+            });
+        });
+
+    </script>
+</head>
+<body>
+    <!---线型图-->
+    <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+    <!---线型图-->
+
+    <!---饼图-->
+    <div style="width:1200px;margin-left:30px">
+        <div id="container_pieChartDay" style="width: 600px; height: 400px;float:left "></div>
+        <div id="container_pieChartNight" style="width:600px; height: 400px;float:right"></div>
+    </div>
+    <!---饼图-->
+
+    <!---柱状图-->
+    <div id="container_Histogram" style="min-width:400px;height:400px"></div>
+    <!---柱状图-->
+</body>
+</html>

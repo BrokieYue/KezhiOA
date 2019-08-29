@@ -1,0 +1,192 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/StationManage/StationInfo/GetStationJsonSqlandPage",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: '区域编码', name: 'AreaCode', width: 120, align: 'left' },
+                { label: '区域名称', name: 'AreaName', width: 120, align: 'left' },
+                { label: '工位编号', name: 'StationCode', width: 120, align: 'left' },
+                { label: '工位名称', name: 'StationName', width: 120, align: 'left' },
+                { label: "工位描述", name: "StationDesc", width: 160, align: 'left' },
+                {
+                    label: '工位类型', name: 'StationType', width: 90, align: 'left',
+                    formatter: function (cellvalue) {
+                        if (cellvalue == "0") {
+                            return "手动工位";
+                        }
+                        else if (cellvalue == "-1") {
+                            return "未定义";
+                        }
+                        else if (cellvalue == "1") {
+                            return "自动工位";
+                        }
+                        else if (cellvalue == "2") {
+                            return "上件工位";
+                        }
+                        else if (cellvalue == "3") {
+                            return "质量采集点";
+                        }
+                        else if (cellvalue == "4") {
+                            return "返修工位";
+                        }
+                        else if (cellvalue == "5") {
+                            return "上线工位";
+                        }
+                    }
+                },
+                { label: '工位序号', name: 'StationNo', width: 80, align: 'left' },
+                { label: "上件看板", name: "OnViewPanel", width: 80, align: 'left' },
+                { label: "机器人数量", name: "RobotCount", width: 100, align: 'left' },
+                { label: "PLC编码", name: "PLCCode", width: 100, align: 'left' },
+                { label: "备注", name: "F_Description", width: 100, align: 'left' },
+                { label: "创建时间", name: "F_CreatorTime", width: 140, align: 'left' }
+            ],
+            pager: "#gridPager",
+            sortname: 'AreaCode',
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyword: $("#txt_keyword").val() },
+            }).trigger('reloadGrid');
+        });
+    }
+
+    function btn_add() {
+        $.modalOpen({
+            id: "Form",
+            title: "新增工位",
+            url: "/StationManage/StationInfo/Form",
+            width: "700px",
+            height: "620px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_edit() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        $.modalOpen({
+            id: "Form",
+            title: "修改工位",
+            url: "/StationManage/StationInfo/Form?keyValue=" + keyValue,
+            width: "700px",
+            height: "620px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_delete() {
+        $.deleteForm({
+            url: "/StationManage/StationInfo/DeleteForm",
+            param: { keyValue: $("#gridList").jqGridRowValue().F_Id },
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+    function btn_details() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        $.modalOpen({
+            id: "Details",
+            title: "查看工位",
+            url: "/StationManage/StationInfo/Details?keyValue=" + keyValue,
+            width: "700px",
+            height: "500px",
+            btn: null,
+        });
+    }
+    function btn_import() {
+        //批量导入
+        $.modalOpen({
+            id: "Index",
+            title: "导入预览",
+            url: "/StationManage/UploadExcel/UpStationInfo",
+            width: "1200px",
+            height: "710px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm(function () {
+                    $('#btn_search').trigger("click");
+                });
+            }
+        });
+    }
+
+    function btn_export() {
+        var form = $("<form>");   //定义一个form表单
+        form.attr('style', 'display:none');   //在form表单中添加查询参数
+        form.attr('target', '');
+        form.attr('id', 'formDownload');
+        form.attr('method', 'post');
+        var url = "/StationManage/StationInfo/DownLoadOrderExcel?keyword=" + $("#txt_keyword").val();
+        form.attr('action', url);
+
+        $('body').append(form);  //将表单放置在web中 
+        form.submit();
+
+        $('#formDownload').remove();
+    }
+    
+ 
+
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+       
+        <div class="btn-group">
+            <a id="NF-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建工位</a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-import" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_import()">导入</a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-export" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_export()">导出</a>
+        </div>
+        <div class="operate">
+            <ul class="nav nav-pills">
+                <li class="first">已选中<span>1</span>项</li>
+                <li><a id="NF-edit" authorize="yes" onclick="btn_edit()"><i class="fa fa-pencil-square-o"></i>修改工位</a></li>
+                <li><a id="NF-delete" authorize="yes" onclick="btn_delete()"><i class="fa fa-trash-o"></i>删除工位</a></li>
+                <li><a id="NF-Details" authorize="yes" onclick="btn_details()"><i class="fa fa-search-plus"></i>查看工位</a></li>
+            </ul>
+            <a href="javascript:;" class="close"></a>
+        </div>
+                <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="txt_keyword" type="text" class="form-control" placeholder="工位名称/工位编号（模糊查询）" style="width: 200px;">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+

@@ -1,0 +1,234 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        //initControl();
+        gridList();
+      
+    })
+    $(window).resize(function () {
+        $("#gridList").setGridWidth($(window).width());
+    })
+
+    //function initControl() {
+    //    $("#CarrierID").bindSelect({
+    //        url: "../../BaseManage/SysSlide/GetProcessListJson",
+    //        id: "F_Id",
+    //        //id: "CarrierCode",
+    //        text: "CarrierCode",
+    //    });
+    //}
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/BaseManage/SysSlide/GetPlanJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                       {
+                           label: '车间', name: 'Plant', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                               if ($.trim(rowObject.Plant) == $.trim("StampingShop")) {
+                                   return '<span >冲压车间</span>';
+                               }
+                               if ($.trim(rowObject.Plant) == $.trim("AssemblyShop")) {
+                                   return '<span >总装车间</span>';
+                               }
+                               if ($.trim(rowObject.Plant) == $.trim("PaintShop")) {
+                                   return '<span >涂装车间</span>';
+                               }
+                               if ($.trim(rowObject.Plant) == $.trim("WeldingShop")) {
+                                   return '<span >焊装车间</span>';
+                               }
+                               if ($.trim(rowObject.Plant) == $.trim("InspectionShop")) {
+                                   return '<span >交检车间</span>';
+                               }
+                           }
+                       },
+                { label: "滑撬编码", name: "SlideCode", width: 100, align: 'left' },
+
+
+                {
+                    label: '滑橇类型', name: 'SlideType', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (rowObject.SlideType == 1) {
+                            return '<span >主焊撬</span>';
+                        }
+                        if (rowObject.SlideType == 2) {
+                            return '<span >调整线撬</span>';
+                        }
+                        if (rowObject.SlideType == 3) {
+                            return '<span >电泳撬</span>';
+                        }
+                        if (rowObject.SlideType == 4) {
+                            return '<span >中途撬</span>';
+                        }
+                        if (rowObject.SlideType == 5) {
+                            return '<span >总装撬</span>';
+                        }
+
+                    }
+                },
+                //{ label: '载码体编号ID', name: "CarrierID", align: 'left', hidden: true },
+                { label: "载码体编号", name: "CarrierCode", width: 100, align: 'left' },
+                { label: "供应商", name: "Manufacturer", width: 100, align: 'left' },
+                { label: "创建人", name: "F_CreatorUserName", width: 100, align: 'left' },
+
+               {
+                   label: '创建时间', name: 'F_CreatorTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                       if (cellvalue != "") {
+                           return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                       }
+                   }
+
+               },
+                { label: "修改人", name: "F_LastModifyUserName", width: 100, align: 'left' },
+                {
+                    label: '修改时间', name: 'F_LastModifyTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "" && cellvalue != null && cellvalue != undefined){
+                            return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                        }
+                    }
+
+                },
+
+            ],
+            pager: "#gridPager",
+            sortname: 'SlideCode asc',//修改默认排序条件--bichen
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { Plant: $("#Plant").val(), SlideCode: $("#SlideCode").val(), SlideType: $("#SlideType").val(), CarrierCode: $("#CarrierCode").val(), Manufacturer: $("#Manufacturer").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+    }
+
+    function btn_add() {
+        $.modalOpen({
+            id: "Form",
+            title: "新建",
+            url: "/BaseManage/SysSlide/Form?planState=1",
+            width: "430px",
+            height: "460px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_edit() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        //修改 进行修改操作确定后没有选中行却一样可以操作--bichen
+        if (keyValue == null) {
+            $.modalAlert("请选中一行", "warning");
+        } else {
+            $.modalOpen({
+                id: "Form",
+                title: "修改",
+                url: "/BaseManage/SysSlide/Form?keyValue=" + keyValue + "",
+                width: "400px",
+                height: "380px",
+                callBack: function (iframeId) {
+                    top.frames[iframeId].submitForm();
+                }
+            });
+        }
+    }
+
+
+    function btn_delete() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        //修改 进行修改操作确定后没有选中行却一样可以操作--bichen
+        if (keyValue == null) {
+            $.modalAlert("请选中一行", "warning");
+        } else {
+            $.deleteForm({
+                url: "/BaseManage/SysSlide/DeleteForm",
+                param: { keyValue: keyValue },
+                success: function () {
+                    $("#gridList").resetSelection();
+                    $("#gridList").trigger("reloadGrid");
+                }
+            })
+        }
+    }
+    //清空文本框--bichen
+    function clean() {
+        $("#Plant").val("");
+        $("#SlideType").val("");
+        $("#SlideCode").val("");
+        $("#CarrierCode").val("");
+        $("#Manufacturer").val("");
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建</a>
+        </div>
+        <div class="operate">
+            <ul class="nav nav-pills">
+                <li class="first">已选中<span>1</span>项</li>
+                <li><a id="NF-edit" authorize="yes" onclick="btn_edit()"><i class="fa fa-pencil-square-o"></i>修改</a></li>
+                <li><a id="NF-delete" authorize="yes" onclick="btn_delete()"><i class="fa fa-trash-o"></i>删除</a></li>
+            </ul>
+            <a href="javascript:;" class="close"></a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <select id="Plant" name="Plant" class="form-control" style="width: 150px; margin-right:10px">
+                            <option value="">==请选择车间==</option>
+                            <option value="StampingShop">冲压车间</option>
+                            <option value="WeldingShop">焊装车间</option>
+                            <option value="PaintShop">涂装车间</option>
+                            <option value="AssemblyShop">总装车间</option>
+                            <option value="InspectionShop">交检车间</option>
+                        </select>
+                        <select id="SlideType" name="SlideType" class="form-control required" style="width: 150px; margin-right:10px">
+                            <option value="">==请选择滑橇类型==</option>
+                            <option value="1">主焊撬</option>
+                            <option value="2">调整线撬</option>
+                            <option value="3">电泳撬</option>
+                            <option value="4">中途撬</option>
+                            <option value="5">换撬点</option>
+                            <option value="6">总装撬</option>
+                        </select>
+                        <input id="SlideCode" type="text" class="form-control" placeholder="滑撬编码" style="width: 100px; margin-right:10px">
+                        <input id="CarrierCode" type="text" class="form-control" placeholder="载码体编号" style="width: 100px; margin-right:10px">
+                        <input id="Manufacturer" type="text" class="form-control" placeholder="供应商" style="width: 100px; ">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+                @* 清空文本框--bichen*@
+                <td>
+                    <div class="input-group">
+                        <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class="fa fa-link"></i></button>
+                    </div>
+                </td>
+            </tr>
+
+        </table>
+
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+

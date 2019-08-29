@@ -1,0 +1,197 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        initControl();
+        gridList();
+    })
+
+    $(window).resize(function () {
+        $("#gridList").setGridWidth($(window).width());
+    })
+
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/PressManage/PressStorage/GetListJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "库房", name: "StorageName", width: 80, align: 'left' },
+                {
+                    label: '状态', name: 'BatchStateStr', width: 60, align: 'left', formatter: function (cellvalue, options, rowObject) {
+
+                        if (rowObject.BatchState ==0) {
+                            return  '<span>已入库</span>';
+                         }
+                         else {
+                            return '<span>已出库</span>';
+                         }
+                     }
+                 },
+                { label: '批次号', name: 'BatchNO', width: 120, align: 'left' },
+                { label: '物料编号', name: 'Vcode', width: 120, align: 'left' },
+                { label: '特性值', name: 'LOT_Code', width: 100, align: 'left' },
+                { label: '计划号', name: 'PlanNO', width: 130, align: 'left' },
+                //{ label: '计划类型', name: 'PlanType', width: 90, align: 'left' },
+                { label: '入库数量', name: 'InvAmount', width: 80, align: 'left' },
+                {
+                    label: '入库类型', name: 'InvType', width: 60, align: 'left', formatter: function (cellvalue, options, rowObject) {
+
+                        if (rowObject.InvType == 0) {
+                            return '<span >生产入库</span>';
+                        }
+                        else {
+                            return '<span >委外件入库</span>';
+                        }
+                    }
+                },
+
+                { label: '入库操作员', name: 'InOperatorName', width: 80, align: 'left' },
+                {
+                     label: '入库时间', name: 'InTime', width: 130, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                         if (cellvalue != "" && cellvalue != null && cellvalue != undefined)
+                             return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                         else
+                             return '<span ></span>';
+                     }
+                 },
+                { label: '入库说明', name: 'Indesc', width: 200, align: 'left' },
+
+                { label: '出库操作员', name: 'OutOperatorName', width: 80, align: 'left' },
+                {
+                    label: '出库时间', name: 'OutTime', width: 130, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "" && cellvalue != null && cellvalue != undefined)
+                            return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                        else
+                             return '<span ></span>';
+                    }
+                },
+                { label: '出库说明', name: 'OutDesc', width: 200, align: 'left' }
+
+            ],
+            pager: "#gridPager",
+            sortname: 'F_CreatorTime asc',
+            viewrecords: true,
+            multiselect: true,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyword: $("#keywords").val(), storage: $("#StorageID").val(), invtype: $("#InvType").val(), batchState: $("#BatchState").val(), starttime: $("#DeliveryTime_start").val(), endtime: $("#DeliveryTime_end").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+    }
+
+    function initControl() {
+        //仓库
+        $("#StorageID").bindSelect({
+            url: "/PressManage/PressStorage/GetStorageList?pID=9f8c65c8-67fd-4d76-a7ba-33b079547893",
+            id: "F_Id",
+            text: "F_ItemName"
+        })
+    }
+    function btn_InWareHouse() {
+        $.modalOpen({
+            id: "Form",
+            title: "生产入库",
+            url: "/PressManage/PressStorage/UnloadLabor",
+            width: "1200px",
+            height: "600px",
+            btn: null
+        });
+    }
+
+    function btn_OutSourceSto() {
+        $.modalOpen({
+            id: "Form",
+            title: "外购入库",
+            url: "/PressManage/PressStorage/OutsourceWareHouse",
+            width: "600px",
+            height: "350px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+
+    function btn_OutWareHouse() {
+        $.modalOpen({
+            id: "Form",
+            title: "冲压出库",
+            url: "/PressManage/PressStorage/OutWareHouse",
+            width: "1200px",
+            height: "600px",
+            btn: null
+        });
+    }
+    //清空文本框--bichen
+    function clean() {
+        $("#keywords").val("");
+        $("#StorageID").val("");
+        $("#InvType").val("-1");
+        $("#BatchState").val("");
+        $("#DeliveryTime_start").val("");
+        $("#DeliveryTime_end").val("");
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a id="NF-downimport" authorize="yes" class="btn btn-primary " onclick="btn_InWareHouse()"><i class="fa fa-download"></i>生产入库</a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-downimport" authorize="yes" class="btn btn-primary " onclick="btn_OutSourceSto()"><i class="fa fa-arrow-circle-down"></i>外购件入库</a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-import" authorize="yes" class="btn btn-primary " onclick="btn_OutWareHouse()"><i class="fa fa-upload"></i>出库</a>
+        </div>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="keywords" type="text" class="form-control" placeholder="批次号/物料编号" style="width: 200px; margin-right:10px">
+                        <select id="StorageID" name="StorageID" class="form-control" style="width:120px; margin-right:5px">
+                            <option value="">==选择库房==</option>
+                        </select>
+                        <select id="InvType" name="InvType" class="form-control" style="width:120px; margin-right:5px">
+                            <option value="-1">==入库类型==</option>
+                            <option value="0">生产入库</option>
+                            <option value="1">委外入库</option>
+                        </select>
+                        <select id="BatchState" name="BatchState" class="form-control" style="width:120px; margin-right:5px">
+                            <option value="">==选择状态==</option>
+                            <option value="0">已入库</option>
+                            <option value="1">已出库</option>
+                        </select>
+                        <input id="DeliveryTime_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'DeliveryTime_end\')}' })" placeholder="入库时间（开始）" style="width: 120px; margin-right: 10px">
+                        <input id="DeliveryTime_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'DeliveryTime_start\')}' })" placeholder="入库时间（结束）" style="width: 120px;">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+                @* 清空文本框--bichen*@
+                <td>
+                    <div class="input-group">
+                        <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class=" fa fa-link"></i></button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+

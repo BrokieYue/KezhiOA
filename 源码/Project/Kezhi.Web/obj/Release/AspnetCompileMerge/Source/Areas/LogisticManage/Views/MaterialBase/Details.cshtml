@@ -1,0 +1,169 @@
+﻿@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    var keyValue = $.request("keyValue");
+    $(function () {
+        $.ajax({
+            url: "/LogisticManage/MaterialBase/GetFormJson",
+            data: { keyValue: keyValue },
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                $("#form1").formSerialize(data);
+                $("#form1").find('.form-control,select,input').attr('readonly', 'readonly');
+                $("#form1").find('div.ckbox label').attr('for', '');
+                var imgurlDate = $("#ImageUrl").val();
+                $("#img1").attr("src", imgurlDate);
+            }
+        });
+    });
+</script>
+
+<form id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            @*<tr>
+                <th class="formTitle">项目代号</th>
+                <td class="formValue">
+                    <input id="ProjectCode" name="ProjectCode" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">工厂代码</th>
+                <td class="formValue">
+                    <input id="CompanyCode" name="CompanyCode" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">工艺类型</th>
+                <td class="formValue">
+                    <input id="ProcessType" name="ProcessType" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">生产线</th>
+                <td class="formValue">
+                    <input id="LineCode" name="LineCode" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">模块代码</th>
+                <td class="formValue">
+                    <input id="ModelCode" name="ModelCode" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">模块名称</th>
+                <td class="formValue">
+                    <input id="ModelName" name="ModelName" type="text" class="form-control" />
+                </td>
+            </tr>*@
+            <tr>
+                <th class="formTitle">物料编码</th>
+                <td class="formValue">
+                    <input id="MaterailCode" name="MaterailCode" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">零件位置</th>
+                <td class="formValue">
+                    <input id="Position" name="Position" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">PLC对应码</th>
+                <td class="formValue">
+                    <input id="PlcCode" name="PlcCode" type="text" class="form-control required" />
+                </td>
+
+            </tr>
+            <tr>
+                <th class="formTitle">中文名称</th>
+                <td class="formValue">
+                    <input id="MaterailCNName" name="MaterailCNName" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">中文名称备注</th>
+                <td class="formValue">
+                    <input id="MaterailCNNameRemark" name="MaterailCNNameRemark" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">英文名称</th>
+                <td class="formValue">
+                    <input id="MaterailEHName" name="MaterailEHName" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">英文名称备注</th>
+                <td class="formValue">
+                    <input id="MaterailEHNameRemark" name="MaterailEHNameRemark" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">长安标识方式</th>
+                <td class="formValue">
+                    <input id="RemarkType" name="RemarkType" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">是否颜色件</th>
+                <td class="formValue">
+                    <input id="ColorType" name="ColorType" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">PBOM供货状态</th>
+                <td class="formValue">
+                    <input id="OMSupplyState" name="OMSupplyState" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">装备状态</th>
+                <td class="formValue">
+                    <input id="FitState" name="FitState" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">单位</th>
+                <td class="formValue">
+                    <input id="MaterailUnit" name="MaterailUnit" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">颜色编码</th>
+                <td class="formValue">
+                    <input id="ColorCode" name="ColorCode" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">数据标识</th>
+                <td class="formValue">
+                    <input id="DataRemark" name="DataRemark" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">物料种类</th>
+                <td class="formValue">
+                    <input id="MaterailType" name="MaterailType" type="text" class="form-control" />
+                </td>
+            </tr>
+            @*      <tr>
+                
+                <th class="formTitle">生产子线</th>
+                <td class="formValue">
+                    <input id="ChildLineCode" name="ChildLineCode" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">工序</th>
+                <td class="formValue">
+                    <input id="LineProcess" name="LineProcess" type="text" class="form-control" />
+                </td>
+            </tr>*@
+            <tr>
+                <th class="formTitle">创建时间</th>
+                <td class="formValue">
+                    <input id="F_CreatorTime" name="F_CreatorTime" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">创建人员</th>
+                <td class="formValue">
+                    <input id="F_CreatorUserId" name="F_CreatorUserId" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">修改人员</th>
+                <td class="formValue">
+                    <input id="F_LastModifyUserId" name="F_LastModifyUserId" type="text" class="form-control" />
+                </td>
+                <th class="formTitle">修改时间</th>
+                <td class="formValue">
+                    <input id="F_LastModifyTime" name="F_LastModifyTime" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">图片</th>
+                <td class="formValue">
+                    <img id="img1" alt="无图片" style="width: 300px; height: 300px" src="null"/>
+                </td>
+                <th class="formTitle"></th>
+                <td class="formValue">
+                    <input id="ImageUrl" name="ImageUrl" type="hidden" />
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>

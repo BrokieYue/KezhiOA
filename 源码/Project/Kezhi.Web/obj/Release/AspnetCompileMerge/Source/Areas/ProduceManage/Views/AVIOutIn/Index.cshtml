@@ -1,0 +1,340 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script>
+    var Curr;
+    var VINState=1;
+    $(function () {
+    //   // $("#btn2").hide();
+    //    $("#Cuttingtxt1").css('color', '#0000FF')
+    //    //initControl();
+    //   // radiofan();
+    //   // select();
+    //    //$("#CurrStation").change(function () {
+    //    //    var codeid = $("#CurrStation").val();
+    //    //    $.ajax({
+    //    //        url: "/ProduceManage/AVIOutIn/GetStation",
+    //    //        dataType: "json",
+    //    //        async: false,
+    //    //        data: { codeid: codeid },
+    //    //        success: function (data) {
+    //    //            Curr = data.Result;
+    //    //        }
+    //    //    });
+    //    //});
+       gridList();
+    //    //$("#gridList").css('font-size', '25px')
+       $(window).resize(function () {
+           $("#gridList").setGridWidth($(window).width());
+       });
+    })
+
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/ProduceManage/AVIOutIn/GetPlanJson",
+            height: $(window).height() - 155,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "工单ID", name: "OrderID", align: 'center', hidden: true },
+                { label: "工单号", name: "OrderNo", width: 150, align: 'center' },
+                { label: "VIN码ID", name: "VINID", align: 'center', hidden: true },
+                { label: "VIN码", name: "VINNo", width: 200, align: 'center' },
+                { label: "整车编码ID", name: "VID", align: 'center', hidden: true },
+                { label: "整车编码", name: "VCode", width: 200, align: 'center' },
+                { label: "整车描述", name: "VDesc", width: 300, align: 'center' },
+                { label: "当前站点", name: "CurrStation", width: 100, align: 'center' },
+                {
+                    label: 'VIN状态', name: 'VINState', width: 100, align: 'center', formatter: function (cellvalue, options, rowObject) {
+                        if ($.trim(rowObject.VINState) == 0) {
+                            return '未生产';
+                        }
+                        if ($.trim(rowObject.VINState) == 1) {
+                            return '在线上';
+                        }
+                        if ($.trim(rowObject.VINState) == 2) {
+                            return '报废';
+                        }
+                        if ($.trim(rowObject.VINState) == 3) {
+                            return '等待切出';
+                        }
+                        if ($.trim(rowObject.VINState) == 4) {
+                            return '返修';
+                        }
+                        if ($.trim(rowObject.VINState) == 5) {
+                            return '已完成';
+                        }
+                        if ($.trim(rowObject.VINState) == 6) {
+                            return '等待切入';
+                        }
+                        if ($.trim(rowObject.VINState) == 7) {
+                            return '切出完成';
+                        }
+                        if ($.trim(rowObject.VINState) == 8) {
+                            return '切入完成';
+                        }
+                    }
+                },
+              {
+                  label: '过点时间', name: 'PassTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                      if (cellvalue != null && cellvalue != "") {
+                          return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                      } else {
+
+                          return '<span >' + "" + '</span>';
+                      }
+                  }
+
+              },
+
+               {
+                   label: '上线时间', name: 'StartTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                       if (cellvalue != null && cellvalue != "") {
+                           return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                       } else {
+
+                           return '<span >' + "" + '</span>';
+                       }
+                   }
+
+               },
+
+               { label: "备注", name: "F_Description", width: 150, align: 'center' },
+
+            ],
+            pager: "#gridPager",
+            sortname: 'PassTime desc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 20,
+            postData: { CurrStation: Curr, VINState: VINState },
+            rowList: [20, 50, 100],
+            viewrecords: true,
+            autoscroll: true,
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { CurrStation: $("#CurrStation").val(), VINState: $("#VINState").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+        //$("#Cutting1").click(function () {
+        //    if ($("#Cutting1").prop('checked')) {
+        //        $("#Cutting2").removeAttr('checked');
+        //        VINState = 1;
+        //        $("#btn1").show();
+        //        $("#btn2").hide();
+        //        $("#Cuttingtxt1").css('color', '#0000FF')
+        //        $("#Cuttingtxt2").css('color', '#475059')
+        //        $gridList.jqGrid('setGridParam', {
+        //            postData: { CurrStation: Curr, VINState: VINState }
+        //        }).trigger('reloadGrid');
+        //    } else {
+        //        $("#btn2").hide();
+        //        $("#Cutting2").prop("checked", true);
+
+        //    }
+        //});
+
+        //$("#Cutting2").click(function () {
+        //    if ($("#Cutting2").prop('checked')) {
+        //        $("#Cutting1").removeAttr('checked');
+        //        VINState = 3;
+        //        $("#btn2").show();
+        //        $("#btn1").hide();
+        //        $("#Cuttingtxt2").css('color', '#0000FF')
+        //        $("#Cuttingtxt1").css('color', '#475059')
+        //        $gridList.jqGrid('setGridParam', {
+        //            postData: { CurrStation: Curr, VINState: VINState }
+        //        }).trigger('reloadGrid');
+        //    } else {
+        //        $("#btn1").hide();
+        //        $("#Cutting1").prop("checked", true);
+
+        //    }
+        //});
+    }
+
+    function btn_In() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id
+        var VINState = $("#gridList").jqGridRowValue().VINState;
+
+        if (keyValue) {
+            if (VINState == "切出完成") {
+
+            } else {
+                $.modalAlert("请选择一条有效数据！", "warning")
+                return false;
+            }
+        } else {
+            $.modalAlert("请选择一条有效数据！", "warning")
+            return false;
+        }
+        $.submitForm({
+            url: "/ProduceManage/AVIOutIn/QuitOut",
+            param: { keyValue: $("#gridList").jqGridRowValue().F_Id, state: 2 },
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+
+    function btn_Out() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id
+        var VINState = $("#gridList").jqGridRowValue().VINState;
+        //var CurrStation = $("#gridList").jqGridRowValue().CurrStation;
+        var CurrStation = $("#CurrStation").val();
+        if (keyValue) {
+            if (VINState == "在线上") {
+
+                    }
+               else {
+                        $.modalAlert("请选择一条有效数据！", "warning")
+                        return false;
+                    }
+
+            } else {
+                $.modalAlert("请选择一条有效数据！", "warning")
+                return false;
+            }
+                $.modalOpen({
+                            id: "Form",
+                            title: "切出",
+                            url: "/ProduceManage/AVIOutIn/CutoutFrom?keyValue=" + keyValue + "&CurrStation=" + CurrStation + "",
+                            width: "400px",
+                            height: "300px",
+                            callBack: function (iframeId) {
+                                top.frames[iframeId].submitForm();
+                            }
+                   });
+    }
+
+    function btn_Quit()
+    {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id
+        var VINState = $("#gridList").jqGridRowValue().VINState;
+        var vinNo = $("#gridList").jqGridRowValue().VINNo;
+        if (keyValue) {
+            if (VINState == "等待切出") {
+
+            } else {
+                $.modalAlert("请选择一条有效数据！", "warning")
+                return false;
+            }
+        } else {
+            $.modalAlert("请选择一条有效数据！", "warning")
+            return false;
+        }
+        $.submitForm({
+            url: "/ProduceManage/AVIOutIn/QuitOut",
+            param: { keyValue: $("#gridList").jqGridRowValue().F_Id, vinCode: vinNo },
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+
+    function btn_Scanning() {
+        $.modalOpen({
+            id: "Form",
+            title: "扫码确认过点",
+            url: "/ProduceManage/AVIOutIn/ScanningForm ",
+            width: "550px",
+            height: "270px",
+            btn: null,
+        });
+    }
+    function initControl() {
+        $("#CurrStation").bindSelect({
+            url: "/ProduceManage/AVIOutIn/GetOpStation",
+        });
+    }
+    function select() {
+        $.ajax({
+            url: "/ProduceManage/AVIOutIn/GetUserProcess",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                if (data.length > 0) {
+                    $("#CurrStation").val(data[0].F_Id);
+                }
+            }
+        });
+        
+        var codeid = $("#CurrStation").val();
+
+        $.ajax({
+            url: "/ProduceManage/AVIOutIn/GetStation",
+            dataType: "json",
+            async: false,
+            data: { codeid: codeid },
+            success: function (data) {
+                Curr = data.Result;
+            }
+        });
+
+    }
+
+</script>
+@*<style>
+    .ui-jqgrid tr.jqgrow {
+        height: 40px;
+    }*@
+</style>
+<div class="topPanel" style="  height: 65px">
+    <div class="toolbar" style="margin-top:8px">
+        <div class="btn-group" id="btn1">
+            <a id="NF-import" authorize="yes" class="btn btn-primary " onclick="btn_Out()" style="width: 80px; height: 35px; font-size: 15pt"><i class="fa fa-share" style="vertical-align: middle;"></i>切出</a>
+        </div>
+        <div class="btn-group" id="btn2">
+            <a id="NF-import" authorize="yes" class="btn btn-primary " onclick="btn_In()" style="width: 80px; height: 35px; font-size: 15pt; "><i class="fa fa-reply" style="vertical-align: middle;"></i>切入</a>
+        </div>
+
+        <div class="btn-group">
+            <a id="NF-edit" authorize="yes" class="btn btn-primary " onclick="btn_Quit()" style="width: 100px; height: 35px; font-size: 15pt; "><i class="fa fa-edit"></i>取消切出</a>
+        </div>
+
+          @*<div class="btn-group">
+              <a id="NF-edit" authorize="yes" class="btn btn-primary " onclick="btn_Scanning()" style="width: 100px; height: 35px; font-size: 15pt; "><i class="fa fa-edit"></i>扫码过点</a>
+          </div>*@
+    </div>
+    <div class="search" style="margin-top:8px">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+
+                        <select id="CurrStation" name="CurrStation" class="form-control" style="width: 220px; margin-right: 10px; font-size: 15pt; height: 45px;">
+                            <option value="" selected="selected">==请选择切入切出点==</option>
+                             <option value="H050">主焊上线点</option>
+                             <option value="H071">主焊下线点</option>
+                             <option value="H110">调整线上线点</option>
+                             <option value="H130">调整线下线点</option>
+                        </select>
+                        <select id="VINState" name="VINState" class="form-control" style="width: 220px; margin-right: 10px; font-size: 15pt; height: 45px;">
+                            <option value="1" selected="selected">在线上</option>
+                            <option value="3">待切出</option>
+                            <option value="7">已切出</option>
+                            <option value="6">待切入</option>
+                        </select>
+
+                        <button id="btn_search" type="button" class="btn  btn-primary" style="width: 90px; height: 45px;  "><i class=" fa fa-search"></i></button>
+
+                        @*<input type="radio" id="Cutting1" name="Cutting1" value="1" checked="checked" style="width: 25px; height: 25px; vertical-align:middle;margin-left:20px" /><label for="Cutting1" id="Cuttingtxt1" style=" font-size: 14pt; vertical-align: middle;">切出操作</label>
+
+                        <input type="radio" id="Cutting2" name="Cutting2" value="2" style="width: 25px; height: 25px; vertical-align: middle; margin-left: 10px" />  <label for="Cutting2" id="Cuttingtxt2" style=" font-size: 14pt; vertical-align: middle; ">切入操作</label>*@
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+

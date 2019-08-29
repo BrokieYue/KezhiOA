@@ -1,0 +1,79 @@
+﻿@{
+    ViewBag.Title = "冲压计划列表";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    var keyword = $.request("keyword"); //线别Code
+    $(function () {
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "../../PlanManage/PlanInfoStamping/GetPlanListJson?typeCode=" + keyword,
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "计划号", name: "JobNo", width: 120, align: 'left' },
+                { label: '物料编号', name: 'Vcode', width: 120, align: 'left' },
+                { label: '物料名称', name: 'ItemName', width: 150, align: 'left' },
+                { label: '计划数量', name: 'Qty', width: 80,  align: 'left' },
+                { label: "已报工数量", name: "CompletedQty", width: 80, align: 'left' },
+                { label: '未完成数量', name: 'LeftQty', width: 80, align: 'left' },
+                { label: '备注', name: 'F_Description', width: 110, align: 'left' }
+            ],
+            pager: "#gridPager",
+            sortname: 'JobNo asc',
+            viewrecords: true,
+            rowNum: 10,
+            rowList: [10, 20, 50],
+            viewrecords: true,
+            ondblClickRow: function (rowId) {  //双击表格中的某一行，触发事件，获得数据
+                var rowData = jQuery(this).getRowData(rowId);
+                var fid = rowData['F_Id'];
+                var jobN = rowData['JobNo'];
+                var name = rowData['ItemName'];
+                var qty = rowData['LeftQty'];
+                window.opener.document.getElementById("fid").value = fid;
+                window.opener.document.getElementById("fcode").value = rowData['Vcode'];
+                window.opener.document.getElementById("jobNo").value = jobN;
+                window.opener.document.getElementById("itemName").value = name;
+                window.opener.document.getElementById("qty").value = qty;
+                window.close();
+            },
+        });
+        $("#btn_search").click(function () {  
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyword: $("#keywords").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+    }
+</script>
+
+<div class="topPanel">
+    <div class="toolbar">
+
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="keywords" type="text" class="form-control" placeholder="计划号/物料编号" style="width: 255px; margin-right:10px">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+

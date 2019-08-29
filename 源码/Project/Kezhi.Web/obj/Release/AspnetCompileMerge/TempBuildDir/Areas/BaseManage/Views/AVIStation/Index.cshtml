@@ -1,0 +1,243 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script>
+    $(function () {
+        gridList();
+    })
+
+    $(window).resize(function () {
+        $("#gridList").setGridWidth($(window).width());
+    })
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/BaseManage/AVIStation/GetPlanJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                       {
+                           label: '车间', name: 'Plant', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                               if ($.trim(rowObject.Plant) == $.trim("StampingShop")) {
+                                   return '<span >冲压车间</span>';
+                               }
+                               if ($.trim(rowObject.Plant) == $.trim("AssemblyShop")) {
+                                   return '<span >总装车间</span>';
+                               }
+                               if ($.trim(rowObject.Plant) == $.trim("PaintShop")) {
+                                   return '<span >涂装车间</span>';
+                               }
+                               if ($.trim(rowObject.Plant) == $.trim("WeldingShop")) {
+                                   return '<span >焊装车间</span>';
+                               }
+                               if ($.trim(rowObject.Plant) == $.trim("InspectionShop")) {
+                                   return '<span >交检车间</span>';
+                               }
+                           }
+                       },
+                { label: "站点编号", name: "StationCode", width: 100, align: 'left' },
+                { label: "站点名称", name: "StationName", width: 100, align: 'left' },
+        
+                {
+                    label: '站点类型', name: 'StationType', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (rowObject.StationType == 1) {
+                            return '<span >RFID站点</span>';
+                        }
+                        if (rowObject.StationType == 2) {
+                            return '<span >人工站点</span>';
+                        }
+                        if (rowObject.StationType == 3) {
+                            return '<span >机器人站点</span>';
+                        }
+                        if (rowObject.StationType == 4) {
+                            return '<span >质检点</span>';
+                        }
+                        if (rowObject.StationType == 5) {
+                            return '<span >换撬点</span>';
+                        }
+                        if (rowObject.StationType == 6) {
+                            return '<span >离线换撬点</span>';
+                        }
+                        else {
+                            return '<span >切入切出点</span>';
+                        }
+                    }
+                },
+                { label: "站点IP", name: "StationIP", width: 100, align: 'left' },
+                { label: "站点设备", name: "StationDevice", width: 100, align: 'left' },
+                 { label: "创建人", name: "F_CreatorUserName", width: 100, align: 'left' },
+
+               {
+                   label: '创建时间', name: 'F_CreatorTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                       if (cellvalue != "") {
+                           return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                       }
+                   }
+
+               },
+                { label: "修改人", name: "F_LastModifyUserName", width: 100, align: 'left' },
+                {
+                    label: '修改时间', name: 'F_LastModifyTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "" && cellvalue != null && cellvalue != undefined) {
+                            return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                        }
+                    }
+
+                },
+               
+            ],
+            pager: "#gridPager",
+            sortname: 'Plant asc,StationCode asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { Plant: $("#Plant").val(), StationType: $("#StationType").val(), StationCode: $("#StationCode").val(), StationName: $("#StationName").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+    }
+
+    function btn_add() {
+        $.modalOpen({
+            id: "Form",
+            title: "新建",
+            url: "/BaseManage/AVIStation/Form?planState=1",
+            width: "400px",
+            height: "450px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_edit() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        if (keyValue == null) {
+            $.modalAlert("请选中一行", "warning");
+        } else {
+            $.modalOpen({
+                id: "Form",
+                title: "修改",
+                url: "/BaseManage/AVIStation/Form?keyValue=" + keyValue + "",
+                width: "400px",
+                height: "450px",
+                callBack: function (iframeId) {
+                    top.frames[iframeId].submitForm();
+                }
+            });
+        }
+    }
+    function btn_export() {
+        var form = $("<form>");   //定义一个form表单
+        form.attr('style', 'display:none');   //在form表单中添加查询参数
+        form.attr('target', '');
+        form.attr('id', 'formDownload');
+        form.attr('method', 'post');
+        var url = "/BaseManage/AVIStation/DownLoadOrderExcel?Plant=" + $("#Plant").val() + "&StationType=" + $("#StationType").val() + "&StationCode=" + $("#StationCode").val() + "&StationName=" + $("#StationName").val();
+        form.attr('action', url);
+        $('body').append(form);  //将表单放置在web中
+        form.submit();
+
+        $('#formDownload').remove();
+    };
+ 
+    function btn_delete() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        if (keyValue == null) {
+            $.modalAlert("请选中一行数据", "warning");
+        } else {
+            $.deleteForm({
+                url: "/BaseManage/AVIStation/DeleteForm",
+                param: { keyValue: keyValue },
+                success: function () {
+                    $("#gridList").resetSelection();
+                    $("#gridList").trigger("reloadGrid");
+                }
+            })
+        }
+    }
+    //清空文本框--bichen
+    function clean() {
+        $("#StationCode").val("");
+        $("#StationName").val("");
+        $("#Plant").val("");
+        $("#StationType").val("-1");
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建</a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-export" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_export()">导出</a>
+        </div>
+        <div class="operate">
+            <ul class="nav nav-pills">
+                <li class="first">已选中<span>1</span>项</li>
+                <li><a id="NF-edit" authorize="yes" onclick="btn_edit()"><i class="fa fa-pencil-square-o"></i>修改</a></li>
+                <li><a id="NF-delete" authorize="yes" onclick="btn_delete()"><i class="fa fa-trash-o"></i>删除</a></li>
+            </ul>
+            <a href="javascript:;" class="close"></a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="StationCode" type="text" class="form-control" placeholder="站点编号" style="width: 100px; margin-right:10px">
+                        <input id="StationName" type="text" class="form-control" placeholder="站点名称" style="width: 100px; margin-right:10px">
+                        <select id="Plant" name="Plant" class="form-control" style="width: 150px; margin-right:10px">
+                            <option value="">==请选择车间==</option>
+                            <option value="StampingShop">冲压车间</option>
+                            <option value="WeldingShop">焊装车间</option>
+                            <option value="PaintShop">涂装车间</option>
+                            <option value="AssemblyShop">总装车间</option>
+                            <option value="InspectionShop">交检车间</option>
+                        </select>
+                        <select id="StationType" name="StationType" class="form-control required" style="width: 150px;">
+                            <option value="-1">==请选择站点==</option>
+                            <option value="1">RFID站点</option>
+                            <option value="2">人工站点</option>
+                            <option value="3">机器人站点</option>
+                            <option value="4">质检点</option>
+                            <option value="5">换撬点</option>
+                            <option value="6">离线换撬点</option>
+                            <option value="7">切入切出点</option>
+                        </select>
+                        
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+                @* 清空文本框--bichen*@
+                <td>
+                    <div class="input-group">
+                        <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class=" fa fa-link"></i></button>
+                    </div>
+                </td>
+            </tr>
+
+        </table>
+
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+

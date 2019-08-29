@@ -1,0 +1,196 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script>
+    $(function () {
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/ProduceManage/AVIView/GetPlanJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "车间ID", name: "PlantID", align: 'left', hidden: true },
+                { label: "车间", name: "PlantName", width: 100, align: 'left' },
+                { label: "站点ID", name: "StationID", align: 'left', hidden: true },
+                { label: "站点编号", name: "StationNo", width: 100, align: 'left' },
+                { label: "站点名称", name: "StationName", width: 100, align: 'left' },
+                { label: "VIN码ID", name: "VINID", align: 'left', hidden: true },
+                { label: "VIN码", name: "VINCode", width: 100, align: 'left' },
+                { label: "滑撬ID", name: "SlideID", align: 'left', hidden: true },
+                { label: "滑撬编号", name: "SlideCode", width: 100, align: 'left' },
+                { label: "载码体ID", name: "CarrierID", align: 'left', hidden: true },
+                { label: "载码体编号", name: "CarrierCode", width: 100, align: 'left' },
+                { label: "上一个站点编号", name: "PreStationNo", width: 100, align: 'left' },
+                { label: "下一个站点编号", name: "NextStationNo", width: 100, align: 'left' },
+                    
+                      {
+                          label: '换撬类型', name: 'SlideChange', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                              if ($.trim(rowObject.SlideChange) == 0) {
+                                  return '不换撬';
+                              }
+                              if ($.trim(rowObject.SlideChange) == 1) {
+                                  return '换撬前';
+                              }
+                              if ($.trim(rowObject.SlideChange) == 2) {
+                                  return '换撬后';
+                              }
+                          }
+                      },
+                            {
+                                label: '是否人工过点', name: 'RepairMk', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                                    if ($.trim(rowObject.RepairMk) == 0) {
+                                        return '正常过点';
+                                    }
+                                    if ($.trim(rowObject.RepairMk) == 1) {
+                                        return '人工过点';
+                                    }
+                                 
+                                }
+                            },
+
+               {
+                   label: '过点时间', name: 'F_CreatorTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                       if (cellvalue != "") {
+                           return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                       }
+                   }
+
+               },
+                 
+
+            ],
+            pager: "#gridPager",
+            sortname: 'F_CreatorTime asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { PlantID: $("#PlantID").val(), StationNo: $("#StationNo").val(), VINCode: $("#VINCode").val(), SlideCode: $("#SlideCode").val(), CarrierCode: $("#CarrierCode").val(), RepairMk: $("#RepairMk").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+    }
+
+    //function btn_add() {
+    //    $.modalOpen({
+    //        id: "Form",
+    //        title: "新建",
+    //        url: "",
+    //        width: "400px",
+    //        height: "300px",
+    //        callBack: function (iframeId) {
+    //            top.frames[iframeId].submitForm();
+    //        }
+    //    });
+    //}
+    //function btn_edit() {
+    //    var keyValue = $("#gridList").jqGridRowValue().F_Id;
+
+    //    $.modalOpen({
+    //        id: "Form",
+    //        title: "修改",
+    //        url: "",
+    //        width: "400px",
+    //        height: "300px",
+    //        callBack: function (iframeId) {
+    //            top.frames[iframeId].submitForm();
+    //        }
+    //    });
+    //}
+
+
+    //function btn_delete() {
+    //    $.deleteForm({
+    //        url: "",
+    //        param: { keyValue: $("#gridList").jqGridRowValue().F_Id },
+    //        success: function () {
+    //            $("#gridList").resetSelection();
+    //            $("#gridList").trigger("reloadGrid");
+    //        }
+    //    })
+    //}
+    //清空文本框--bichen
+    function clean() {
+        $("#PlantID").val("");
+        $("#RepairMk").val("-1");
+        $("#StationNo").val("");
+        $("#VINCode").val("");
+        $("#SlideCode").val("");
+        $("#CarrierCode").val("");
+    }
+</script>
+<div class="topPanel">
+    @*<div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建</a>
+        </div>
+        <div class="operate">
+            <ul class="nav nav-pills">
+                <li class="first">已选中<span>1</span>项</li>
+                <li><a id="NF-edit" authorize="yes" onclick="btn_edit()"><i class="fa fa-pencil-square-o"></i>修改</a></li>
+                <li><a id="NF-delete" authorize="yes" onclick="btn_delete()"><i class="fa fa-trash-o"></i>删除</a></li>
+            </ul>
+            <a href="javascript:;" class="close"></a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>*@
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        @*修改value值，与数据库相对应--bichen*@
+                        <select id="PlantID" name="PlantID" class="form-control" style="width: 150px; margin-right:10px">
+                            <option value="">==请选择车间==</option>
+                            <option value="AssemblyShop">总装车间</option>
+                            <option value="WeldingShop">焊装车间</option>
+                            <option value="PaintShop">涂装车间</option>
+                        </select>
+                        <select id="RepairMk" name="RepairMk" class="form-control" style="width: 150px; margin-right:10px">
+                            <option value="-1">==是否人工过点==</option>
+                            <option value="0">正常过点</option>
+                            <option value="1">人工过点</option>
+                        </select>
+                        <input id="StationNo" type="text" class="form-control" placeholder="站点编号" style="width: 100px; margin-right:10px">
+                        <input id="VINCode" type="text" class="form-control" placeholder="VIN码号" style="width: 100px; margin-right:10px">
+                        <input id="SlideCode" type="text" class="form-control" placeholder="滑撬编号" style="width: 100px; margin-right:10px">
+                        <input id="CarrierCode" type="text" class="form-control" placeholder="载码体编号" style="width: 100px;">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+                @* 清空文本框--bichen*@
+                <td>
+                    <div class="input-group">
+                        <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class=" fa fa-link"></i></button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+

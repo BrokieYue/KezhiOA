@@ -1,0 +1,198 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+
+    $(function () {
+        gridList();
+    })
+
+    $(window).resize(function () {
+        $("#gridList").setGridWidth($(window).width());
+    })
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/BaseManage/VehicleCode/GetVehicleJson",
+            height: $(window).height() - 165,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "装配厂", name: "AssemblyName", align: 'left', width: 100 },
+                { label: "整车编码", name: "Vcode", align: 'left', width: 150 },
+                { label: "生产标识", name: "ProduceFlag_Name", width: 100, align: 'left' },
+                { label: '车型平台', name: 'CarModel_Name', width: 100, align: 'left' },
+                { label: '发动机类型', name: 'EngineType_Name', width: 120, align: 'left' },
+                { label: '变速箱', name: 'Gearbox_Name', width: 120, align: 'left' },
+                { label: "驱动形式", name: "Drive_Name", align: 'left', width: 80 },
+                { label: "排放标准", name: "EmissionSTD_Name", align: 'left', width: 80 },
+                { label: '配置', name: 'Config_Name', width: 100, align: 'left' },
+                { label: '外饰风格', name: 'Outlook_Name', width: 100, align: 'left' },
+                { label: '内饰风格', name: 'Inside_Name', width: 100, align: 'left' },
+                { label: '整车描述', name: 'ItemName', width: 150, align: 'left' },
+                { label: '4-8位代码段', name: 'VinValue', width: 80, align: 'left' },
+                //{
+                //    label: '是否含天窗', name: 'SkylightMarkStr', width: 90, align: 'left', formatter: function (cellvalue, options, rowObject) {
+
+                //        if (rowObject.SkylightMark) {
+                //            return '<span >是</span>';
+                //        }
+                //        else {
+                //            return '<span >否</span>';
+                //        }
+                //    }
+                //},
+
+                { label: '创建人', name: 'F_CreatorName', width: 100, align: 'left' },
+                 {
+                     label: '创建时间', name: 'F_CreatorTime', width: 120, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                         if (cellvalue != "") {
+                             return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                         }
+                     }
+
+                 },
+                { label: '备注', name: 'F_Description', width: 150, align: 'left' }
+            ],
+            pager: "#gridPager",
+            sortname: 'F_CreatorTime asc',
+            viewrecords: true,
+            multiselect: true,//复选框
+            multiboxonly: true,
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyword: $("#keywords").val() }, page: 1
+            }).trigger('reloadGrid');
+
+        });
+    }
+
+    function btn_add() {
+        $.modalOpen({
+            id: "Form",
+            title: "新建整车编码",
+            url: "/BaseManage/VehicleCode/Form",
+            width: "900px",
+            height: "600px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    };
+
+    function btn_Edit() {
+        var id = $("#gridList").jqGrid('getGridParam', 'selrow');
+        //alert(id);
+        //var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        if (id) {
+            $.modalOpen({
+                id: "Form",
+                title: "修改整车编码",
+                url: "/BaseManage/VehicleCode/Form?keyValue=" + id,
+                width: "900px",
+                height: "600px",
+                callBack: function (iframeId) {
+                    top.frames[iframeId].submitForm();
+                }
+            });
+        } else {
+            $.modalAlert("请选择一条有效数据！", "warning")
+            return false;
+        }
+        
+    };
+    //function btn_binding() {
+    //    var id = $("#gridList").jqGrid('getGridParam', 'selrow');
+    //    if (id) {
+    //        $.modalOpen({
+    //            id: "Form",
+    //            title: "绑定特征码",
+    //            url: "/BaseManage/VehicleCode/FeaturesForm?keyValue=" + id,
+    //            width: "1300px",
+    //            height: "650px",
+    //            callBack: function (iframeId) {
+    //                top.frames[iframeId].submitForm();
+    //            }
+    //        });
+    //    } else {
+    //        $.modalAlert("请选择一条有效数据！", "warning")
+    //        return false;
+    //    }
+        
+    //};
+    function btn_delete() {
+        var id = $("#gridList").jqGrid('getGridParam', 'selrow');
+        if (id == null) {
+            $.modalAlert("请选择一条有效数据！","warning");
+        } else {
+            $.deleteForm({
+                url: "/BaseManage/VehicleCode/DeleteForm",
+                param: { keyValue: id },
+                success: function () {
+                    $.currentWindow().$("#gridList").trigger("reloadGrid");
+                }
+            });
+        }
+    }
+    //清空文本框--bichen
+    function clean() {
+        $("#keywords").val("");
+    }
+</script>
+
+        <div class="topPanel">
+            <div class="toolbar">
+
+                @*<div class="btn-group">
+                        <a id="NF-add" authorize="yes" class="btn btn-primary " onclick="btn_add()"><i class="fa fa-plus"></i>报工</a>
+                    </div>*@
+
+                <div class="btn-group">
+                    <a id="NF-add" authorize="yes" class="btn btn-primary " onclick="btn_add()"><i class="fa fa-plus "></i>新增</a>
+                </div>
+                <div class="btn-group">
+                    <a id="NF-edit" authorize="yes" class="btn btn-primary " onclick="btn_Edit()"><i class="fa fa-edit "></i>修改</a>
+                </div>
+                <div class="btn-group">
+                    <a id="NF-delete" authorize="yes" class="btn btn-primary " onclick="btn_delete()"><i class="fa fa-trash-o "></i>删除</a>
+                </div>
+                @*<div class="btn-group">
+                    <a id="NF-binding" authorize="yes" class="btn btn-primary " onclick="btn_binding()"><i class="fa fa-trash-o "></i>绑定特征码</a>
+                </div>*@
+
+                @*<script>$('.toolbar').authorizeButton()</script>*@
+            </div>
+            <div class="search">
+                <table>
+                    <tr>
+                        <td>
+                            <div class="input-group">
+                                <input id="keywords" type="text" class="form-control" placeholder="输入整车编码" style="width: 255px;" />
+                                <span class="input-group-btn">
+                                    <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                                </span>
+                            </div>
+                        </td>
+                        @* 清空文本框--bichen*@
+                        <td>
+                            <div class="input-group">
+                                <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class="fa fa-link"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="gridPanel">
+            <table id="gridList"></table>
+            <div id="gridPager"></div>
+        </div>
+
+

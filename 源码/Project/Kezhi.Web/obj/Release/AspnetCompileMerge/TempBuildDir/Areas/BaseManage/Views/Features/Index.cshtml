@@ -1,0 +1,264 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script>
+    $(function () {
+        gridList();
+        gridList2();
+   
+    })
+
+    $(window).resize(function () {
+        $("#gridList").setGridWidth($(window).width());
+    })
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/BaseManage/Features/GetPlanJson",
+            height: $(window).height() / 2 - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "车型特征编码", name: "FeatCode", width: 250, align: 'left' },
+                { label: "车型特征名称", name: "FeatName", width: 250, align: 'left' },
+                { label: "特征描述", name: "F_Description", width: 500, align: 'left' },   
+            ],
+            pager: "#gridPager",
+            sortname: 'FeatCode asc ',
+            viewrecords: true,
+            fitColumns: true,
+           
+            multiselect: false,//复选框
+            rowNum: 10,
+            rowList: [20, 50, 50],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { FeatCode: $("#FeatCode").val(), FeatName: $("#FeatName").val()}, page: 1
+            }).trigger('reloadGrid');
+        });
+    }
+    function gridList2() {
+        var $gridList = $("#gridList2");
+        $gridList.dataGrid({
+            url: "/BaseManage/Features/GetDetailJson",
+            height: $(window).height()/ 2-128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "特征码主表ID", name: "ParentID", width: 90, align: 'left', hidden: true },
+                { label: "车型特征值编码", name: "FeatCode", width: 250, align: 'left' },
+                { label: "车型特征值名称", name: "FeatName", width: 250, align: 'left' },
+                { label: "特征值描述", name: "F_Description", width: 500, align: 'left' },
+
+            ],
+            pager: "#gridPager2",
+            sortname: 'FeatCode asc',
+            viewrecords: true,
+            postData: { keyValue: "~" },
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyValue: "~" },
+            }).trigger('reloadGrid');
+        });
+        $('#gridList').on('click',  function (e) {
+            var keyValue = $("#gridList").jqGridRowValue().F_Id;
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyValue: keyValue },
+            }).trigger('reloadGrid');
+
+        });
+    }
+   //新增-yangxin
+        function btn_add() {
+            $.modalOpen({
+                id: "Form",
+                title: "新建",
+                url: "/BaseManage/Features/Form",
+                width: "400px",
+                height: "300px",
+                callBack: function (iframeId) {
+                    top.frames[iframeId].submitForm();
+                }
+            });
+        }
+    //修改-yangxin
+        function btn_edit() {
+            var keyValue = $("#gridList").jqGridRowValue().F_Id;
+            if (keyValue) {
+                $.modalOpen({
+                    id: "Form",
+                    title: "修改",
+                    url: "/BaseManage/Features/Form?keyValue=" + keyValue + "",
+                    width: "400px",
+                    height: "300px",
+                    callBack: function (iframeId) {
+                        top.frames[iframeId].submitForm();
+                    }
+                });
+            } else {
+                $.modalAlert("请选择一条有效数据！", "warning")
+                return false;
+            }
+        }
+
+    //删除-yangxin
+        function btn_delete() {
+            var keyValue = $("#gridList").jqGridRowValue().F_Id;
+            if (keyValue == null) {
+                $.modalAlert("请选择一条有效数据！", "warning")
+            } else {
+                $.deleteForm({
+                    url: "/BaseManage/Features/DeleteForm",
+                    param: { keyValue:keyValue },
+                    success: function () {
+                        $("#gridList").resetSelection();
+                        $("#gridList").trigger("reloadGrid");
+                    }
+                })
+            }
+ 
+        }
+    //明细新增-yangxin
+        function btn_addzd() {
+            var keyValue = $("#gridList").jqGridRowValue().F_Id;
+            if (keyValue) {
+                $.modalOpen({
+                    id: "Index",
+                    title: "新增特征码明细",
+                    url: "/BaseManage/Features/FormDetail?ParentID=" + keyValue + "",
+                    width: "400px",
+                    height: "300px",
+                    callBack: function (iframeId) {
+                        top.frames[iframeId].submitForm();
+                    }
+                });
+            } else {
+                $.modalAlert("请选择一条特征码数据！", "warning")
+                return false;
+            }
+        }
+
+    //明细修改-yangxin
+        function btn_editzd() {
+            var keyValue = $("#gridList2").jqGridRowValue().F_Id;
+            if (keyValue) {
+                $.modalOpen({
+                    id: "Form",
+                    title: "修改",
+                    url: "/BaseManage/Features/FormDetail?keyValue=" + keyValue + "",
+                    width: "400px",
+                    height: "300px",
+                    callBack: function (iframeId) {
+                        top.frames[iframeId].submitForm();
+                    }
+                });
+            } else {
+                $.modalAlert("请选择一条有效数据！", "warning")
+                return false;
+            }
+        }
+    //明细删除-yangxin
+        function btn_deletezd() {
+            var keyValue = $("#gridList2").jqGridRowValue().F_Id;
+            if (keyValue == null) {
+                $.modalAlert("请选择一条有效数据！", "warning");
+            } else {
+                $.deleteForm({
+                    url: "/BaseManage/Features/DeleteFormDetail",
+                    param: { keyValue: keyValue},
+                    success: function () {
+                        $("#gridList2").resetSelection();
+                        $("#gridList2").trigger("reloadGrid");
+                    }
+                })
+            }
+        }
+    //清空文本框--bichen
+        function clean() {
+            $("#FeatCode").val("");
+            $("#FeatName").val("");
+        }
+</script>
+
+    <div class="topPanel">
+        <div class="toolbar">
+            <div class="btn-group">
+                <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+            </div>
+            <div class="btn-group">
+                <a id="NF-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建特征码</a>
+            </div>
+
+            <div class="btn-group">
+                <a id="NF-edit" authorize="yes" class="btn btn-primary " onclick="btn_edit()"><i class="fa fa-edit"></i>修改特征码</a>
+            </div>
+            <div class="btn-group">
+                <a id="NF-delete" authorize="yes" class="btn btn-primary " onclick="btn_delete()"><i class="fa fa-trash-o "></i>删除特征码</a>
+            </div>
+        </div>
+        <div class="search">
+                <table>
+                    <tr>
+                        <th class="formTitle">特征码主表　</th>
+                        <td>
+                            <div class="input-group">
+                                <input id="FeatCode" type="text" class="form-control" placeholder="车型特征编码" style="width: 100px; margin-right:10px">
+                                <input id="FeatName" type="text" class="form-control" placeholder="车型特征名称" style="width: 100px;">
+                                <span class="input-group-btn">
+                                    <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                                </span>
+                            </div>
+                        </td>
+                        @* 清空文本框--bichen*@
+                        <td>
+                            <div class="input-group">
+                                <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class="fa fa-link"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+
+                </table>
+
+            </div>
+        </div>
+  
+  
+    <div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a id="NF-add" authorize="yes" class="btn btn-primary " onclick="btn_addzd()"><i class="fa fa-plus"></i>新建特征码明细</a>
+        </div>
+        <div class="btn-group">
+            @*修改页面样式将图标样式由 fa fa-trash-o 修改为 fa fa-edit --bichen*@
+            <a id="NF-editzd" authorize="yes" class="btn btn-primary " onclick="btn_editzd()"><i class="fa fa-edit"></i>修改特征码明细</a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-delete" authorize="yes" class="btn btn-primary " onclick="btn_deletezd()"><i class="fa fa-trash-o "></i>删除特征码明细</a>
+        </div>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <th class="formTitle">特征码明细</th>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList2"></table>
+    <div id="gridPager2"></div>
+</div>
+ 

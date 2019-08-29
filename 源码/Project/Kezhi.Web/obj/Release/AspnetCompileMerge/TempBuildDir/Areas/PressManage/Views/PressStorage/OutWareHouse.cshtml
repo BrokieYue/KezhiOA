@@ -1,0 +1,283 @@
+﻿@{
+    ViewBag.Title = "入库";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        initControl();
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/PressManage/PressStorage/GetInventoryListJson",
+            height: 400,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "批次号", name: "BatchNO", width: 130, align: 'left' },
+                { label: '物料编号', name: 'Vcode', width: 120, align: 'left' },
+                { label: '特性值', name: 'Lot_Code', width: 100, align: 'left' },
+                  {
+                      label: '入库类型', name: 'InvType', width: 60, align: 'left', formatter: function (cellvalue, options, rowObject) {
+
+                          if (rowObject.InvType == 0) {
+                              return '<span >生产入库</span>';
+                          }
+                          else {
+                              return '<span >委外件入库</span>';
+                          }
+                      }
+                  },
+                { label: '入库数量', name: 'InvAmount', width: 100, align: 'left' },
+                 { label: "入库员", name: "InOperatorName", width: 90, align: 'left' },
+                { label: "入库库房", name: "StorageName", width: 90, align: 'left' },
+                {
+                    label: '入库时间', name: 'InTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "" && cellvalue != null && cellvalue != undefined)
+                            return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                    }
+                },
+                { label: "供应商", name: "Supplier", width: 120, align: 'left' }
+            ],
+            pager: "#gridPager",
+            sortname: 'BatchNo asc,InTime asc',
+            viewrecords: true,
+            postData: { keyword: "&(**&$#" },
+            rowNum: 10,
+            rowList: [10, 20, 50],
+            unwritten: false,  //设置无数据时提示文字不显示
+            multiselect: true //复选框
+
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyword: $("#keywords").val(), storage: $("#StorageID").val(), starttime: $("#DeliveryTime_start").val(), endtime: $("#DeliveryTime_end").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+    }
+
+    function initControl() {
+        //仓库
+        $("#StorageID").bindSelect({
+            url: "/PressManage/PressStorage/GetStorageList?pID=9f8c65c8-67fd-4d76-a7ba-33b079547893",
+            id: "F_Id",
+            text: "F_ItemName"
+        })
+    }
+
+    function btn_OutWareHouse() {
+        var arryid = [];
+        var selrow = $("#gridList").jqGridRowValue();
+        for (var i = 0; i < selrow.length; i++) {
+            arryid.push(selrow[i].F_Id);
+        }
+        if (arryid.length == 0) {
+            $.modalAlert("请选择一条有效数据！")
+            return false;
+        }
+        var Warehouse = $("#SAPWarehouse").val();
+        if (!Warehouse) {
+            $.modalAlert("请选择出库仓库！")
+            return false;
+        }
+        $.ajax({
+           // type: "post",
+            url: "/PressManage/PressStorage/GetFIFOStateJson",
+            data: { keyword: arryid.join(",") },
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                if (data.Result.length > 0) {
+                    $.modalConfirm("注：料号：" + data.Result + " 违反了先进先出原则，确认继续出库操作吗？", function (r) {
+                        if (r) {
+                            $.submitForm({
+                                url: "/PressManage/PressStorage/OutWareHousea",
+                                param: { keyValue: arryid.join(","), remark: $("#F_Description").val(), SAPWarehouse: Warehouse },
+                                success: function () {
+                                    $.currentWindow().$("#gridList").trigger("reloadGrid");
+                                    //document.getElementById("F_Description").value = "";
+                                }
+                            })
+                        }
+                    });
+                }
+                else {
+                    $.submitForm({
+                        url: "/PressManage/PressStorage/OutWareHousea",
+                        param: { keyValue: arryid.join(","), remark: $("#F_Description").val(), SAPWarehouse: Warehouse },
+                        success: function () {
+                            $.currentWindow().$("#gridList").trigger("reloadGrid");
+                            //document.getElementById("F_Description").value = "";
+                        }
+                    })
+                }
+               
+            }
+        });
+
+      
+    }
+    function OutWare(selrow) {
+        var arryid1 = [];
+        arryid1[0] = selrow
+        if (arryid1.length == 0) {
+            $.modalAlert("请选择一条有效数据！")
+            return false;
+        }
+        $.ajax({
+          
+            url: "/PressManage/PressStorage/GetFIFOStateJson",
+            data: { keyword: arryid1.join(",") },
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                if (data.Result.length > 0) {
+                    $.modalConfirm("注：料号：" + data.Result + " 违反了先进先出原则，确认继续出库操作吗？", function (r) {
+                        if (r) {
+                            $.ajax({
+                                url: "/PressManage/PressStorage/OutWareHousea",
+                                data: { keyValue: arryid1.join(","), remark: $("#F_Description").val() },
+                                async: false,
+                                dataType: "json",
+                                success: function (data) {
+                                    $.modalMsg("操作成功！", "success");
+                                    $('#keywords').val("").focus();
+                                    $("#gridList").jqGrid("clearGridData");
+                                }
+                            })
+                        }
+                    });
+                }
+                else {
+                 
+                    $.ajax({
+                        url: "/PressManage/PressStorage/OutWareHousea",
+                        data: { keyValue: arryid1.join(","), remark: $("#F_Description").val() },
+                        async: false,
+                        dataType: "json",
+                        success: function (data) {
+                            $.modalMsg("操作成功！", "success");
+                            $('#keywords').val("").focus();
+                            $("#gridList").jqGrid("clearGridData");
+                        }
+                    })
+                }
+
+            }
+        });
+
+
+    }
+    document.onkeydown = function (e) {
+
+        if (!e) e = window.event;
+        if ((e.keyCode || e.which) == 13) {
+            var key = $("#keywords").val()
+            if (!!key) {
+                $.ajax({
+                    url: "/PressManage/PressStorage/Getkeywords",
+                    data: { BatchNO: key },
+                    dataType: "json",
+                    async: false,
+                    success: function (data) {
+                        if (data.length > 0) {
+                            $("#gridList").jqGrid("clearGridData");
+                            var dataRow = { "BatchNO": data[0].BatchNO, "Vcode": data[0].Vcode, "InvType": data[0].InvType, "InvAmount": data[0].InvAmount, "InOperatorName": data[0].InOperatorName, "StorageName": data[0].StorageName, "InTime": data[0].InTime, "Supplier": data[0].Supplier }
+                            $('#gridList').jqGrid("addRowData", 1, dataRow);
+                            OutWare(data[0].F_Id);
+                        } else {
+                            $('#keywords').val("").focus();
+                            $("#gridList").jqGrid("clearGridData");
+                            $.modalMsg("错误数据！", "error");
+                        }
+                        //判断表是否有值
+                        //var allCountID = $("#gridList").jqGrid('getDataIDs');
+                        //if (allCountID.length > 0) {
+                        //    OutWare(allCountID);
+                        //} else {
+                        //    $('#keywords').val("").focus();
+                        //    alert("2")
+                        //}
+
+                    }
+
+                });
+            }
+        }
+    }
+</script>
+
+<div class="topPanel">
+    <div class="toolbar">
+
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="keywords" type="text" class="form-control" placeholder="请扫描或输入批次号/物料编号" style="width: 400px; margin-right: 20px; background-color: yellow; ">
+                        <select id="StorageID" name="StorageID" class="form-control required" style="width:120px; margin-right:5px"> 
+                        <option value="">==入库库房==</option> </select>
+                        <input id="DeliveryTime_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'DeliveryTime_end\')}' })" placeholder="完工时间（开始）" style="width: 120px; margin-right: 10px">
+                        <input id="DeliveryTime_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'DeliveryTime_start\')}' })" placeholder="完工时间（结束）" style="width: 120px;">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <div style="width:80%;float:left">
+        <table id="gridList"></table>
+        <div id="gridPager"></div>
+    </div>
+    <div style="width:20%;float:left">
+        <table style="margin-left: 10px; border-collapse: separate; border-spacing: 0px 10px;">
+            <tr>
+                <td class="formValue">
+                   
+                    <select id="SAPWarehouse" name="SAPWarehouse" class="form-control required" style="width:200px; margin-right:5px">
+                           @*HZ01	焊装侧围库
+                            HZ02	焊装后地板库
+                            HZ03	焊装机舱库
+                            HZ04	焊装门盖库
+                            HZ05	焊装前地板库
+                            HZ06	焊装上车身库
+                            HZ07	焊装标准件库
+                            HZ08	焊装线边库
+                            HZ09	焊装成品库*@
+                        <option value="">==请选择出库库房==</option>
+                        <option value="HZ01">焊装侧围库</option>
+                        <option value="HZ02">焊装后地板库</option>
+                        <option value="HZ03">焊装机舱库</option>
+                        <option value="HZ04">焊装门盖库</option>
+                        <option value="HZ05">焊装前地板库</option>
+                        <option value="HZ06">焊装上车身库</option>
+                        <option value="HZ07">焊装标准件库</option>
+                        <option value="HZ08">焊装线边库</option>
+                        <option value="HZ09">焊装成品库</option>
+
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    出库说明：<textarea id="F_Description" name="F_Description" class="form-control" style="height: 300px;width:200px;"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:center;">
+                    <a class="btn btn-primary " style="width: 150px; height: 40px; font-size: 24px;text-align:center" onclick="btn_OutWareHouse()">出&nbsp;&nbsp;库</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+
+
+

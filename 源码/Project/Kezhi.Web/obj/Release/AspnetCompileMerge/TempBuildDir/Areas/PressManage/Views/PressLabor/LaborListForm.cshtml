@@ -1,0 +1,363 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script language="javascript" src="~/Content/js/lodop/LodopFuncs.js"></script>
+<object id="LODOP_OB" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width=0 height=0>
+    <embed id="LODOP_EM" type="application/x-print-lodop" width=0 height=0 pluginspage="~/Content/js/lodop/install_lodop64.exe"></embed>
+</object>
+<script>
+    var LODOP;  //打印控件
+    var keyValue = $.request("keyValue");
+    var BagBatch;
+    $(function () {
+        if (!!keyValue) {
+            $.ajax({
+                url: "/PressManage/PressLabor/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                    $.ajax({
+                        url: "/PressManage/PressLabor/GetBagSn",
+                        data: { BatchNo: data.BatchNo },
+                        dataType: "json",
+                        async: false,
+                        success: function (data) {
+                            BagBatch = data.Result
+
+                        }
+                    });
+                }
+            });
+        }
+
+    });
+    function submitForm() {
+        var tQty = $("#tQty").val();
+        var ProdPassQty = $("#ProdPassQty").val();
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        if (!!tQty) {
+            if (parseInt(tQty) < parseInt(ProdPassQty)) {
+                $.ajax({
+                    url: "/PressManage/PressLabor/ComptDoorBatchSplit?keyValue=" + keyValue + "&tQty=" + tQty + "",
+                    type: "post",
+                    async: false,
+                    contentType: 'application/json',
+                    success: function (data) {
+                        $.modalMsg("操作成功！", "success");
+                        var newQty = parseInt(ProdPassQty) - parseInt(tQty)
+                        BatchNoto = data.Result
+                        CreateVINPrintPage($("#BatchNo").val(), $("#JobNo").val(), $("#Vcode").val(), newQty, BagBatch, $("#ItemName").val(), $("#BatchState").val(), $("#F_CreatorUserName").val(), $("#F_CreatorTime").val(), "1", "", "")
+                        //调用直接打印方法 -yangxin
+                        LODOP.PRINT();
+                        CreateVINPrintPage(BatchNoto, $("#JobNo").val(), $("#Vcode").val(), tQty, BagBatch, $("#ItemName").val(), $("#BatchState").val(), $("#F_CreatorUserName").val(), $("#F_CreatorTime").val(), "1", "", "")
+                        //调用直接打印方法 -yangxin
+                        LODOP.PRINT();
+                        $.currentWindow().$("#gridList").trigger("reloadGrid");
+                        parent.layer.closeAll('iframe');
+                    }
+                })
+            } else {
+                $.modalAlert("拆分数量不能大于或等于原批次数量", "warning");
+                return false;
+            }
+
+        } else {
+            $.modalAlert("请输入正确数量", "warning");
+            return false;
+        }
+
+    }
+
+    function CreateVINPrintPage(batch, jobNo, Vcode, PQty, ItemBagBatch, mName, State, UserName, CreatorTime, QAFlag, QAUserName, QACreatorTime) {
+        var date = getNowFormatDate();
+        var titleName = "";
+        LODOP = getLodop();
+
+        if (State == 1 || State == 2 || State == 3 && QAFlag == 2) {
+            titleName = "合格件批次单"
+        }
+        if (State == 3 && QAFlag != 2) {
+            titleName = "返工件批次单"
+        }
+
+
+        LODOP.PRINT_INITA(0, 0, 790, 1125, "冲压报工补打印");
+        LODOP.SET_PRINT_PAGESIZE(1, 0, 0, "A4");
+        LODOP.SET_PRINT_MODE("PRINT_NOCOLLATE", 1);
+        LODOP.ADD_PRINT_SHAPE(4, 588, 64, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 639, 64, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(597, 66, 631, 50, titleName);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 24);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 689, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 741, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 792, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 847, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 886, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 588, 64, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(656, 64, 105, 25, "零件号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(711, 64, 100, 24, "零件名称");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(758, 64, 100, 26, "捆包号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(812, 64, 100, 25, "生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(858, 64, 100, 28, "生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 927, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(897, 64, 100, 24, "批次数量");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(966, 64, 100, 50, "检验员");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 640, 175, 1, 440, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 1034, 64, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 1080, 64, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 588, 698, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 849, 353, 1, 185, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(854, 364, 120, 30, "原生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 847, 495, 1, 187, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(973, 370, 100, 40, "批次条码");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(901, 366, 100, 20, "原生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_TEXT(894, 176, 175, 31, PQty);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(1050, 69, 100, 20, "批次号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 27, 65, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 78, 65, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(36, 67, 631, 50, titleName);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 24);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 128, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 180, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 231, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 286, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 325, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 27, 65, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(95, 65, 105, 25, "零件号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(150, 65, 100, 24, "零件名称");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(197, 65, 100, 26, "捆包号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(251, 65, 100, 25, "生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(297, 65, 100, 28, "生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 366, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(336, 65, 100, 24, "批次数量");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(405, 65, 100, 50, "检验员");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 79, 176, 1, 440, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 473, 65, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 519, 65, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 27, 699, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 288, 354, 1, 185, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(295, 365, 105, 25, "原生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 286, 496, 1, 187, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(412, 371, 100, 40, "批次条码");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(340, 367, 100, 20, "原生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_TEXT(332, 180, 170, 26, PQty);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(489, 70, 100, 20, "批次号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+
+        LODOP.ADD_PRINT_TEXT(748, 178, 514, 41, ItemBagBatch);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(696, 178, 514, 41, mName);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(648, 178, 515, 41, Vcode);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(186, 180, 512, 41, ItemBagBatch);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(135, 179, 512, 41, mName);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(87, 179, 512, 41, Vcode);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_BARCODE(374, 553, 102, 94, "QRCode", batch);
+        LODOP.ADD_PRINT_BARCODE(938, 547, 102, 94, "QRCode", batch);
+
+        LODOP.ADD_PRINT_TEXT(1046, 185, 463, 30, batch);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 15);
+        LODOP.ADD_PRINT_TEXT(485, 180, 506, 30, batch);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 15);
+
+        if (State == 3 && QAFlag != 2) {
+
+
+            LODOP.ADD_PRINT_SHAPE(4, 588, -40, 100, 60, 0, 1, "#000000");
+            LODOP.ADD_PRINT_SHAPE(4, 587, 704, 100, 60, 0, 1, "#000000");
+            LODOP.ADD_PRINT_SHAPE(4, -36, 705, 100, 90, 0, 1, "#000000");
+            LODOP.ADD_PRINT_SHAPE(4, -16, -39, 100, 70, 0, 1, "#000000");
+            LODOP.ADD_PRINT_SHAPE(4, 1037, 703, 100, 85, 0, 1, "#000000");
+            LODOP.ADD_PRINT_SHAPE(4, 1038, -31, 92, 81, 0, 1, "#000000");
+            LODOP.ADD_PRINT_SHAPE(4, 460, 705, 85, 60, 0, 1, "#000000");
+            LODOP.ADD_PRINT_SHAPE(4, 460, -40, 100, 60, 0, 1, "#000000");
+
+        }
+        if (State == 1 && QAFlag == 2) {
+
+            LODOP.ADD_PRINT_TEXT(896, 519, 165, 25, CreatorTime);//原生产日期
+            LODOP.ADD_PRINT_TEXT(335, 505, 185, 28, CreatorTime);//原生产日期
+            LODOP.ADD_PRINT_TEXT(292, 520, 165, 30, UserName);//原班组
+            LODOP.ADD_PRINT_TEXT(853, 519, 165, 30, UserName);//原班组
+            LODOP.ADD_PRINT_TEXT(800, 180, 512, 41, QACreatorTime);
+            LODOP.ADD_PRINT_TEXT(237, 179, 514, 41, QACreatorTime);
+            LODOP.ADD_PRINT_TEXT(855, 180, 171, 28, QAUserName);
+            LODOP.ADD_PRINT_TEXT(295, 181, 171, 28, QAUserName);
+        } else {
+            LODOP.ADD_PRINT_TEXT(896, 519, 165, 25, "");//原生产日期
+            LODOP.ADD_PRINT_TEXT(335, 505, 185, 28, "");//原生产日期
+            LODOP.ADD_PRINT_TEXT(292, 520, 165, 30, "");//原班组
+            LODOP.ADD_PRINT_TEXT(853, 519, 165, 30, "");//原班组
+            LODOP.ADD_PRINT_TEXT(800, 180, 512, 41, CreatorTime);
+            LODOP.ADD_PRINT_TEXT(237, 179, 514, 41, CreatorTime);
+            LODOP.ADD_PRINT_TEXT(855, 180, 171, 28, UserName);
+            LODOP.ADD_PRINT_TEXT(295, 181, 171, 28, UserName);
+
+
+        }
+        // LODOP.SET_PRINT_MODE("WINDOW_DEFPAGESIZE:打印机名称或序号", 纸张名称);
+        //LODOP.SET_PRINTER_INDEX("HP LaserJet Professional P1106 (副本 1)");
+        LODOP.SET_PRINT_PAGESIZE(1, 0, 0, "A4");//设置纸型
+        // LODOP.SET_PRINT_MODE("CATCH_PRINT_STATUS", true);
+    }
+    //返回当前时间    -yangxin
+    function getNowFormatDate() {
+        var now = new Date();
+
+        var year = now.getFullYear();       //年
+        var month = now.getMonth() + 1;     //月
+        var day = now.getDate();            //日
+
+        var hh = now.getHours();            //时
+        var mm = now.getMinutes();          //分
+        var ss = now.getSeconds();           //秒
+
+        var clock = year + "-";
+
+        if (month < 10)
+            clock += "0";
+
+        clock += month + "-";
+
+        if (day < 10)
+            clock += "0";
+
+        clock += day + " ";
+
+        if (hh < 10)
+            clock += "0";
+
+        clock += hh + ":";
+        if (mm < 10) clock += '0';
+        clock += mm + ":";
+
+        if (ss < 10) clock += '0';
+        clock += ss;
+        return (clock);
+    }
+</script>
+
+
+
+<form id="form1">
+    <div style="margin-top:10px; margin-left: 10px; margin-right: 10px; ">
+        <h5>输入的数量是新批次的数量！  </h5>
+
+        <div style="padding-top: 5px; margin-right: 5px;">
+            <table class="form">
+                <tr>
+
+                    <th class="formTitle">原批次数量：</th>
+                    <td class="formValue">
+                        <input id="ProdPassQty" name="ProdPassQty" type="text" class="form-control required" style="width: 250px; " disabled="disabled" />
+                        <input id="BatchNo" name="BatchNo" type="text" class="form-control " style="display:none " />
+                        <input id="JobNo" name="JobNo" type="text" class="form-control " style="display:none " />
+                        <input id="Vcode" name="Vcode" type="text" class="form-control " style="display:none " />
+                        <input id="ItemName" name="ItemName" type="text" class="form-control " style="display:none " />
+                        <input id="BatchState" name="BatchState" type="text" class="form-control " style="display:none " />
+                        <input id="F_CreatorUserName" name="F_CreatorUserName" type="text" class="form-control " style="display:none " />
+                        <input id="F_CreatorTime" name="F_CreatorTime" type="text" class="form-control " style="display:none " />
+                       
+                        
+                    </td>
+                  
+                </tr>
+                <tr>
+                    <th class="formTitle">请输入拆分数量：</th>
+                    <td class="formValue">
+                        <input id="tQty" name="tQty" type="text" class="form-control required" onkeyup="value=value.replace(/[^\d]/g,'')" placeholder="数量" style="width: 250px" />
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+</form>

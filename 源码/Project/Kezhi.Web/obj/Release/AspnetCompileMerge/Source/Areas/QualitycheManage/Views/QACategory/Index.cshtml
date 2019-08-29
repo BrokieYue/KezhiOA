@@ -1,0 +1,185 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script>
+    $(function () {
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/QualitycheManage/QACategory/GetPlanJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                       {
+                           label: '类型', name: 'Type', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                               if ($.trim(rowObject.Type) == $.trim("1")) {
+                                   return '<span >过程检验</span>';
+                               }
+                               if ($.trim(rowObject.Type) == $.trim("2")) {
+                                   return '<span >整车检验</span>';
+                               }
+                               if ($.trim(rowObject.Type) == $.trim("3")) {
+                                   return '<span >冲压检验</span>';
+                               }
+                               if ($.trim(rowObject.Type) == $.trim("4")) {
+                                   return '<span >AUDIT检验</span>';
+                               }
+                               
+                           }
+                       },
+                { label: "质检类型编号", name: "Code", width: 100, align: 'left' },
+                { label: "质检类型名称", name: "Name", width: 100, align: 'left' },
+         
+                { label: "备注", name: "F_Description", width: 100, align: 'left' },
+                 { label: "创建人", name: "F_CreatorUserName", width: 100, align: 'left' },
+
+               {
+                   label: '创建时间', name: 'F_CreatorTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                       if (cellvalue != "") {
+                           return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                       }
+                   }
+
+               },
+                { label: "修改人", name: "F_LastModifyUserName", width: 100, align: 'left' },
+                {
+                    label: '修改时间', name: 'F_LastModifyTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "") {
+                            return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                        }
+                    }
+
+                },
+               
+            ],
+            pager: "#gridPager",
+            sortname: 'Code asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { Code: $("#Code").val(), Name: $("#Name").val(), CategoryType: $("#CategoryType").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+    }
+
+    function btn_add() {
+        $.modalOpen({
+            id: "Form",
+            title: "新建",
+            url: "/QualitycheManage/QACategory/Form?planState=1",
+            width: "400px",
+            height: "330px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_edit() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        //修改 进行修改操作确定后没有选中行却一样可以操作--bichen
+        if (keyValue == null) {
+            $.modalAlert("请选中一行", "warning")
+        } else {
+            $.modalOpen({
+                id: "Form",
+                title: "修改",
+                url: "/QualitycheManage/QACategory/Form?keyValue=" + keyValue + "",
+                width: "400px",
+                height: "330px",
+                callBack: function (iframeId) {
+                    top.frames[iframeId].submitForm();
+                }
+            });
+        }
+    }
+
+ 
+    function btn_delete() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        //修改 进行修改操作确定后没有选中行却一样可以操作--bichen
+        if (keyValue == null) {
+            $.modalAlert("请选中一行", "warning")
+        } else {
+            $.deleteForm({
+                url: "/QualitycheManage/QACategory/DeleteForm",
+                param: { keyValue:keyValue },
+                success: function () {
+                    $("#gridList").resetSelection();
+                    $("#gridList").trigger("reloadGrid");
+                }
+            })
+        }
+    }
+    //清空文本框--bichen
+    function clean() {
+        $("#Code").val("");
+        $("#Name").val("");
+        $("#CategoryType").val("-1");
+        $("#CarrierCode").val("");
+        $("#Manufacturer").val("");
+    }
+</script>
+<div class="topPanel">
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="Name" type="text" class="form-control" placeholder="质检类型名称" style="width: 100px; margin-right:10px">
+                        <input id="Code" type="text" class="form-control" placeholder="质检类型编号" style="width: 100px; margin-right:10px">
+                        <select id="CategoryType" name="CategoryType" class="form-control " style="width: 130px; ">
+                            <option value="-1">==请选择类型==</option>
+                            <option value="1">过程检验</option>
+                            <option value="2">整车检验</option>
+                            <option value="3">冲压检验</option>
+                            <option value="4">AUDIT检验</option>
+                        </select>
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+                @* 清空文本框--bichen*@
+                <td>
+                    <div class="input-group">
+                        <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class=" fa fa-link"></i></button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建</a>
+        </div>
+        <div class="operate">
+            <ul class="nav nav-pills">
+                <li class="first">已选中<span>1</span>项</li>
+                <li><a id="NF-edit" authorize="yes" onclick="btn_edit()"><i class="fa fa-pencil-square-o"></i>修改</a></li>
+                <li><a id="NF-delete" authorize="yes" onclick="btn_delete()"><i class="fa fa-trash-o"></i>删除</a></li>
+            </ul>
+            <a href="javascript:;" class="close"></a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+

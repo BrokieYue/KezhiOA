@@ -1,0 +1,179 @@
+﻿<!DOCTYPE html>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>车间主任日报图形数据</title>
+    <link href="~/Content/css/framework-theme.css" rel="stylesheet" />
+    <script src="~/Content/js/jquery/jquery-2.1.1.min.js"></script>
+    <script src="~/Content/js/highcharts/highcharts.js"></script>
+    <script>
+        var series = [];
+        //工序滞留时间变量
+        $(function () {
+            GetFaultReasonCount();
+            gettable();
+        });
+
+        function GetFaultReasonCount()
+        {
+            series = [];
+            $.ajax({
+                url: "/ReportManage/FaultReason/GetFaultReasonCount?startTime=" + $("#DeliveryTime_start").val() + "&endTime=" + $("#DeliveryTime_end").val(),
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    if (data.rows.length > 0) {
+                        for (var j = 0; j < data.rows.length; j++) {
+                            series.push({
+                                name: data.rows[j].FaultContent,
+                                data: [data.rows[j].counts],
+                                datas: data.rows[j].FaultContentId
+                            });
+                        }
+                    }
+                    getchart();
+                }
+            });
+        };
+
+        function getchart() {
+            //柱状图
+            var title = { text: '没有查到设备故障原因报表' };
+            if (series.length > 0) {
+                title = { text: '设备故障原因报表' };
+            }
+            $('#container_Histogram').highcharts({
+                chart: {
+                    type: 'column',
+                    renderTo: "container",
+                    events:
+                        {
+                            drilldown: function (e) {
+                                if (!e.seriesOptions) {
+                                    var char = this,
+                                        drilldowns = series
+                                }
+                            }
+                        }
+                },
+                title: title,
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    categories: [
+                        '故障内容'
+                    ],
+                    crosshair: true
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: '次数（次）'
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                    '<td style="padding:0"><b>{point.y:.1f} 次</b></td></tr>',
+                    footerFormat: '</table>',
+                    shared: true,
+                    useHTML: true
+                },
+                plotOptions: {
+                    series: {
+                        cursos: "pointer",
+                        events: {
+                            click: function (e) {
+                                var FaultContentId =  e.currentTarget.data[0].series.options.datas;
+                                gettable(FaultContentId);
+                            }
+                        }
+                    },
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    }
+                },
+                series: series
+            });
+        };
+
+        function gettable(FaultContentId) {
+            $("#tb").html("<tr><td colspan=\"5\" style=\"text-align:center;height:30px;\">暂无数据！</td></tr>");
+            $.ajax({
+                url: "/ReportManage/FaultReason/GetFaultReasonTable?FaultContentId=" + FaultContentId + "&startTime=" + $("#DeliveryTime_start").val() + "&endTime=" + $("#DeliveryTime_end").val(),
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    var html = "";
+                    $("#tb").html(html);
+                    for (var i = 0; i < data.rows.length; i++) {
+                        html += "<tr><td style=\"text-align:center;border: 1px #000 solid;\">" + data.rows[i]["EquipmentName"] + "</td>"
+                        + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["FaultContent"] + "</td>"
+                        + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["FaultReason"] + "</td>"
+                        + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["HandleMethod"] + "</td>"
+                        + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["counts"] + "</td></tr>";
+                    }
+                    if (data.rows.length <= 0) {
+                        $("#tb").html("<tr><td colspan=\"5\" style=\"text-align:center;height:30px;\">经查询没有数据！</td></tr>");
+                    }
+                    $("#tb").append(html);
+                }
+            });
+        };
+        $(function () {
+            gettable(null);
+            $("#btn_search").click(function () {
+                gettable(null);
+                GetFaultReasonCount();
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="topPanel">
+        <div class="search">
+            <table>
+                <tr>
+                    <td>
+                        <div class="input-group">
+                            <input id="DeliveryTime_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'DeliveryTime_end\')}' })" placeholder="开始时间" style="width: 120px; margin-right: 10px">
+                            <input id="DeliveryTime_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'DeliveryTime_start\')}' })" placeholder="结束时间" style="width: 120px;">
+
+                            <span class="input-group-btn">
+                                <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <!---柱状图-->
+    <div id="container_Histogram" style="min-width:400px;height:400px"></div>
+    <!---柱状图-->
+    <!--报表详情开始-->
+    <div style="margin-top:40px;">
+        <h3 style="text-align:center;">故障原因报表详情</h3>
+        <table style="margin:auto;cellpadding:0;cellspacing:1; background-color:white;border:1px black solid;border-collapse:collapse;width:100%;">
+
+            <thead style="background-color:#1d89bf;height:30px;width:100%;color:white;">
+                <tr>
+                    <th width="20%" style="text-align:center;">设备名称</th>
+                    <th width="20%" style="text-align:center;">故障内容</th>
+                    <th width="20%" style="text-align:center;">维修原因</th>
+                    <th width="20%" style="text-align:center;">处理对策</th>
+                    <th width="20%" style="text-align:center;">故障次数</th>
+                </tr>
+            </thead>
+            <tbody id="tb"></tbody>
+        </table>
+    </div>
+    <!--报表详情结束-->
+</body>
+</html>

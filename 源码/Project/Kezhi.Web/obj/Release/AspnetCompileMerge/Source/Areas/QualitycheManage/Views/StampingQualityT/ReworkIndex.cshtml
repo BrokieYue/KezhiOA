@@ -1,0 +1,1032 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<link href="~/Content/js/wizard/wizard.css" rel="stylesheet" />
+<script src="~/Content/js/wizard/wizard.js"></script>
+<script language="javascript" src="~/Content/js/lodop/LodopFuncs.js"></script>
+<object id="LODOP_OB" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width=0 height=0>
+    <embed id="LODOP_EM" type="application/x-print-lodop" width=0 height=0 pluginspage="~/Content/js/lodop/install_lodop64.exe"></embed>
+</object>
+
+<script>
+    var keyValue;
+    var lastrow;
+    var lastcell;
+    var RealName;//当前操作人
+    var LODOP;  //打印控件
+    var _Vcode;
+    var oldBatchNo;
+
+    $(function () {
+        inputbind();
+        initControl();
+        gridList2();
+        checkbox();
+        document.getElementById("BatchNo").focus();
+        RealName = '@Kezhi.Code.OperatorProvider.Provider.GetCurrent().UserName';
+       
+    })
+
+   
+
+  
+    function initControl() {
+
+        $('#wizard').wizard().on('change', function (e, data) {
+            var $finish = $("#btn_finish");
+            var $next = $("#btn_next");
+            if (data.direction == "next") {
+                switch (data.step) {
+                    case 1:
+
+                        if ($("#DefectsMKTO").prop('checked')) {
+                            $finish.show();
+                            $next.hide();
+                            $("#F_EnabledMark").removeAttr('checked');
+
+                        } else {
+
+                            $finish.hide();
+                            $next.show();
+
+                        }
+
+                        gridList();
+
+                        break;
+                    case 2:
+                        $finish.show();
+                        $next.hide();
+                        break;
+
+                    default:
+                        break;
+                }
+            } else {
+                $finish.hide();
+                $next.show();
+            }
+        });
+
+     
+    }
+    
+    function inputbind() {
+        $("#QAFailQty").bind('input propertychange', function () {
+
+            $("#RepairQty").val($("#QAFailQty").val());
+            $("#ScrapQty").val(0);
+
+        });
+
+        $("#ScrapQty").bind('input propertychange', function () {
+            var Scrapsummary = $("#ScrapQty").val();
+            var QAFummary = $("#QAFailQty").val();
+            $("#RepairQty").val(QAFummary - Scrapsummary);
+            if ($("#RepairQty").val() < 0) {
+                $("#RepairQty").val(0);
+                $("#ScrapQty").val(0);
+            }
+
+        });
+
+        $("#RepairQty").bind('input propertychange', function () {
+            var Scrapsummary = $("#RepairQty").val();
+            var QAFummary = $("#QAFailQty").val();
+            $("#ScrapQty").val(QAFummary - Scrapsummary);
+            if ($("#ScrapQty").val() < 0) {
+                $("#ScrapQty").val(0);
+                $("#RepairQty").val(0);
+            }
+
+        });
+
+    }
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        //根据计划类型编码查询质检项目
+        var CategoryName = $("#Type_Code").val();
+        if (CategoryName == "冲压A线质检" || CategoryName == "冲压B线质检")
+        {
+            CategoryName = "CC";
+        }
+        if (CategoryName == "落料质检") {
+            CategoryName = "CL";
+        }
+        if (CategoryName == "凸焊质检") {
+            CategoryName = "CT";
+        }
+        $gridList.dataGrid({
+            url: "/QualitycheManage/QACheckItem/StampingGetPlanJson",
+            height: 360,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "项目编号", name: "ItemCode", width: 250, align: 'left' },
+                { label: "项目名称", name: "ItemName", width: 250, align: 'left' },
+                { label: "质检区域ID", name: "AreaID", width: 90, align: 'left', hidden: true, },
+                { label: "质检类型ID", name: "CategoryID", width: 90, align: 'left', hidden: true, },
+                { label: "质检单ID", name: "CheckResultID", width: 90, align: 'left', hidden: true, },
+                { label: "质检区域", name: "AreaName", width: 250, align: 'left' },
+                { label: "质检类型", name: "CategoryName", width: 250, align: 'left', hidden: true, },
+                { label: "问题等级", name: "Level", width: 250, align: 'left' },
+                { label: '不合格数量', name: 'UnqualifiedQty', width: 240, align: 'left', editable: true },
+
+
+            ],
+            pager: "#gridPager",
+            sortname: 'ItemCode asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            cellEdit: true,
+            checkOnSelect: true,
+            cellsubmit: 'clientArray',
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: false,
+            postData: { CategoryName: CategoryName, BatchNo: "" },
+            beforeEditCell: function (rowid, cellname, v, iRow, iCol) {
+                lastrow = iRow; lastcell = iCol;
+            },
+            afterSaveCell: function (rowid, cellname, value, iRow, iCol) {
+                submitpassQty();
+                if ($("#RepairQty").val() == 0) {
+                    $("#ReworkWayId").hide();
+                    $("#ReworkWayId2").hide();
+                }
+               
+            },
+            beforeSaveCell: function (rowid, cellname, value, iRow, iCol) {
+                var smu1 = $("#QAFailQty").val();
+                var smu2 = $("#ProdPassQty").val();
+                    if (Number(smu2) < (Number(smu1))) {
+                        $.modalAlert("不合格总数量不能大于当前数量", "warning")
+                        return "0";
+                    
+                }
+            },
+        });
+    }
+    function gridList2() {
+        var $gridList = $("#gridList2");
+        $gridList.dataGrid({
+            url: "/QualitycheManage/StampingQuality/GetPlanJson",
+            height: $(window).height() - 200,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "批次号", name: "BatchNo", width: 260, align: 'left' },
+                { label: "物料编码", name: "Vcode", width: 320, align: 'left' },
+                { label: "物料特性值", name: "LOT_Code", width: 130, align: 'left' },
+                { label: "批次数量", name: "ProdPassQty", width: 130, align: 'left' },
+
+              {
+                  label: '批次号状态', name: 'BatchState', width: 200, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                      if ($.trim(rowObject.BatchState) == 1) {
+                          return '<span >未入库</span>';
+                      }
+                      if ($.trim(rowObject.BatchState) == 2) {
+                          return '<span >已入库</span>';
+                      }
+                      if ($.trim(rowObject.BatchState) == 3) {
+                          return '<span >返工库</span>';
+                      }
+                      if ($.trim(rowObject.BatchState) == 4) {
+                          return '<span >AUDIT</span>';
+                      }
+
+                  }
+              },
+
+                     {
+                         label: '批次号来源', name: 'BatchSource', width: 210, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                             if ($.trim(rowObject.BatchSource) == 1) {
+                                 return '<span >生产报工</span>';
+                             }
+                             if ($.trim(rowObject.BatchSource) == 2) {
+                                 return '<span >质检拆单</span>';
+                             }
+                             if ($.trim(rowObject.BatchSource) == 3) {
+                                 return '<span >挑件拆单</span>';
+                             }
+                             if ($.trim(rowObject.BatchSource) == 4) {
+                                 return '<span >合单</span>';
+                             }
+
+                         }
+                     },
+            ],
+            pager: "#gridPager2",
+            sortname: 'BatchNo asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true,
+            postData: { BatchState: "3", BatchQAFlag: "1" },
+        });
+    }
+    function clearInit() {
+        document.getElementById("BatchNo").value = "";
+        document.getElementById("Vcode").value = "";
+        document.getElementById("JobNo").value = "";
+        document.getElementById("BatchSource").value = "";
+        document.getElementById("ProdPassQty").value = "";
+        document.getElementById("QAFailQty").value = "";
+        document.getElementById("RepairQty").value = "";
+        document.getElementById("ScrapQty").value = "";
+        document.getElementById("Type_Code").value = "";
+        document.getElementById("LOT_Code").value = "";
+
+    }
+
+    //jqGrid随窗口大小变化自适应宽度
+    $(window).resize(function () {
+        $("#gridList").setGridWidth($(window).width());
+        $("#gridList2").setGridWidth($(window).width());
+    })
+
+
+    //键盘enter事件-wangqiang
+    document.onkeydown = function (e) {
+        if (!e) e = window.event;
+        if ((e.keyCode || e.which) == 13) {
+            oldBatchNo = $("#BatchNo").val();
+            var $finish = $("#btn_finish");
+            var $next = $("#btn_next");
+            var $btn_last = $("#btn_last");
+            document.getElementById("tipTxt").innerText = "";
+            var BatchNo = $("#BatchNo").val();
+            if (BatchNo == "") {
+                $.modalAlert("批次号不能为空", "warning")
+                clearInit();
+                return false;
+            }
+            //$('#btn_next').attr("disabled", false);
+            //$finish.hide();
+            //$next.show();
+            //$btn_last.show();
+            $.ajax({
+                url: "/QualitycheManage/StampingQuality/GetReworkBatchNo?BatchNo=" + BatchNo,
+                dataType: "json",
+                async: false,
+                success: function (data) {
+
+                    if (data.length > 0 && data[0].BatchQAFlag == 1 && data[0].BatchState == 3) {
+                        keyValue = data[0].F_ID;
+                        document.getElementById("JobNo").value = data[0].JobNo;
+                        document.getElementById("Vcode").value = data[0].Vcode;
+                        document.getElementById("ProdPassQty").value = data[0].ProdPassQty;
+                        document.getElementById("LOT_Code").value = data[0].LOT_Code;
+                        document.getElementById("CurrentQty").value = data[0].CurrentQty;
+                        document.getElementById("Vcodename").value = data[0].Vcodename;
+                        //document.getElementById("CurrentQty").value = data[0].ProdPassQty;
+                        if (data[0].Type_Code == "CA") {
+                            document.getElementById("Type_Code").value = "冲压A线质检";
+                        }
+                        if (data[0].Type_Code == "CB") {
+                            document.getElementById("Type_Code").value = "冲压B线质检";
+                        }
+                        if (data[0].Type_Code == "CF") {
+                            document.getElementById("Type_Code").value = "冲压返工质检";
+                        }
+                        if (data[0].Type_Code == "CL") {
+                            document.getElementById("Type_Code").value = "落料质检";
+                        }
+                        if (data[0].Type_Code == "CT") {
+                            document.getElementById("Type_Code").value = "凸焊质检";
+                        }
+
+                        //document.getElementById("BatchSource").value = data[0].BatchSource;
+                        if (data[0].BatchSource == 1) {
+                            document.getElementById("BatchSource").value = "生产报工";
+                        }
+                        if (data[0].BatchSource == 2) {
+                            document.getElementById("BatchSource").value = "质检拆单";
+                        }
+                        if (data[0].BatchSource == 3) {
+                            document.getElementById("BatchSource").value = "挑件拆单";
+                        }
+                        if (data[0].BatchSource == 4) {
+                            document.getElementById("BatchSource").value = "合单";
+                        }
+                       
+
+                        //document.getElementById("Description").value = data[0].Description;
+                        $finish.hide();
+                        $next.show();
+                        if ($("#reworkPlanNo").val() != "" && $("#reworkPlanNo").val() != null) {
+                    
+                            $('#btn_next').attr("disabled", false);
+                        }
+                    }
+                    else {
+                        document.getElementById("tipTxt").innerText = "批次号不存在...";
+                        $finish.hide();
+                        $next.hide();
+                        $btn_last.hide();
+                        clearInit();
+                        return false;
+                    }
+
+                }
+            });
+        }
+    }
+
+    function checkbox() {
+
+        $("#DefectsMKTO").click(function () {
+            var $finish = $("#btn_finish");
+            var $next = $("#btn_next");
+            if ($("#DefectsMKTO").prop('checked')) {
+                $finish.show();
+                $next.hide();
+                $("#F_EnabledMark").removeAttr('checked');
+            } else {
+                $("#F_EnabledMark").prop("checked", true);
+                $finish.hide();//修改取消单选框选中，默认去选中另一个时，按钮却没有跟随变化--bichen.11.15
+                $next.show();
+            }
+        });
+
+        $("#F_EnabledMark").click(function () {
+            var $finish = $("#btn_finish");
+            var $next = $("#btn_next");
+            if ($("#F_EnabledMark").prop('checked')) {
+                $finish.hide();
+                $next.show();
+                $("#DefectsMKTO").removeAttr('checked');
+            } else {
+                $("#DefectsMKTO").prop("checked", true);
+                $("#getshou").hide();
+                $finish.show();//修改取消单选框选中，默认去选中另一个时，按钮却没有跟随变化--bichen.11.15
+                $next.hide();
+            }
+        });
+
+    }
+
+    function submitForm() {
+        var BatchNo = $("#BatchNo").val();
+        var BatchSourceType = 2;
+        //alert(BatchNo+"");
+
+        var smu1 = $("#QAFailQty").val();
+        //var smu2 = $("#ProdPassQty").val();CurrentQty
+        var smu2 = $("#CurrentQty").val();
+        var ReworkBatchID = $("#gridList2").jqGridRowValue().F_Id;
+        var type;
+        $("#gridList").jqGrid("saveCell", lastrow, lastcell);
+        if ($("#DefectsMKTO").prop('checked')) {
+            type = 1;
+        } else {
+            if (ReworkBatchID) {
+
+                type = 2;
+
+            } else {
+                $.modalAlert("请选择一条有效的返工批次数据！", "warning")
+                return false;
+            }
+
+        }
+        if (Number(smu1) > Number(smu2)) {
+            //$.modalAlert("不合格数量不能大于批次总数量", "warning")
+            $.modalAlert("不合格数量不能大于当前数量", "warning")
+            return false;
+        }
+        var _list = [];
+        var selrow = $("#gridList").jqGrid('getRowData');
+        var allCountID = $("#gridList").jqGrid('getDataIDs');
+        selrow.push($("#gridList").jqGrid('getRowData', allCountID[allCountID.length - 1])); //解决 jqGrid('getRowData') 获取 少最后一行 bug
+        for (var i = 0; i < selrow.length; i++) {
+            _list.push({ F_Id: selrow[i].F_Id, ItemName: selrow[i].ItemName, AreaID: selrow[i].AreaID, AreaName: selrow[i].AreaName, DownLimit: Number(selrow[i].UnqualifiedQty), CategoryID: selrow[i].CategoryID, SeqNo: selrow[i].CheckResultID });
+            //}
+        }
+        //冲返工计划
+        if ($("#plan_Fid").val() != null) {
+            $('#btn_next').attr("disabled", false);
+            $("#btn_finish").hide();
+            $("#btn_next").show();
+            $("#btn_last").show();
+            $.ajax({
+                url: "/PlanManage/PlanInfoStamping/UpdateReworkPlan?keyValue="
+                     + $("#plan_Fid").val() + "&planQty=" + $("#reworkPlanQty").val() + "&completNumber=" + $("#CurrentQty").val(),
+                async: false,
+                contentType: 'application/json',
+                success: function (data) {
+                }
+            });
+        } else {
+            $.modalAlert("请选择返工计划！！", "warning")
+        }
+        
+
+        $.ajax({
+            url: "/QualitycheManage/StampingQuality/Submitquality?keyValue="
+                 + keyValue + "&Vcode=" + $("#Vcode").val() + "&Lotcode=" + $("#LOT_Code").val()
+                 + "&BatchNo=" + $("#BatchNo").val() + "&ProdPassQty=" + $("#ProdPassQty").val() + ""
+                 + "&QAFailQty=" + $("#QAFailQty").val() + "" + "&ReworkBatchID=" + ReworkBatchID + ""
+                 + "&type=" + type + "" + "&ScrapQty=" + $("#ScrapQty").val() + "" + "&RepairQty="
+                 + $("#RepairQty").val() + "" + "&BatchSourceType=" + BatchSourceType + "&QualityType=4&ReworkJobNo=" + $("#reworkPlanNo").val() + "&QualityInspectionType=Rework",
+            data: JSON.stringify(_list),
+            type: "post",
+            async: false,
+            contentType: 'application/json',
+            success: function (data) {
+                var batchNo = data.Result;
+                var bSN = data.bagSN; //料包批次号
+                var scrapSN = data.scrapSN;
+                var scrapBatchNo = data.scrapBatchNo;
+                var qualifiedSN = data.qualifiedSN;
+                var teman = $("#Vcode").val(); //物料编码
+                var ItemName = $("#Vcodename").val();
+                var reQty = $("#RepairQty").val() //不合格总数
+                var fbQty  =$("#ScrapQty").val() //不合格总数
+                var titleName = "返工件批次单"
+                var titleName2 = "合格件批次单"
+                var CreatorUser = "";
+                var CreatorTime = "";
+                var CurrQty = "";//合格数量
+                $.ajax({
+                    url: "/QualitycheManage/StampingQuality/GetUser",
+                    data: { BatchNo: $("#BatchNo").val() },
+                    //type: "post",
+                    async: false,
+                    dataType: "json",
+                    success: function (data) {
+
+                        if (data.length > 0) {
+                            CreatorUser = data[0].F_RealName;
+                            CreatorTime = data[0].F_CreatorTime;
+                        }
+                    }
+                })
+                     
+                            //if (batchNo.indexOf("n") != -1) // 判断字符串是否包含new，不包含则为返工批次号合并
+                            //{
+                            //    var mergeQty = Number($("#gridList2").jqGridRowValue().ProdPassQty) + Number(reQty); //返工批次合并的总数量
+                            //    CreateVINPrintPage(batchNo.substring(0, 16), teman, ItemName, mergeQty, bSN, titleName, CreatorUser, CreatorTime); //返工批次合并打印
+                            //    LODOP.PRINT();
+                            //}
+                            //if (batchNo.indexOf("n") > 0) {//新建返工批次
+
+                                CurrQty = $("#CurrentQty").val() - $("#QAFailQty").val();//合格数量 = 当前数量-不合格总数
+                            // CreateVINPrintPage(batchNo.substring(0, 16), teman, reQty, bSN, titleName, CreatorUser, CreatorTime);//返工打印
+                            //    //调用直接打印方法 
+                            //    LODOP.PRINT();
+                            //}
+                            if (CurrQty > 0) {
+                                CreateVINPrintPage(oldBatchNo, teman, ItemName, CurrQty, qualifiedSN, titleName2, CreatorUser, CreatorTime);//合格件打印
+                                LODOP.PRINT();
+                                
+                            }
+                            if (scrapSN.length>0) {
+                                CreateVINPrintPage(scrapBatchNo, teman, ItemName, fbQty, scrapSN, "报废件批次单", CreatorUser, CreatorTime);//报废件打印
+                               LODOP.PRINT();
+                                
+                            }
+
+                       
+                        $.currentWindow().$("#gridList").trigger("reloadGrid");
+                        $.currentWindow().$("#gridList2").trigger("reloadGrid");
+                        $('#btn_next').attr("disabled", true);
+                        $('#btn_finish').attr("disabled", true);
+                        clearInit();
+                        window.location.href = '/QualitycheManage/StampingQualityT/ReworkIndex';
+
+                
+            }
+        })
+    }
+    //统计不合格总数-wangqiang
+    function submitpassQty() {
+        var selrow = $("#gridList").jqGrid('getRowData');
+        var allCountID = $("#gridList").jqGrid('getDataIDs');
+        selrow.push($("#gridList").jqGrid('getRowData', allCountID[allCountID.length - 1])); //解决 jqGrid('getRowData') 获取 少最后一行 bug
+        var passQty = 0;
+        for (var i = 0; i < selrow.length; i++) {
+            passQty = Number(passQty) + Number(selrow[i].UnqualifiedQty);
+        }
+
+        //document.getElementById("QAFailQty").value = passQty;
+        //$("#QAFailQty").val(passQty);
+        //$("#RepairQty").val($("#QAFailQty").val());
+        //$("#ScrapQty").val(0);
+        $("#ScrapQty").val(passQty);
+        $("#QAFailQty").val($("#ScrapQty").val());
+        $("#RepairQty").val(0);
+
+    }
+    //鼠标移开事件（返修数） 
+    function validate() {
+       if($("#RepairQty").val() > 0){
+            //$("#ReworkWayId").show();
+            //$("#ReworkWayId2").show();
+       }
+       if ($("#RepairQty").val() <= 0) {
+           $("#ReworkWayId").hide();
+           $("#ReworkWayId2").hide();
+       }
+    }
+    //鼠标移开事件（报废数）
+    function validate2() {
+        if ($("#RepairQty").val() > 0) {
+            //$("#ReworkWayId").show();
+            //$("#ReworkWayId2").show();
+        }
+        if ($("#RepairQty").val() <= 0) {
+            ("#ReworkWayId").hide();
+            $("#ReworkWayId2").hide();
+        }
+    }
+
+    //冲压返工计划列表
+    function btn_planlist() {
+        var LeftQty = $("#ProdPassQty").val()
+        var win = window.open("/QualitycheManage/StampingQualityT/ReworkPlanList?keyword=CF&LeftQty="+LeftQty+"", "冲压返工计划列表", " height=450,width=1050,Left=300px,Top=100px, menubar=no,titlebar=no,scrollbar=no,toolbar=no,status=no,location=no");
+        //$.modalOpen({
+        //    id: "list",
+        //    title: "计划列表",
+        //    url: "/PressManage/PressLabor/PlanList?keyword=" + typecode,
+        //    width: "1050px",
+        //    height: "450px",
+        //    //btn: null
+        //    callBack: function (iframeId) {
+        //        top.frames[iframeId].submitForm();
+        //      }
+        //});
+    }
+    //打印
+    function CreateVINPrintPage(batch, Vcode,ItemName, tQty, BSN, titleName, CreatorUser, CreatorTime) {
+        var date = getNowFormatDate();
+        LODOP = getLodop();
+
+        LODOP.PRINT_INITA(0, 0, 790, 1125, "冲压返工质检打印");
+        LODOP.SET_PRINT_PAGESIZE(1, 0, 0, "A4");
+        LODOP.SET_PRINT_MODE("PRINT_NOCOLLATE", 1);
+        LODOP.ADD_PRINT_SHAPE(4, 588, 64, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 639, 64, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(597, 66, 631, 50, titleName);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 24);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 689, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 741, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 792, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 847, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 886, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 588, 64, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(656, 64, 105, 25, "零件号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(711, 64, 100, 24, "零件名称");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(758, 64, 100, 26, "捆包号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(812, 64, 100, 25, "生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(858, 64, 100, 28, "生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 927, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(897, 64, 100, 24, "批次数量");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(966, 64, 100, 50, "检验员");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(800, 180, 512, 41, date);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(855, 180, 171, 28, RealName);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 640, 175, 1, 440, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 1034, 64, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 1080, 64, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 588, 698, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 849, 353, 1, 185, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(854, 364, 120, 30, "原生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 847, 495, 1, 187, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(973, 370, 100, 40, "批次条码");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(853, 519, 165, 30, CreatorUser);//原班组
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(901, 366, 100, 20, "原生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+       // LODOP.ADD_PRINT_TEXT(896, 519, 165, 25, CreatorTime);//原生产日期
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_TEXT(894, 176, 175, 31, tQty);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(1050, 69, 100, 20, "批次号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 27, 65, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 78, 65, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(36, 67, 631, 50, titleName);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 24);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 128, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 180, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 231, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 286, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 325, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 27, 65, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(95, 65, 105, 25, "零件号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(150, 65, 100, 24, "零件名称");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(197, 65, 100, 26, "捆包号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(251, 65, 100, 25, "生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(297, 65, 100, 28, "生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 366, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(336, 65, 100, 24, "批次数量");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(405, 65, 100, 50, "检验员");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(237, 179, 514, 41, date);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(295, 181, 171, 28, RealName);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 79, 176, 1, 440, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 473, 65, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 519, 65, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 27, 699, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 288, 354, 1, 185, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(295, 365, 105, 25, "原生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 286, 496, 1, 187, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(412, 371, 100, 40, "批次条码");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(292, 520, 165, 30, CreatorUser);//原班组
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(340, 367, 100, 20, "原生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+    //    LODOP.ADD_PRINT_TEXT(335, 505, 185, 28, "");//原生产日期
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_TEXT(332, 180, 170, 26, tQty);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(489, 70, 100, 20, "批次号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+
+        LODOP.ADD_PRINT_TEXT(748, 178, 514, 41, BSN);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(696, 178, 514, 41, ItemName);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(648, 178, 515, 41, Vcode);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(186, 180, 512, 41, BSN);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(135, 179, 512, 41, ItemName);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(87, 179, 512, 41, Vcode);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_BARCODE(374, 553, 102, 94, "QRCode", batch);
+        LODOP.ADD_PRINT_BARCODE(938, 547, 102, 94, "QRCode", batch);
+
+        LODOP.ADD_PRINT_TEXT(1046, 185, 463, 30, batch);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 15);
+        LODOP.ADD_PRINT_TEXT(485, 180, 506, 30, batch);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 15);
+        LODOP.ADD_PRINT_TEXT(896, 504, 185, 25, CreatorTime);
+        LODOP.ADD_PRINT_TEXT(335, 499, 190, 28, CreatorTime);
+
+        if (titleName=="合格件批次单") {
+            LODOP.ADD_PRINT_RECT(27, 703, 65, 492, 0, 1);
+            LODOP.ADD_PRINT_TEXT(93, 706, 59, 298, "出\r\n\r\n库\r\n\r\n联");
+            LODOP.SET_PRINT_STYLEA(0, "FontSize", 40);
+            LODOP.ADD_PRINT_RECT(589, 703, 65, 492, 0, 1);
+            LODOP.ADD_PRINT_TEXT(657, 705, 59, 385, "车存间留联");
+            LODOP.SET_PRINT_STYLEA(0, "FontSize", 40);
+        }
+
+        //if (State == 3 || State == 5) {
+        //    LODOP.ADD_PRINT_SHAPE(4, 588, -40, 100, 60, 0, 1, "#000000");
+        //    LODOP.ADD_PRINT_SHAPE(4, 587, 704, 100, 60, 0, 1, "#000000");
+        //    LODOP.ADD_PRINT_SHAPE(4, -36, 705, 100, 90, 0, 1, "#000000");
+        //    LODOP.ADD_PRINT_SHAPE(4, -16, -39, 100, 70, 0, 1, "#000000");
+        //    LODOP.ADD_PRINT_SHAPE(4, 1037, 703, 100, 85, 0, 1, "#000000");
+        //    LODOP.ADD_PRINT_SHAPE(4, 1038, -31, 92, 81, 0, 1, "#000000");
+        //    LODOP.ADD_PRINT_SHAPE(4, 460, 705, 85, 60, 0, 1, "#000000");
+        //    LODOP.ADD_PRINT_SHAPE(4, 460, -40, 100, 60, 0, 1, "#000000");
+        //}
+        // LODOP.SET_PRINT_MODE("WINDOW_DEFPAGESIZE:打印机名称或序号", 纸张名称);
+        //LODOP.SET_PRINTER_INDEX("HP LaserJet Professional P1106 (副本 1)");
+        LODOP.SET_PRINT_PAGESIZE(1, 0, 0, "A4");//设置纸型
+        // LODOP.SET_PRINT_MODE("CATCH_PRINT_STATUS", true);
+
+
+
+    }
+    //返回当前时间    -yangxin
+    function getNowFormatDate() {
+        var now = new Date();
+
+        var year = now.getFullYear();       //年
+        var month = now.getMonth() + 1;     //月
+        var day = now.getDate();            //日
+
+        var hh = now.getHours();            //时
+        var mm = now.getMinutes();          //分
+        var ss = now.getSeconds();           //秒
+
+        var clock = year + "-";
+
+        if (month < 10)
+            clock += "0";
+
+        clock += month + "-";
+
+        if (day < 10)
+            clock += "0";
+
+        clock += day + " ";
+
+        if (hh < 10)
+            clock += "0";
+
+        clock += hh + ":";
+        if (mm < 10) clock += '0';
+        clock += mm + ":";
+
+        if (ss < 10) clock += '0';
+        clock += ss;
+        return (clock);
+    }
+    
+
+
+</script>
+<div class="widget-body">
+
+    <div id="wizard" class="wizard" data-target="#wizard-steps" style="border-left: none; border-top: none; border-right: none;">
+        <ul class="steps">
+            <li data-target="#step-1" class="active"> <span class="step">1</span>质检批次<span class="chevron"></span></li>
+            <li data-target="#step-2">      <span class="step">2</span>质检项目<span class="chevron"></span></li>
+            <li data-target="#step-3">      <span class="step">3</span>返工批次合并<span class="chevron"></span></li>
+        </ul>
+
+    </div>
+
+
+    <div class="step-content " id="wizard-steps" style="border-left: none; border-bottom: none; border-right: none; width:100%">
+        <div class="step-pane active " id="step-1" style="margin: 10px; margin-bottom: 0px;font-size:18px">
+            <div style="padding-top: 5px; padding-left: 20px;">
+                <div style="width:1040px;height:80px;margin-left:80px;">
+                    <input id="BatchNo" name="BatchNo" type="text" placeholder="批次号扫描" style="width:100%; height: 80px; font-size: 50px; float: left;background-color:yellow;">
+                   
+                    <span id="tipTxt" style="font-size: 30px; color: red;"></span>
+                    
+                </div>
+                <div style="width:600px;float:left">
+                    <div style="margin-top:40px;margin-left:80px;">
+                        <table class="form" style="width:70%;">
+                            <tr style="line-height:4">
+                                <th width="5%" style="text-align:left" class="formTitle">计划号：</th>
+                                <td width="10%" colspan="2" class="formValue">
+                                    <input id="JobNo" name="JobNo" type="text" class="form-control required" style="width:100%;   background-color:WhiteSmoke" readonly="readonly">
+                                </td>
+                            </tr>
+                            <tr style="line-height:4">
+                                <th width="5%" style="text-align:left" class="formTitle">物料编号：</th>
+                                <td width="10%" colspan="2" class="formValue">
+                                    <input id="Vcode" name="Vcode" type="text" class="form-control required" style="width:100%;  background-color: WhiteSmoke" readonly="readonly" />
+                                    <input id="Vcodename" name="Vcodename" type="text" style="display:none;" />
+                                </td>
+                            </tr>
+
+                            <tr style="line-height:4">
+                                <th width=" 5%" style="text-align:left" class="formTitle">批次数量：</th>
+                                <td width="10%" colspan="2" class="formValue">
+                                    <input id="ProdPassQty" name="ProdPassQty" type="text" class="form-control required" style="background-color: WhiteSmoke; " readonly="readonly" />
+                                </td>
+                               </tr>
+                            <tr style="line-height:4">
+                                <th width="5%" style="text-align:left" class="formTitle">批次号来源：</th>
+                                <td width="10%" colspan="2" class="formValue">
+                                    <input id="BatchSource" name="BatchSource" type="text" class="form-control required" style="background-color: WhiteSmoke;" readonly="readonly" onkeyup="value=value.replace(/[^\d]/g,'')" />
+                                </td>
+                            </tr>
+                            <tr style="line-height:4">
+                                <th width="5%" style="text-align:left" class="formTitle">特性值：</th>
+                                <td width="10%" colspan="2" class="formValue">
+                                    <input id="LOT_Code" name="LOT_Code" type="text" class="form-control required" style="width:100%;   background-color:WhiteSmoke" readonly="readonly">
+                                </td>
+                            </tr>
+                            <tr style="line-height:4">
+                                <th width="5%" style="text-align:left" class="formTitle">质检类型：</th>
+                                <td width="10%" colspan="2" class="formValue">
+                                    <input id="Type_Code" name="Type_Code" type="text" class="form-control required" style="width:100%;  background-color: WhiteSmoke" readonly="readonly" />
+                                </td>
+                            </tr>
+                           </table>
+                    </div>
+                </div>
+                <div style="float:left;margin-top: 60px;width: 1px;height: 400px; background: darkgray;"></div> 
+                <div style="width:400px;float:left;margin-left:120px;">
+                    
+                    <table class="form" style="margin-top:40px">
+                        <tr style="line-height:4;">
+                            <th width=" 5%" style="text-align:left" class="formTitle">返工计划号：</th>
+                            <td width="10%" colspan="2" class="formValue">
+                                <input id="reworkPlanNo" name="reworkPlanNo" type="text" class="form-control required" style="width:100%;   background-color:WhiteSmoke" readonly="readonly">
+                            </td>
+                           </tr>
+                        <tr style="line-height:4;">
+                            <th width="5%" style="text-align:left" class="formTitle">计划数量：</th>
+                            <td width="10%" colspan="2" class="formValue">
+                                <input id="reworkPlanQty" name="reworkPlanQty" type="text" class="form-control required" style="width:100%;  background-color: WhiteSmoke" readonly="readonly" />
+                            </td>
+                        </tr>
+                        <tr style="line-height:4;">
+                            <th width=" 5%" style="text-align:left" class="formTitle">剩余数量：</th>
+                            <td width="10%" colspan="2" class="formValue">
+                                <input id="reworkResidueQty" name="reworkResidueQty" type="text" class="form-control required" style="width:100%;   background-color:WhiteSmoke" readonly="readonly">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th width="5%" style="text-align:left" class="formTitle"></th>
+                            <td width="10%" colspan="2" class="formValue">
+                                <input id="plan_Fid" name="plan_Fid" type="hidden" class="form-control required" style="width:100%;  background-color: WhiteSmoke" readonly="readonly" />
+                            </td>
+                        </tr>
+                    </table>
+                    <a id="btn_planlist" class="btn btn-primary " style="width: 100%; height: 55px; font-size: 40px; text-align: center;margin-top:80px;" onclick="btn_planlist()">选择返工计划</a>
+                </div>
+                <!--<table style="width:70%;border-collapse:separate; border-spacing:0px 10px;">
+                    <tr>
+                        <td>
+                            <input id="BatchNo" name="BatchNo" type="text" placeholder="批次号扫描" style="width:100%; height: 80px; font-size: 60px; float: left;background-color:yellow;">
+                        </td>
+                        <td>
+                            <span >
+                                <a id="btn_planlist" class="btn btn-primary " style="width: 80%; height: 55px; font-size: 40px; text-align: center" onclick="btn_planlist()">选择返工计划</a>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td height="50px;" colspan="9">
+                            <span id="tipTxt" style="font-size: 40px; float: left; color: red;"></span>
+                        </td>
+                    </tr>
+                </table>
+                <table class="form" style="width:70%;">
+                    <tr>
+                        <th width="5%" style="text-align:left" class="formTitle">计划号：</th>
+                        <td width="10%" colspan="2" class="formValue">
+                            <input id="JobNo" name="JobNo" type="text" class="form-control required" style="width:100%;   background-color:WhiteSmoke" readonly="readonly">
+                        </td>
+                        <td width="5%"></td>
+                        <th width="5%" style="text-align:left" class="formTitle">物料编号：</th>
+                        <td width="10%" colspan="2" class="formValue">
+                            <input id="Vcode" name="Vcode" type="text" class="form-control required" style="width:100%;  background-color: WhiteSmoke" readonly="readonly" />
+                        </td>
+                    </tr>
+
+                    <tr style="line-height:6">
+                        <th width=" 5%" style="text-align:left" class="formTitle">批次数量：</th>
+                        <td width="10%" colspan="2" class="formValue">
+                            <input id="ProdPassQty" name="ProdPassQty" type="text" class="form-control required" style="background-color: WhiteSmoke; " readonly="readonly" />
+                        </td>
+                        <td width="5%"></td>
+                        <th width="5%" style="text-align:left" class="formTitle">批次号来源：</th>
+                        <td width="10%" colspan="2" class="formValue">
+                            <input id="BatchSource" name="BatchSource" type="text" class="form-control required" style="background-color: WhiteSmoke;" readonly="readonly" onkeyup="value=value.replace(/[^\d]/g,'')" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="5%" style="text-align:left" class="formTitle">特性值：</th>
+                        <td width="10%" colspan="2" class="formValue">
+                            <input id="LOT_Code" name="LOT_Code" type="text" class="form-control required" style="width:100%;   background-color:WhiteSmoke" readonly="readonly">
+                        </td>
+                        <td width="5%"></td>
+                        <th width="5%" style="text-align:left" class="formTitle">质检类型：</th>
+                        <td width="10%" colspan="2" class="formValue">
+                            <input id="Type_Code" name="Type_Code" type="text" class="form-control required" style="width:100%;  background-color: WhiteSmoke" readonly="readonly" />
+                        </td>
+                    </tr>
+                    @*<tr style="height:25px;line-height:9;">
+                        <th style="text-align:left" class="formTitle">物料描述：</th>
+                        <td class="formValue">
+                            <input id=" description" name="Description" type="text" class="form-control required" style="background-color: WhiteSmoke;width:810px;height:100px " readonly="readonly" />
+                        </td>
+                    </tr>*@
+                    <tr style ="height:25px;line-height:5;">
+                        <th width=" 5%" style="text-align:left" class="formTitle">返工计划号：</th>
+                        <td width="10%" colspan="2" class="formValue">
+                            <input id="reworkPlanNo" name="reworkPlanNo" type="text" class="form-control required" style="width:100%;   background-color:WhiteSmoke" readonly="readonly">
+                        </td>
+                        <td width="5%"></td>
+                        <th width="5%" style="text-align:left" class="formTitle">计划数量：</th>
+                        <td width="10%" colspan="2" class="formValue">
+                            <input id="reworkPlanQty" name="reworkPlanQty" type="text" class="form-control required" style="width:100%;  background-color: WhiteSmoke" readonly="readonly" />
+                        </td>
+                    </tr>
+                    <tr style="height:25px;line-height:3;">
+                        <th width=" 5%" style="text-align:left" class="formTitle">剩余数量：</th>
+                        <td width="10%" colspan="2" class="formValue">
+                            <input id="reworkResidueQty" name="reworkResidueQty" type="text" class="form-control required" style="width:100%;   background-color:WhiteSmoke" readonly="readonly">
+                        </td>
+                        <td width="5%"></td>
+                        <th width="5%" style="text-align:left" class="formTitle"></th>
+                        <td width="10%" colspan="2" class="formValue">
+                            <input id="plan_Fid" name="plan_Fid" type="hidden" class="form-control required" style="width:100%;  background-color: WhiteSmoke" readonly="readonly" />
+                        </td>
+                    </tr>
+                </table>-->
+            </div>
+        </div>
+        <div class="step-pane" id="step-2" style=" width:100%">
+            <div class="gridPanel" style="font-size:25px;">
+                <table id="gridList"></table>
+                <div id="gridPager"></div>
+            </div>
+            <div style="padding-top: 5px; margin-right: 5px; padding-left: 5px;">
+                <table>
+                    <tr style="height:50px;">
+                        <th style="color:red; font-size:18px ">当前数量:</th>
+                        <td style="padding-top: 1px;width:100px; ">
+                            <input id="CurrentQty" name="CurrentQty" type="text" class="form-control required" style="background-color: White;font-size:18px " readonly="readonly" onkeyup="value=value.replace(/[^\d]/g,'')" />
+                        </td>
+                        <td style="width:30px;"></td>
+                        <th style="color:red; font-size:18px ">不合格总数:</th>
+                        <td style="padding-top: 1px;width:100px; ">
+                            <input id="QAFailQty" name="QAFailQty" type="text" class="form-control required" style="background-color: White;font-size:18px "  onkeyup="value=value.replace(/[^\d]/g,'')" />
+                        </td>
+                        <td style="width:30px;"></td>
+                        <th class="formTitle" style="color:red; font-size:18px;">返修总数:</th>
+                        <td class="formValue" style="padding-top: 1px; width: 100px;">
+                            <input id="RepairQty" name="RepairQty" type="text" class="form-control required" style="background-color: White;font-size:18px " onblur="validate()" onkeyup="value=value.replace(/[^\d]/g,'')" />
+                        </td>
+                        <td style="width:30px;"></td>
+                        <th class="formTitle" style=" color: red; font-size: 18px">报废总数:</th>
+                        <td class="formValue" style="padding-top: 1px; width: 100px;">
+                            <input id="ScrapQty" name="ScrapQty" type="text" class="form-control required" style="background-color: White;font-size:18px " onblur="validate2()" onkeyup=" value=value.replace(/[^\d]/g,'')" />
+                        </td>
+                        <td style="width:30px;"></td>
+                        <th id="ReworkWayId"  class="formTitle" style="font-size: 18px;display:none  ">选择返工方式:</th>
+                        <td id="ReworkWayId2" class="formValue" style="padding-top: 1px; font-size: 18px;display:none">
+                            <div class="ckbox" style="float:left;">
+                                <input id="DefectsMKTO" name="DefectsMKTO" type="checkbox" checked="checked"><label for="DefectsMKTO">新建返工批次</label>
+                            </div>
+                            <div class="ckbox" style="float:left;">
+                                <input id="F_EnabledMark" name="F_EnabledMark" type="checkbox"><label for="F_EnabledMark">返工批次合并</label>
+                            </div>
+                        </td>
+
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="step-pane" id="step-3" style=" width:100%">
+            <div class="gridPanel" style="font-size:25px">
+                <table id="gridList2"></table>
+                <div id="gridPager2"></div>
+            </div>
+        </div>
+
+    </div>
+    <div class="form-button" id="wizard-actions" style="font-size:20px">
+        <a id="btn_last" disabled class="btn btn-default btn-prev" onclick="btn_last() ">上一步</a>
+        <a id="btn_next" disabled class="btn btn-default btn-next">下一步</a>
+        <a id="btn_finish" class="btn btn-default" style="display: none;" onclick="submitForm()">完成</a>
+    </div>
+
+</div>
+

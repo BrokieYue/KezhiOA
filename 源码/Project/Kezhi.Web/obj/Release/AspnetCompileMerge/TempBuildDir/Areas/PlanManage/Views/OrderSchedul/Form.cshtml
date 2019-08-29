@@ -1,0 +1,94 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    $(function () {
+        $("#PlanDate").attr("disabled", true);
+        $("#Deadline").attr("disabled", true);
+        $("#Checkbox1").click(function () {
+            if (this.checked) {
+                $("#PlanDate").attr("disabled", false);
+            } else {
+                $("#PlanDate").attr("disabled", true);
+            }
+
+        });
+        $("#Checkbox2").click(function () {
+            if (this.checked) {
+                $("#Deadline").attr("disabled", false);
+            } else {
+                $("#Deadline").attr("disabled", true);
+            }
+
+        });
+    });
+ 
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        $.submitForm({
+            url: "/PlanManage/OrderSchedul/SubmitForm",
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+
+<form id="form1">
+    <div style="margin-top:10px; margin-left: 10px; margin-right: 10px; ">
+        <div style="padding-top: 5px; margin-right: 5px;">
+            <table class="form" style="border-collapse:separate; border-spacing:0px 8px;">
+                @*<tr>
+                <th class="formTitle">
+                 计划号：
+                </th>
+                <td class="formValue">
+                    <input id="JobNo" name="JobNo" type="text" class="form-control required" style="background-color: LightGrey; width: 200px" readonly="readonly" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">工单号：</th>
+                <td class="formValue">
+                    <input id="OrderNo" name="OrderNo" type="text" class="form-control required" style="background-color: LightGrey; width: 200px" readonly="readonly" />
+                </td>
+            </tr>*@
+                <tr>
+                    <th class="formTitle">
+                        <input id="Checkbox1" type="checkbox" />  计划生产日期：
+                    </th>
+                    <td class="formValue">
+                        <div class="input-group">
+                            <input id="PlanDate" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ Date: '#F{$dp.$D(\'PlanDate\')}' })" style="width: 200px;">
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">
+                        <input id="Checkbox2" type="checkbox" />   计划完工日期：
+                    </th>
+                    <td class="formValue">
+                        <div class="input-group">
+                            <input id="Deadline" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ Date: '#F{$dp.$D(\'Deadline\')}' })" style="width: 200px;">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle" style="padding-top: 5px;">
+                        备注：
+                    </th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="F_Description" name="F_Description" class="form-control" style="height: 65px; width: 200px; "></textarea>
+                    </td>
+                </tr>
+
+            </table>
+
+
+        </div>
+    </div>
+</form>

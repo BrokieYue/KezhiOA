@@ -1,0 +1,136 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    var folder =  $.request("folder")// 文件所在的文件夹
+    var FileAddress = $.request("FileAddress");//文件夹地址
+    var Filename = $.request("Filename");//文件名
+
+    $(function () {
+        //gridList();
+        //alert(folder);
+    })
+
+    function gridList(filepath) {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            //url: "/QualitycheManage/ThreeCoordQAMessage/GetResultJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: '年月', name: 'F_DateTime', width: 150, align: 'left' },
+                { label: "文件地址", name: "F_FileAddress", width: 100, align: 'left' },
+                { label: "文件名", name: "F_Filename", width: 130, hidden: true, align: 'left' },
+                { label: '描述', name: 'F_Description', width: 150, align: 'left' },
+            
+            //label: '创建时间', name: 'F_CreatorTime', width: 150, align: 'left', formatter: function (cellvalue, options, rowObject) {
+            //if (cellvalue != "") {
+            //    return '<span >' + cellvalue.substr(0, 19) + '</span>';
+            //        }
+            //    }
+            //},
+            ],
+            pager: "#gridPager",
+            sortname: 'JobNo asc',
+            rowNum: 1000,
+            viewrecords: true
+        });
+    }
+
+ 
+
+    ///更新
+    function updateFile() {
+        
+        upload(function (data) {
+            console.log(data);
+            $("#hidFileName").val(data.fileName);
+            //showList(data.fileName);
+        });
+        
+    }
+
+
+    function upload(afterUploadFunc) {
+        var xlsFile = $("#updateFile")[0];
+        var result = {};
+        var formData = new FormData();
+        if (xlsFile.files.length > 0) {
+            $("#lblFileName").html(xlsFile.files[0].name);
+            formData.append('file', xlsFile.files[0]);
+        } else {
+            return;
+        }
+
+        $.ajax({
+            url: '../../Attachment/Attachment.aspx?action=upload',
+            type: 'POST',
+            data: formData,
+            dataType: 'JSON',
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+
+                if (data.result == "ok") {
+                    if (afterUploadFunc) {
+                        afterUploadFunc(data);
+                    }
+                }
+            }
+        });
+    }
+
+    function showList(fileName) {
+        //alert($("#hidFileName").val());
+        var $gridList = $("#gridList");
+        $gridList.jqGrid('setGridParam', {
+            url: "/QualitycheManage/ThreeCoordQAMessage/GetUploadGridJson", //上传
+            postData: { fileName: fileName },
+            success: function (data) {
+                alter(data);
+            }
+        }).trigger('reloadGrid');
+    }
+
+    function submitForm() {
+        //alert($("#hidFileName").val())
+        $.submitForm({
+            url: "/QualitycheManage/ThreeCoordQAMessage/GetUploadGridJson?fileName=" + $("#hidFileName").val(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+                //if (callbackFunc) {
+                //    callbackFunc();
+                //}
+            }
+        })
+    }
+
+
+ 
+</script>
+
+<div class="topPanel">
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <span id="lblFileName" style="height: 25px; width: 200px; display: inline-block; float: left; border: 1px solid #000; padding-left: 5px;"></span>
+                        <label for="updateFile" style="float: left; cursor: pointer; display: inline-block;">&nbsp;&nbsp;<i class="fa fa-cloud-upload fa-1x"></i>更新文件</label>
+                        <input type="file" id="updateFile" accept="application/vnd.ms-excel" style="display: none" onchange="updateFile()" />
+                        <input type="hidden" id="hidFileName" />
+                    </div>
+                </td>
+                
+            </tr>
+        </table>
+    </div>
+
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+</div>
+

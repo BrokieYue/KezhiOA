@@ -1,0 +1,140 @@
+﻿<!DOCTYPE html>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>车间主任日报图形数据</title>
+    <link href="~/Content/css/framework-theme.css" rel="stylesheet" />
+    <script src="~/Content/js/jquery/jquery-2.1.1.min.js"></script>
+    <script src="~/Content/js/highcharts/highcharts.js"></script>
+    <script>
+        var series = [];
+        function GetCapacity()
+        {
+            series = [];
+            $.ajax({
+                url: "/ReportManage/Capacity/GetCapacity?startTime=" + $("#DeliveryTime_start").val() + "&endTime=" + $("#DeliveryTime_end").val(),
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    console.log(data);
+                    if (data.rows.length > 0) {
+                        for (var j = 0; j < data.rows.length; j++) {
+                            if (data.rows[j].FinishProductChartNo != "null" && data.rows[j].FinishProductChartNo != ""&&data.rows[j].FinishProductChartNo !=null) {
+                                series.push({
+                                    name: data.rows[j].FinishProductChartNo,
+                                    data: [Math.floor(data.rows[j].FinishProductChartNoCounts * 100 / data.rows[j].OperationUserIdCounts) / 100]
+                                });
+                            }
+                        }
+                        getchart();
+                    }
+                    else {
+                        getchart();
+                    }
+                    return series;
+                }
+            });
+        };
+        function getchart() {
+            var title = { text: '没有查到产品人员产能报表' };
+            if (series.length > 0) {
+                title = { text: '产品人员产能报表' };
+            }
+            console.log(series);
+            //柱状图
+            $('#container_Histogram').highcharts({
+                chart: {
+                    type: 'column',
+                    renderTo: "container",
+                    events:
+                        {
+                            drilldown: function (e) {
+                                if (!e.seriesOptions) {
+                                    var char = this,
+                                        drilldowns = series
+                                }
+                            }
+                        }
+                },
+                title: title,
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    categories: [
+                      '成品图号'
+                    ]
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: '产能（件）'
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                    '<td style="padding:0"><b>{point.y:.1f} 件</b></td></tr>',
+                    footerFormat: '</table>',
+                    shared: true,
+                    useHTML: true
+                },
+                plotOptions: {
+                    series: {
+                        cursos: "pointer"
+                    },
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    }
+                },
+                series: series
+            });
+        };
+
+       
+
+        $(function () {
+            GetCapacity();
+            //统计图
+            getchart();
+        });
+        $(function () {
+            $("#btn_search").click(function () {
+                GetCapacity();
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="topPanel">
+        <div class="search">
+            <table>
+                <tr>
+                    <td>
+                        <div class="input-group">
+                            <input id="DeliveryTime_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'DeliveryTime_end\')}' })" placeholder="开始时间" style="width: 120px; margin-right: 10px">
+                            <input id="DeliveryTime_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'DeliveryTime_start\')}' })" placeholder="结束时间" style="width: 120px;">
+
+                            <span class="input-group-btn">
+                                <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <!---柱状图-->
+    <div id="container_Histogram" style="min-width:400px;height:400px"></div>
+    <!---柱状图-->
+
+</body>
+</html>
+
+
+

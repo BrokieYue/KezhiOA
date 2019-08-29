@@ -1,0 +1,143 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>冲压报工主界面</title>
+    @*<link href="~/Content/css/framework-font.css" rel="stylesheet" />
+    <link href="~/Content/css/framework-ui.css" rel="stylesheet" />*@
+    <link href="~/Content/js/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    @*<link href="~/Content/css/framework-theme.css" rel="stylesheet" />*@
+</head>
+<body>
+    <div id="container-fluid">
+        <div class=" rows" style="margin-bottom: 1%; border: 1px solid #e6e6e6; overflow: hidden; padding-left: 1px;">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <ul style="align-items: center; margin-top: 20px; ">
+                        <li style="height:80px;vertical-align:middle;">
+                            <div class="dashboard-stats">
+                                <div class="dashboard-stats-item" style="background-color: #1ABC9C; border-color: #1ABC9C;">
+                                    <h5 style="text-align:center"><a href="/PressManage/PressLabor/WorkOuline?keyValue=A&code=CA" class="myastyle">冲压A线报工</a></h5>
+                                </div>
+                            </div>
+                        </li>
+                        <li style="height:80px;vertical-align:middle;">
+                            <div class="dashboard-stats">
+                                <div class="dashboard-stats-item" style="background-color: #1ABC9C; border-color: #1ABC9C;">
+                                    <h5 style="text-align:center"><a href="/PressManage/PressLabor/WorkOuline?keyValue=B&code=CB" class="myastyle">冲压B线报工</a></h5>
+                                </div>
+                            </div>
+                        </li>
+                        <li style="height:80px;vertical-align:middle;">
+                            <div class="dashboard-stats">
+                                <div class="dashboard-stats-item" style="background-color: #1ABC9C; border-color: #1ABC9C;">
+                                    <h5 style="text-align:center"><a href="/PressManage/PressLabor/WorkOuline?keyValue=C&code=CL" class="myastyle">落料报工</a></h5>
+                                </div>
+                            </div>
+                        </li>
+                        <li style="height:80px;vertical-align:middle;">
+                            <div class="dashboard-stats">
+                                <div class="dashboard-stats-item" style="background-color: #1ABC9C; border-color: #1ABC9C;">
+                                    <h5 style="text-align:center"><a href="/PressManage/PressLabor/WorkOuline?keyValue=D&code=CT" class="myastyle">凸焊报工</a></h5>
+                                </div>
+                            </div>
+                        </li>
+                        <li style="height:80px;vertical-align:middle;">
+                            <div class="dashboard-stats">
+                                <div class="dashboard-stats-item" style="background-color: #1ABC9C; border-color: #1ABC9C;">
+                                    <h5 style="text-align:center"><a href="/PressManage/PressLabor/LaborList" class="myastyle">报工记录查询</a></h5>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <style>
+         .dashboard-stats {
+            float: left;
+            width: 20%;
+        }
+
+        .dashboard-stats-item {
+            position: relative;
+            overflow: hidden;
+            color: #fff;
+            cursor: pointer;
+            height: 105px;
+            margin-right: 25px;
+            margin-bottom: 10px;
+            padding: 20px 20px;
+        }
+
+        .myastyle {
+            position: relative;
+            overflow: hidden;
+            color: #fff;
+            font-size: 1.5em;
+            font-family: inherit;
+            line-height: 3.1;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .dashboard-stats-item h2 {
+            font-size: 35px;
+            font-family: inherit;
+            line-height: 1.1;
+            font-weight: 500;
+        }
+
+        .dashboard-stats-item h5 {
+            font-size: 14px;
+            font-family: inherit;
+            margin-top: 3px;
+            line-height: 1.1;
+        }
+
+
+      
+
+        .panel-default {
+            border: none;
+            border-radius: 0px;
+            margin-bottom: 0px;
+            box-shadow: none;
+            -webkit-box-shadow: none;
+        }
+
+            .panel-default > .panel-heading {
+                color: #777;
+                background-color: #fff;
+                border-color: #e6e6e6;
+                padding: 10px 10px;
+            }
+
+            .panel-default > .panel-body {
+                padding: 10px;
+                padding-bottom: 0px;
+                position: absolute;
+                width: 100%;
+                height: 90%;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%,-50%);
+            }
+
+                .panel-default > .panel-body ul {
+                    overflow: hidden;
+                    padding: 0;
+                    margin: 0px;
+                    margin-top: -5px;
+                }
+
+                    .panel-default > .panel-body ul li {
+                        line-height: 27px;
+                        list-style-type: none;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                    }       
+    </style>
+</body>
+</html>

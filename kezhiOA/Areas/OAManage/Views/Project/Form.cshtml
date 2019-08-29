@@ -1,0 +1,165 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<style>
+    .fontStyle {
+        color: #f00;
+        font-size: 16px;
+    }
+</style>
+
+<script>
+
+    var keyValue = $.request("keyValue");
+    $(function () {
+        initControl();
+        if (!!keyValue) {
+            $.ajax({
+                url: "/OAManage/Project/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    //var address = data.F_ProjectAddress;
+                    //var province;
+                    //var city;
+                    //if(address.indexOf("省") != -1 ){
+                    //    province = address.substring(0, address.indexOf("省") + 1);
+                    //    city = address.substring(address.indexOf("省") + 1, address.length + 1);
+                    //} else if (address.indexOf("区") != -1) {
+                    //    province = address.substring(0, address.indexOf("区") + 1);
+                    //    city = address.substring(address.indexOf("区") + 1, address.length + 1);
+                    //} else {
+                    //    province = address.substring(0, 2);
+                    //    city = address.substring(2, address.length + 1);
+                    //}
+                    //$("#F_ProjectProvence").find("option[text='" + province + "']").prop("selected", true);
+                    //$("#F_ProjectProvence").find("option[value='110000']").prop("selected", true);
+                    //$("#F_ProjectProvence").find("option[value='110000']").attr("selected", true);
+                    $("#form1").formSerialize(data);
+                   
+                   
+                    //$("#F_ProjectCity option[text='" + city + "']").prop("selected", "selected");
+
+                }
+            });
+        }
+    });
+    function initControl() {
+        
+        $("#F_ProjectProvence").bindSelect({
+            url: "/OAManage/Project/GetAddressSelectJson?layers= 1&parentid = 0",
+            id: "F_Id",
+            text: "F_FullName"
+        });
+        //$.ajax({
+        //    url: "/OAManage/Project/GetAddressSelectJson?layers=1&parentid=0",
+        //    dataType: "json",
+        //    async: false,
+        //    success: function (data) {
+        //        console.log(data)
+        //        for (var i = 0; i < data.length; i++) {
+        //            $("#F_ProjectProvence").append("<option value='" + data[i].F_Id + "'>" + data[i].F_FullName + "</option>");
+        //        }
+                
+        //    }
+        //});
+        $("#F_ProjectProvence").change(function () {
+            
+            $("#F_ProjectCity").empty();
+            $("#F_ProjectCity").append("<option value=''>==市级行政区==</option>");
+            var parentId = $(this).val();
+            $("#F_ProjectCity").bindSelect({
+                url: "/OAManage/Project/GetAddressSelectJson?layers=2&parentid=" + parentId +"",
+                id: "F_Id",
+                text: "F_FullName"
+            });
+        });
+        
+       
+        $("#F_ProjectManagerId").bindSelect({
+            url: "/OAManage/Project/GetUserSelectJson",
+            id: "F_Id",
+            text: "F_RealName"
+        });
+    }
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        $.submitForm({
+            url: "/OAManage/Project/SubmitForm?keyValue=" + keyValue + "&provence=" + $("#F_ProjectProvence option:selected").text() + "&city=" + $("#F_ProjectCity option:selected").text(),
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+  
+</script>
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">项目地点<span class="fontStyle">*</span></th>
+                    <td class="formValue">
+                        <select id="F_ProjectProvence" name="F_ProjectProvence" class="form-control required">
+                            <option value="">==省级行政区==</option>
+                        </select>
+                    </td>
+                    <th class="formTitle"></th>
+                    <td class="formValue">
+                        <select id="F_ProjectCity" name="F_ProjectAddress" class="form-control required">
+                            <option value="">==市级行政区==</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">项目编号<span class="fontStyle">*</span></th>
+                    <td class="formValue">
+                        <input id="F_ProjectCode" name="F_ProjectCode" type="text" class="form-control required" placeholder="项目编号" />
+                    </td>
+                    <th class="formTitle">项目名称<span class="fontStyle">*</span></th>
+                    <td class="formValue">
+                        <input id="F_ProjectName" name="F_ProjectName" type="text" class="form-control required" placeholder="项目名称" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">项目经理<span class="fontStyle">*</span></th>
+                    <td class="formValue">
+                        <select id="F_ProjectManagerId" name="F_ProjectManagerId" class="form-control required">
+                            <option value="">==请选择==</option>
+                        </select>
+                    </td>
+                    <th class="formTitle">项目类型<span class="fontStyle">*</span></th>
+                    <td class="formValue">
+                        <select id="F_ProjectType" name="F_ProjectType" class="form-control">
+                            <option value="MES项目">MES项目</option>
+                            <option value="电气项目">电气项目</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">开始时间<span class="fontStyle">*</span></th>
+                    <td class="formValue">
+                        <input id="F_ProjectTimeStart" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'F_ProjectTimeEnd\')}', skin: 'whyGreen', dateFmt: 'yyyy-MM-dd' })" placeholder="计划时间（开始）" />
+                    </td>
+                    <th class="formTitle">结束时间<span class="fontStyle">*</span></th>
+                    <td class="formValue">
+                        <input id="F_ProjectTimeEnd" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'F_ProjectTimeStart\')}', skin: 'whyGreen', dateFmt: 'yyyy-MM-dd' })" placeholder="计划时间（结束）" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle" valign="top" style="padding-top: 5px;">
+                        备注
+                    </th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="F_Description" name="F_Description" class="form-control" style="height: 50px;"></textarea>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>

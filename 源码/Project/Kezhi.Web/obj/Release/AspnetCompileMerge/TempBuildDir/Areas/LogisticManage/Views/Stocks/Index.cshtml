@@ -1,0 +1,154 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+        initControl();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/LogisticManage/Stocks/GetGridJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "编号", name: "ID", align: 'left', hidden: true, key: true },
+                { label: '工位', name: 'StationName', width: 150, align: 'left', border: 1 },
+                { label: '工位类型', name: 'StationType', width: 150, align: 'left', border: 1 },
+                { label: "零件编号", name: "MaterialCode", width:250, align: 'left', key: true },
+                { label: '安全库存', name: 'SafeStocks', width: 100, align: 'left' },
+                {
+                    label: "实际库存", name: "Stocks", width: 100, align: "center",
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue < 20) {
+                            return '<span class=\"label label-cs\">' + cellvalue + '</span>';
+                        }
+                        else if (cellvalue == 20) {
+                            return '<span class=\"label label-wcl\">' + cellvalue + '</span>';
+                        }
+                        else if (cellvalue > 20) {
+                            return '<span class=\"label label-wc\">' + cellvalue + '</span>';
+                        }
+                    }
+                },
+                { label: "更新时间", name: "UpdateTime", align: 'left', key: true }
+
+            ]
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: {
+                    ID: $('#ID').val(),
+                },
+            }).trigger('reloadGrid');
+        });
+    }
+    function initControl() {
+        $("#Station").bindSelect({
+            url: "/LogisticManage/Stocks/GetStationJson",
+            id: "ID",
+            text: "StationName"
+        });
+        $("#StationType").bindSelect({
+            url: "/LogisticManage/Stocks/GetStationTypeJson",
+            id: "ID",
+            text: "StationType"
+        });
+    }
+
+    function btn_add() {
+        $.modalOpen({
+            id: "Form",
+            title: "新增物料库存",
+            url: "/LogisticManage/Stocks/Form",
+            width: "600px",
+            height: "510px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+
+    function btn_edit() {
+        var keyValue = $("#gridList").jqGridRowValue().ID;
+        $.modalOpen({
+            id: "Form",
+            title: "调整库存",
+            url: "/LogisticManage/Stocks/Form?keyValue=" + keyValue,
+            width: "550px",
+            height: "570px",
+            btn: null
+        });
+    }
+
+    function btn_details() {
+        var keyValue = $("#gridList").jqGridRowValue().ID;
+        $.modalOpen({
+            id: "Details",
+            title: "查看库存明细",
+            url: "/LogisticManage/Stocks/Details?keyValue=" + keyValue,
+            width: "850px",
+            height: "620px",
+            btn: null,
+        });
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新增物料库存</a>
+        </div>
+        <div class="operate">
+            <ul class="nav nav-pills">
+                <li class="first">已选中<span>1</span>项</li>
+                <li><a id="NF-edit" authorize="yes" onclick="btn_edit()"><i class="fa fa-pencil-square-o"></i>调整库存</a></li>
+                <li class="split"></li>
+                <li><a id="NF-Details" authorize="yes" onclick="btn_details()"><i class="fa fa-search-plus"></i>查看库存明细</a></li>
+                <li class="split"></li>
+            </ul>
+            <a href="javascript:;" class="close"></a>
+        </div>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td style="padding-left: 10px;">
+                    <label for="StationType">工位类型：</label>
+                <td />
+                <td>
+                    <select id="StationType" name="StationType" style="height: 28px; width: 120px;" class="form-control required">
+                        <option value="0">==请选择==</option>
+                    </select>
+                </td>
+                <td style="padding-left: 10px;">
+                    <label for="Station">工位：</label>
+                <td />
+                <td>
+                    <select id="Station" name="Station" style="height: 28px; width: 120px;" class="form-control required">
+                        <option value="0">==请选择==</option>
+                    </select>
+                </td>
+                <td style="padding-left: 10px;">
+                    <div class="input-group">
+                        <input id="txt_keyword" type="text" class="form-control" placeholder="零件编号/零件名称" style="width: 200px;">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+</div>
+
+@*<a href="/SystemManage/Area/Index">Test</a>*@
+

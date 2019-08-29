@@ -1,0 +1,226 @@
+﻿@{
+    ViewBag.Title = "插单";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    //var productId = $.request("productId");
+    var pDate;
+    var keyValue = $.request("keyValue");
+    $(function () {
+        if (!!keyValue) {
+            $.ajax({
+                url: "/PlanManage/OrderInfo/GetGetOrderByFidJson?keyword =" + keyValue,
+                data: { keyword: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    if (data.length > 0) {
+                        document.getElementById("JobNo").value = data[0].JobNo;
+                        document.getElementById("Type_Name").value = data[0].Type_Name;
+                        document.getElementById("OrderNo").value = data[0].OrderNo;
+                        document.getElementById("OrderQty").value = data[0].OrderQty;
+                        document.getElementById("VINNo").value = data[0].VINNo;
+                        document.getElementById("VCode").value = data[0].VCode;
+                        document.getElementById("VDesc").value = data[0].VDesc;
+                        document.getElementById("PlanDate").value = data[0].PlanDate.substr(0, 10);
+                        pDate = data[0].PlanDate;
+                        document.getElementById("Deadline").value = data[0].Deadline.substr(0, 10);
+                        document.getElementById("ScheduleTime").value = data[0].ScheduleTime.substr(0, 10);
+                        document.getElementById("F_Description").value = data[0].F_Description;
+                    }
+                }
+            });
+        }
+       // gridListF();
+        gridListL();
+        gridListR();
+    })
+
+    function gridListL() {
+        var $gridListL = $("#gridListL");
+        $gridListL.dataGrid({
+            url: "/PlanManage/OrderInfo/GetGetOrderByNullJson?PlanDate=" + pDate,  //只获取计划生产日期为同一天的
+            height: 320,
+            colModel: [
+             { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "计划号", name: "JobNo", width: 100, align: 'left' },
+                { label: '计划类型', name: 'Type_Name', width: 70, align: 'left' },
+                { label: "工单号", name: "OrderNo", width: 120, align: 'left' },
+                { label: '工单数量', name: 'OrderQty', width: 60, align: 'left' },
+                { label: '整车编码', name: 'VCode', width: 120, align: 'left' },
+                {
+                    label: '计划生产日期', name: 'PlanDate', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "") {
+                            return '<span >' + cellvalue.substr(0, 10) + '</span>';
+                        }
+                    }
+                },
+                {
+                    label: '交期', name: 'Deadline', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "") {
+                            return '<span >' + cellvalue.substr(0, 10) + '</span>';
+                        }
+                    }
+                }
+            ],
+            pager: "#gridPager",
+            sortname: 'JobNo asc,OrderNo asc',
+            viewrecords: false,
+            multiselect: true,//复选框
+            rowNum: 2000,
+            shrinkToFit: false,
+            autoScroll: true
+        });
+    }
+
+    function gridListR() {
+        var $gridListR = $("#gridListR");
+        $gridListR.dataGrid({
+            url: "",   
+            height: 320,
+            colModel: [
+             { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "计划号", name: "JobNo", width: 100, align: 'left' },
+                { label: "工单号", name: "OrderNo", width: 120, align: 'left' },
+                { label: '工单数量', name: 'OrderQty', width: 60, align: 'left' },
+                { label: 'VIN号', name: 'VINNo', width: 100, align: 'left' }
+            ],
+            pager: "#gridPager",
+            sortname: 'SerialNumber asc',
+            viewrecords: false,
+            multiselect: false,//复选框
+            rowNum: 2000,
+            unwritten: false , //设置无数据时提示文字不显示
+            shrinkToFit: false,
+            autoScroll: true,
+            ondblClickRow: function (rowId) {  //双击表格中的某一行，触发事件，获得数据
+                var rowData = jQuery(this).getRowData(rowId);
+                $("#gridListR").jqGrid("delRowData", rowId);
+            },
+        });
+    }
+
+    //+
+    function addRowToAnotherTable() {
+        var c_ids = $("#gridListL").jqGrid('getGridParam', 'selarrrow');//数据表中的选中行的行号；
+        var old_ids = $('#gridListR').getDataIDs();//目标表中所有数据的行号
+        for (var i = 0; i < c_ids.length; i++) {
+            var j = old_ids.indexOf(c_ids[i])
+            if (j == -1) {
+                var rowData = $("#gridListL").jqGrid('getRowData', c_ids[i]);
+                $('#gridListR').jqGrid("addRowData", c_ids[i], rowData);
+            }
+        }
+    }
+    //-
+    //function removeRowToAnotherTable() {
+    //    var c_ids = $("#gridListR").jqGrid('getGridParam', 'selarrrow');//数据表中的选中行的行号；
+    //    var lst = c_ids.length;
+    //    for (var i = 0; i < lst; i++) {
+    //        $("#gridListR").jqGrid("delRowData", c_ids[0]);
+    //    }
+    //}
+
+    function submitForm() {
+        var allCountID = $("#gridListR").jqGrid('getDataIDs');
+        if (allCountID.length == 0) {
+            $.modalAlert("请选择需要插单的工单！", "warning")
+            return false;
+        }
+        $.submitForm({
+            url: "/PlanManage/OrderInfo/InsertQueue?keyValue=" + keyValue + "&que=" + $("#LocationID").val(),
+            param: { lst: allCountID.join(",") },
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+<form id="form1">
+    <div style="margin-bottom: 0px;margin-top:0; height: 25px; background-color: #fcf8e3; border-color: #faebcc">
+        <span style="margin-left: 10px; line-height: 25px;">当前工单信息</span>
+    </div>
+    <div style="padding-top: 5px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">计划号</th>
+                <td class="formValue">
+                    <input id="JobNo" name="JobNo" type="text" class="form-control" readonly="readonly" />
+                </td>
+                <th class="formTitle">计划类型</th>
+                <td class="formValue">
+                    <input id="Type_Name" name="Type_Name" type="text" class="form-control" readonly="readonly" />
+                </td>
+                <th class="formTitle">工单号</th>
+                <td class="formValue">
+                    <input id="OrderNo" name="OrderNo" type="text" class="form-control" readonly="readonly" />
+                </td>
+                <th class="formTitle">工单数量</th>
+                <td class="formValue">
+                    <input id="OrderQty" name="OrderQty" type="text" class="form-control" readonly="readonly" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">VIN号</th>
+                <td class="formValue">
+                    <input id="VINNo" name="VINNo" type="text" class="form-control" readonly="readonly" />
+                </td>
+                <th class="formTitle">整车编码</th>
+                <td class="formValue">
+                    <input id="VCode" name="VCode" type="text" class="form-control" readonly="readonly" />
+                </td>
+                <th class="formTitle">整车描述</th>
+                <td class="formValue">
+                    <input id="VDesc" name="VDesc" type="text" class="form-control" readonly="readonly" />
+                </td>
+                <th class="formTitle">计划生产日期</th>
+                <td class="formValue">
+                    <input id="PlanDate" name="PlanDate" type="text" class="form-control" readonly="readonly" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">交期</th>
+                <td class="formValue">
+                    <input id="Deadline" name="Deadline" type="text" class="form-control" readonly="readonly" />
+                </td>
+                <th class="formTitle">排产时间</th>
+                <td class="formValue">
+                    <input id="ScheduleTime" name="ScheduleTime" type="text" class="form-control" readonly="readonly" />
+                </td>
+                <th class="formTitle">备注</th>
+                <td class="formValue">
+                    <input id="F_Description" name="F_Description" type="text" class="form-control" readonly="readonly" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle" style="color:red;">插入目标位置</th>
+                <td class="formValue">
+                    <select id="LocationID" name="LocationID" style="height: 30px; line-height: 30px; width: 100px; text-align: center; ">
+                        <option value="0">前</option>
+                        <option value="1" selected="selected">后</option>
+                    </select>
+                </td>
+               
+            </tr>
+        </table>
+    </div>
+ <div style="margin-bottom: 0px;margin-top:0; height: 25px; background-color: #fcf8e3; border-color: #faebcc">
+        <span style="margin-left: 10px; line-height: 25px;">请选择未排产工单</span>
+ </div>
+
+ <div class="gridPanel" style="width:60%;float:left;">
+     <table id="gridListL"></table>
+ </div>
+ <div style="float: left; padding-left: 20px; padding-right: 8px; width: 5%;height:320px;text-align:center;">
+     <a id="NF-right" style="margin-top:120px;" class="btn btn-primary " onclick="addRowToAnotherTable()"><i class="fa fa-angle-double-right"></i></a>
+        @*<hr />
+     <a id="NF-left"   class="btn btn-primary " onclick="removeRowToAnotherTable()"><i class="fa fa-angle-double-left"></i></a>*@
+ </div>
+ <div class="gridPanel" style="width:32%;float:right;">
+        <table id="gridListR"></table>
+ </div>
+</form>
+
+
+
+

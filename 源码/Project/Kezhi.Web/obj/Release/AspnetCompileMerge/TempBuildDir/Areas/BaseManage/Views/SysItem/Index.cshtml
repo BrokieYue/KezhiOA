@@ -1,0 +1,224 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script>
+    $(function () {
+        gridList();
+    })
+
+    $(window).resize(function () {
+        $("#gridList").setGridWidth($(window).width());
+    })
+
+
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/BaseManage/SysItem/GetPlanJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                        
+                { label: "物料编码", name: "ItemCode", width: 150, align: 'left' },
+                { label: "物料名称", name: "ItemName", width: 150, align: 'left' },
+         
+                { label: "规格型号", name: "ItemModel", width: 120, align: 'left' },
+                { label: "单位", name: "Units", width: 160, align: 'left' },
+                { label: "供应商", name: "Supplier", width: 100, align: 'left' },
+                { label: "配置码", name: "ConfigCode", width: 100, align: 'left' },
+            
+                      {
+                          label: '关键件标识', name: 'KeyPartsMark', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                              if (rowObject.KeyPartsMark == "X") {
+                                  return '<span >是</span>';
+                              }
+                              else {
+                                  return '<span >否</span>';
+                              }
+                          }
+                      },
+                {
+                    label: '环保件标识', name: 'EnvirMark', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (rowObject.EnvirMark == "X") {
+                            return '<span >是</span>';
+                        }
+                        else {
+                            return '<span >否</span>';
+                        }
+                    }
+                },
+                { label: "物料组编码", name: "MATKLCode", width: 100, align: 'left' },
+                { label: "物料组名称", name: "MATKLName", width: 100, align: 'left' },
+                { label: "图片路径", name: "F_ImageFile", width: 100, align: 'left' },
+               // { label: "创建人", name: "F_CreatorUserName", width: 100, align: 'left' },
+               //{
+               //    label: '创建时间', name: 'F_CreatorTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+               //        if (cellvalue != "") {
+               //            return '<span >' + cellvalue.substr(0, 19) + '</span>';
+               //        }
+               //    }
+
+               //},
+               // { label: "修改人", name: "F_LastModifyUserName", width: 100, align: 'left' },
+               // {
+               //     label: '修改时间', name: 'F_LastModifyTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+               //         if (cellvalue != "") {
+               //             return '<span >' + cellvalue.substr(0, 19) + '</span>';
+               //         }
+               //     }
+               // },
+               
+            ],
+            pager: "#gridPager",
+            sortname: 'ItemCode asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true,
+            ondblClickRow: function (rowId) {  //双击表格中的某一行，触发事件，获得数据--bichen
+                var rowData = jQuery(this).getRowData(rowId);
+                var fid = rowData['F_Id'];
+                var jobN = rowData['ItemName'];
+                var qty = rowData['ItemCode'];
+              
+                window.opener.document.getElementById("fid").value = fid;
+                window.opener.document.getElementById("jobNo").value = qty;
+                window.opener.document.getElementById("Line").value = jobN;
+                window.close();
+            },
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { ItemCode: $("#ItemCode").val(), ItemName: $("#ItemName").val(), Supplier: $("#Supplier").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+    }
+
+    function btn_add() {
+        $.modalOpen({
+            id: "Form",
+            title: "新建",
+            url: "/BaseManage/SysItem/Form",
+            width: "800px",
+            height: "680px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_edit() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        //修改 进行修改操作确定后没有选中行却一样可以操作--bichen
+        if (keyValue == null) {
+            $.modalAlert("请选中一行", "warning");
+        } else {
+            $.modalOpen({
+                id: "Form",
+                title: "修改",
+                url: "/BaseManage/SysItem/Form?keyValue=" + keyValue + "",
+                width: "800px",
+                height: "680px",
+                callBack: function (iframeId) {
+                    top.frames[iframeId].submitForm();
+                }
+            });
+        }
+    }
+
+ 
+    function btn_delete() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        //修改 进行修改操作确定后没有选中行却一样可以操作--bichen
+        if (keyValue == null) {
+            $.modalAlert("请选中一行", "warning");
+        } else {
+            $.deleteForm({
+                url: "/BaseManage/SysItem/DeleteForm",
+                param: { keyValue:keyValue },
+                success: function () {
+                    $("#gridList").resetSelection();
+                    $("#gridList").trigger("reloadGrid");
+                }
+            })
+        }
+    }
+    //清空文本框--bichen
+    function clean() {
+        $("#ItemCode").val("");
+        $("#ItemName").val("");
+        $("#Supplier").val("");
+    }
+    //导入 -bichen
+    function btn_import() {
+        //批量导入
+        $.modalOpen({
+            id: "Index",
+            title: "导入预览",
+            url: "/BaseManage/UploadExcels/UpPlans",
+            width: "930px",
+            height: "810px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+   
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-add" authorize="yes" class="btn btn-primary " onclick="btn_add()"><i class="fa fa-plus"></i>新建</a>
+        </div>
+        @*<div class="btn-group">
+            <a id="NF-import" authorize="yes" class="btn btn-primary " onclick="btn_import()"><i class="fa fa-upload"></i>导入</a>
+        </div>*@
+        <script>$('.toolbar').authorizeButton()</script>
+        <div class="operate">
+            <ul class="nav nav-pills">
+                <li class="first">已选中<span>1</span>项</li>
+                <li><a id="NF-edit" authorize="yes" onclick="btn_edit()"><i class="fa fa-pencil-square-o"></i>修改</a></li>
+                <li><a id="NF-delete" authorize="yes" onclick="btn_delete()"><i class="fa fa-trash-o"></i>删除</a></li>
+            </ul>
+            <a href="javascript:;" class="close"></a>
+        </div>
+    </div>
+    
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="ItemCode" type="text" class="form-control" placeholder="物料编码" style="width: 150px; margin-right:10px">
+                        <input id="ItemName" type="text" class="form-control" placeholder="物料名称" style="width: 150px; margin-right:10px">
+                        <input id="Supplier" type="text" class="form-control" placeholder="供应商" style="width: 150px;">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+                @* 清空文本框--bichen*@
+                <td>
+                    <div class="input-group">
+                        <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class="fa fa-link"></i></button>
+                    </div>
+                </td>
+            </tr>
+
+        </table>
+
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+

@@ -1,0 +1,119 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+    })
+
+    function gridList(filepath) {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            //url: "/ProductionManage/OrderManage/GetUploadGridJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: '物料编码', name: '物料编码', width: 100, align: 'left' },
+                { label: '中文名称', name: '中文名称', width: 100, align: 'left' },
+                { label: "中文名称备注", name: "中文名称备注", width: 100, align: 'left' },
+                { label: "英文名称", name: "英文名称", width: 150, align: 'left' },
+                { label: '英文名称备注', name: '英文名称备注', width: 100, align: 'left' },
+                { label: '长安标识方式', name: '长安标识方式', width: 80, align: 'left' },
+                { label: "是否颜色件", name: "是否颜色件", width: 80, align: 'left' },
+                { label: "PBOM供货状态", name: "PBOM供货状态", width: 80, align: 'left' },
+                { label: '装配状态', name: '装配状态', width: 100, align: 'left' },
+                { label: '单位', name: '单位', width: 100, align: 'left' },
+                { label: "颜色编码", name: "颜色编码", width: 60, align: 'left' },
+                { label: '数据标识', name: '数据标识', width: 100, align: 'left' },
+                { label: '物料种类', name: '物料种类', width: 100, align: 'left' },
+                { label: "零件位置", name: "零件位置", width: 100, align: 'left' },
+                { label: "PLC对应码", name: "PLC对应码", width: 80, align: 'left' }
+            ]
+        });
+    }
+
+    function uploadFile() {
+        upload(function (data) {
+            console.log(data);
+            showList(data.fileName);
+            $("#hidFileName").val(data.fileName);
+        });
+    }
+
+    function upload(afterUploadFunc) {
+        var xlsFile = $("#fileInput")[0];
+
+        var result = {};
+        var formData = new FormData();
+        if (xlsFile.files.length > 0) {
+            $("#lblFileName").html(xlsFile.files[0].name);
+            formData.append('file', xlsFile.files[0]);
+        } else {
+            return;
+        }
+
+        $.ajax({
+            url: '../../Attachment/Attachment.aspx?action=upload',
+            type: 'POST',
+            data: formData,
+            dataType: 'JSON',
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+
+                if (data.result == "ok") {
+                    if (afterUploadFunc) {
+                        afterUploadFunc(data);
+                    }
+                }
+            }
+        });
+    }
+
+    function showList(fileName) {
+        var $gridList = $("#gridList");
+        $gridList.jqGrid('setGridParam', {
+            url: "/LogisticManage/UploadExcel/GetUploadGridJson",
+            postData: { fileName: fileName },
+            success: function () {
+                alert(11);
+            }
+        }).trigger('reloadGrid');
+    }
+
+    function submitForm(callbackFunc) {
+        $.submitForm({
+            url: "/LogisticManage/UploadExcel/UploadExcelData?fileName=" + $("#hidFileName").val(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+                if (callbackFunc) {
+                    callbackFunc();
+                }
+            }
+        })
+    }
+
+</script>
+
+<div class="topPanel">
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <span id="lblFileName" style="height: 25px; width: 200px; display: inline-block; float: left; border: 1px solid #000; padding-left: 5px;"></span>
+                        <label for="fileInput" style="float: left; cursor: pointer; display: inline-block;">&nbsp;&nbsp;<i class="fa fa-cloud-upload fa-1x"></i>选择文件</label>
+                        <input type="file" id="fileInput" accept="application/vnd.ms-excel" style="display: none" onchange="uploadFile()" />
+                        <input type="hidden" id="hidFileName" />
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+</div>
+

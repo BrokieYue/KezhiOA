@@ -1,0 +1,262 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        loadSelect();
+        gridList();
+
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/OAManage/WeeklyWorkLog/GetGridJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: '主键', name: 'F_Id', hidden: true },
+                {
+                    label: '项目编号',index:'F_ProjectCode', name: 'F_ProjectCode', width: 80, align: 'left',
+                    cellattr: function (rowId,tv,rawObject,cm,rdata) {
+                        return 'id=\'F_ProjectCode' + rowId + "\'";
+                    }
+                },
+                {
+                    label: '项目名称', index: 'F_ProjectName', name: 'F_ProjectName', width: 120, align: 'left',
+                    cellattr: function (rowId, tv, rawObject, cm, rdata) {
+                        return 'id=\'F_ProjectName' + rowId + "\'";
+                    }
+                },
+                {
+                    label: '项目经理', index: 'F_ProjectManagerName', name: 'F_ProjectManagerName', width: 120, align: 'left',
+                    cellattr: function (rowId, tv, rawObject, cm, rdata) {
+                        return 'id=\'F_ProjectManagerName' + rowId + "\'";
+                    }
+                },
+                {
+                    label: '人员名称', index: 'F_WorkUserName', name: 'F_WorkUserName', width: 80, align: 'left',
+                    cellattr: function (rowId, tv, rawObject, cm, rdata) {
+                        return 'id=\'F_WorkUserName' + rowId + "\'";
+                    }
+                },
+                { label: '日期', index: 'F_WorkDate', name: 'F_WorkDate', width: 80, align: 'left', formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' } },
+                { label: '项目编号', index: 'F_ProjectCode', name: 'F_ProjectCode', width: 80, align: 'left' },
+                { label: '人员ID', index: 'F_WorkUserId', name: 'F_WorkUserId', hidden: true },
+                { label: '项目ID', index: 'F_ProjectId', name: 'F_ProjectId', hidden: true },
+                { label: '工作地点', index: 'F_WorkAddress', name: 'F_WorkAddress', width: 80, align: 'left' },
+                { label: '工作内容', index: 'F_DailyRecord', name: 'F_DailyRecord', width: 500, align: 'left' },
+                { label: '备注', index: 'F_Description', name: 'F_Description', width: 100, align: 'left' },
+                { label: '开始时间', index: 'F_WorkTimeStart', name: 'F_WorkTimeStart', width: 60, align: 'left' },
+                { label: '结束时间', index: 'F_WorkTimeEnd', name: 'F_WorkTimeEnd', width: 60, align: 'left' },
+                { label: '工作时长', index: 'F_WorkedHours', name: 'F_WorkedHours', width: 60, align: 'left' },
+                {
+                    label: '周工作时数', index: 'F_WeekWorkHours', name: 'F_WeekWorkHours', width: 100, align: 'left',
+                    formatter: function (celval, options, rowdata) {
+                        var workHours = 0;
+                        var userId = rowdata.F_WorkUserId;
+                        var projectId = rowdata.F_ProjectId;
+                        var prevWeek = $("#F_WeekSelect").is(":checked");
+                        $.ajax({
+                            url: "/OAManage/WeeklyWorkLog/GetListByUserAndProject",
+                            data: { user: userId, project: projectId, startTime: $("#startTime").val(), endTime: $("#endTime").val(), weekflag: prevWeek },
+                            dataType: "json",
+                            async: false,
+                            success: function (data) {
+                                for (var i = 0; i < data.length; i++) {
+                                    workHours += (parseFloat(data[i].F_WorkedHours))
+                                }
+
+                            }
+                        });
+                        return workHours;
+                    },
+                    cellattr: function (rowId, tv, rawObject, cm, rdata) {
+                        return 'id=\'F_WeekWorkHours' + rowId + "\'";
+                    }
+                }
+               
+            ],
+            pager: "#gridPager",
+            sortname: 'F_ProjectCode asc,F_WorkUserId asc,F_WorkDate asc',
+            height: 400,
+            rowNum: 30,
+            rowList: [10, 30, 50, 100, 200],
+            rownumbers: true,
+            shrinkToFit: false,
+            height:'100%',
+            multiSort: false,
+            //multiSort: true,
+            viewrecords: true,
+            sortable: false,
+            remoteSort: false,
+            gridComplete: function () {
+                //表格加载完成后调用方法 
+                var gridName = "gridList";
+                Merger(gridName, 'F_ProjectCode');
+                Merger(gridName, 'F_ProjectName');
+                Merger(gridName, 'F_ProjectManagerName');
+                Merger(gridName, 'F_WorkUserName');
+                Merger(gridName, 'F_WeekWorkHours');
+                //Merger(gridName, 'marketingPlanContent');
+            }
+        });
+        $("#btn_search").click(function () {
+            var prevWeek = $("#F_WeekSelect").is(":checked");
+           
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyword: $("#txt_WorkUser").val(), startTime: $("#startTime").val(), endTime: $("#endTime").val(), organize: $("#F_OrganizeId").val(), filiale: $("#F_FilialeId").val(), weekflag: prevWeek },
+            }).trigger('reloadGrid');
+        });
+    }
+    function loadSelect() {
+        //部门
+        $("#F_OrganizeId").bindSelect({
+            url: "/SystemManage/Organize/GetTreeSelectJson",
+            id: "text",
+            text: "text"
+        });
+        //分公司
+        $("#F_FilialeId").bindSelect({
+            url: "/SystemManage/ItemsData/GetKezhiJson",
+            id: "F_Id",
+            text: "F_ItemName"
+        });
+        $("#F_WeekSelect").click(function () {
+            if ($("#startTime").is(":disabled")) {
+                $("#startTime").removeAttr("disabled")
+            } else {
+                $("#startTime").attr("disabled", "disabled").val("")
+            }
+            if ($("#endTime").is(":disabled")) {
+                $("#endTime").removeAttr("disabled")
+            } else {
+                $("#endTime").attr("disabled", "disabled").val("")
+            }
+        })
+    }
+    function btn_import() {
+        var user = $("#txt_WorkUser").val();
+        var startTime = $("#startTime").val();
+        var endTime = $("#endTime").val();
+        var organize = $("#F_OrganizeId").val();
+        var filiale = $("#F_FilialeId").val();
+        var prevWeek = $("#F_WeekSelect").is(":checked");
+        
+        //导出绩效
+        var form = $("<form>");   //定义一个form表单
+        form.attr('style', 'display:none');   //在form表单中添加查询参数
+        form.attr('target', '');
+        form.attr('id', 'formDownload');
+        form.attr('method', 'post');
+        var url = "/OAManage/WeeklyWorkLog/ExcelWeekWorkLog?keyword=" + user + "&startTime=" + startTime + "&endTime=" + endTime + "&organize=" + organize + "&filiale=" + filiale + "&weekflag=" + prevWeek;
+        form.attr('action', url);
+        $('body').append(form);  //将表单放置在web中
+        form.submit();
+
+        $('#formDownload').remove();
+    }
+
+
+</script>
+<style>
+    .ui-jqgrid tr.jqgrow td {
+        white-space: normal !important;
+        height: auto;
+        vertical-align: text-top;
+        padding-top: 2px;
+        display: table-cell;
+        vertical-align: middle;
+        border:1px solid #000;
+        text-align:center;
+    }
+
+</style>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-Import" class="btn btn-primary dropdown-text" onclick="btn_import()"><i class="fa fa-upload"></i>导出</a>
+        </div>
+        @*<div class="operate">
+            <ul class="nav nav-pills">
+                <li class="first">已选中<span>1</span>项</li>
+                <li><a id="NF-edit" authorize="yes" onclick="btn_edit()"><i class="fa fa-pencil-square-o"></i>修改</a></li>
+                <li><a id="NF-delete" authorize="yes" onclick="btn_delete()"><i class="fa fa-trash-o"></i>删除</a></li>
+                <li class="split"></li>
+            </ul>
+            <a href="javascript:;" class="close"></a>
+        </div>*@
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <select id="F_OrganizeId" name="F_OrganizeId" class="form-control" style="width:120px; margin-right:10px">
+                            <option value="">==请选择部门==</option>
+                        </select>
+                        <select id="F_FilialeId" name="F_FilialeId" class="form-control" style="width:120px; margin-right:10px">
+                            <option value="">==请选择分公司==</option>
+                        </select>
+                        <input id="txt_WorkUser" type="text" class="form-control" placeholder="人员" style="width: 200px;">
+                        <input id="startTime" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ skin: 'whyGreen' })" placeholder="开始日期" style="width: 140px; margin-left: 30px">
+                        <input id="endTime" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ skin: 'whyGreen'})" placeholder="结束日期" style="width: 140px;margin-left:20px;">
+                        <input type="checkbox" id="F_WeekSelect" class="form-control" style="width:26px;height:26px;margin-left:10px;margin-right:5px;" value="week" /><span style="margin-right: 30px;" >上周</span>
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+<script>
+
+        function Merger(gridName, CellName) {
+            //得到显示到界面的id集合
+            var mya = $("#" + gridName + "").getDataIDs();
+            //当前显示多少条
+            var length = mya.length;
+            var projectName1 = "";
+            var projectName2 = "";
+            var userName1 = "";
+            var userName2 = "";
+            for (var i = 0; i < length; i++) {
+                //从上到下获取一条信息
+                var before = $("#" + gridName + "").jqGrid('getRowData', mya[i]);
+                projectName1 = before.F_ProjectCode;
+                userName1 = before.F_WorkUserId;
+                //定义合并行数
+                var rowSpanTaxCount = 1;
+                for (j = i + 1; j <= length; j++) {
+                    //和上边的信息对比 如果值一样就合并行数+1 然后设置rowspan 让当前单元格隐藏
+                    var end = $("#" + gridName + "").jqGrid('getRowData', mya[j]);
+                    projectName2 = end.F_ProjectCode;
+                    userName2 = end.F_WorkUserId;
+                    //员工和项目经理根据项目划分
+                    if ((CellName == "F_WorkUserName" || CellName == "F_ProjectManagerName") && projectName1 != projectName2) {
+                        break;
+                    }
+                    if ((CellName == "F_WeekWorkHours" && projectName1 != projectName2 && userName1 == userName2) || (CellName == "F_WeekWorkHours" && userName1 != userName2)) {
+                        break;
+                    }
+                    if (before[CellName] == end[CellName]) {
+                        rowSpanTaxCount++;
+                        $("#" + gridName + "").setCell(mya[j], CellName, '', { display: 'none' });
+                    } else {
+                        rowSpanTaxCount = 1;
+                        break;
+                    }
+                    $("#" + CellName + "" + mya[i] + "").attr("rowspan", rowSpanTaxCount);
+                }
+            }
+        }
+</script>

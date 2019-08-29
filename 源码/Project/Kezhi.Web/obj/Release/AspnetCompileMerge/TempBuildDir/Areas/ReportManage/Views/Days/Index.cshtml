@@ -1,0 +1,22 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+
+}
+
+
+<div class="ui-layout" id="layout" style="height: 100%; width: 100%;">
+    
+    
+    <div class="ui-layout-center" >
+        <div id="show_1" >
+            @Html.Partial("WorkshopLeaderTable")
+        </div>
+        <div id="show_2" style="display:none">
+            @Html.Partial("ProductionTable")
+        </div>
+        <div id="show_3" style="display:none">
+            @Html.Partial("QualityTable")
+        </div>
+    </div>
+</div>

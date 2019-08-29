@@ -1,0 +1,295 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    var keyValue = $.request("keyValue"); //线别
+    var line;
+    var loadtype; // 上料类型
+    var _type;
+    var _lineName;
+    if (keyValue == "A") {
+        line = "76153929-210d-4759-9492-f6f815b94b47";
+        _type = "冲压上料";
+        loadtype = "1";
+        _lineName = "冲压A线";
+    }
+    if (keyValue == "B") {
+        line = "d01fc4f1-6799-4eea-950e-2c8aea799cb1";
+        _type = "冲压上料";
+        loadtype = "1";
+        _lineName = "冲压B线";
+    }
+    if (keyValue == "C") {
+        line = "65ceb0e1-7ca9-4ef5-8dfa-4a6233583143";
+        _type = "落料上料";
+        loadtype = "2";
+        _lineName = "落料线";
+    }
+    if (keyValue == "D") {
+        line = "67b4c8cf-cb28-4d47-81d8-c883ce1f586b";
+        _type = "凸焊上料";
+        loadtype = "3";
+        _lineName = "凸焊线";
+    }
+    if (keyValue == null || keyValue == undefined || keyValue == '') {
+        line = "87ad7db7-89c9-49a7-96cd-76fb8e4cea63";
+        _type = "四门两盖上料";
+        loadtype = "4";
+        keyValue = "E"
+        _lineName = "焊装线";
+       
+    }
+   
+       
+
+    $(function () {
+        hiedd();//调用隐藏--bichen
+        $("#prodType").text(_type);
+        $("#Line").text(_lineName);
+       
+       
+       // document.getElementById('Line').value = _lineName;
+        gridList();
+        $("#Vcode").dblclick(function () {
+           
+            var win = window.open("../../PressManage/PressFeed/VehicleFrom", "物料编码列表", " height=450,width=1050,Left=300px,Top=100px, menubar=no,titlebar=no,scrollbar=no,toolbar=no,status=no,location=no");
+
+        });
+    })
+
+    $(window).resize(function () {
+        $("#gridList").setGridWidth($(window).width());
+    })
+
+    //四门俩盖上料时隐藏“返回上层”按钮--bichen
+    function hiedd() {
+        if (loadtype == "4") {
+            $("#btn_send").attr("style", "display:none;");
+        }
+    }
+        function gridList() {
+            var $gridList = $("#gridList");
+            $gridList.dataGrid({
+                url: "/PressManage/PressFeed/GetOnlineJson?keyword=" + line + "",
+                height: $(window).height()- 480,
+                colModel: [
+                 { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                    { label: "料包批次号", name: "ItemBagBatch", width: 130, align: 'left' },
+                    { label: "原材料编号", name: "ItemCode", width: 250, align: 'left' },
+                    { label: '上料数量', name: 'ItemQty', width: 80, align: 'left' },
+                    { label: '剩余数量', name: 'LeftQty', width: 80, align: 'left' },
+                    { label: '上料说明', name: 'F_Description', width: 250, align: 'left' },
+                    {
+                        label: '上料时间', name: 'F_CreatorTime', width: 170, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                            if (cellvalue != "") {
+                                return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                            }
+                        }
+                    },
+                   { label: '上料人', name: 'F_CreatorUserName', width: 150, align: 'left' }
+                ],
+                pager: "#gridPager",
+                sortname: 'ItemBagBatch asc',
+                viewrecords: false,
+                multiselect: true,//复选框
+                rowNum: 2000,
+                viewrecords: true,
+                caption: "料包上线列表",
+            });
+        }
+        // 清空文本
+        function btn_clearTxt()
+        {
+            document.getElementById("batchNo").value = "";
+            document.getElementById("Vcode").value = "";
+            document.getElementById("qty").value = "";
+            document.getElementById("desc").value = "";
+        }
+        
+         //料包上线
+        function btn_submitInfo()
+        {
+            var batch = document.getElementById('batchNo').value;
+            var item = document.getElementById('Vcode').value;
+            var qty = document.getElementById('qty').value;
+            var desc = document.getElementById('desc').value;
+            if (batch.trim() == '')
+            {
+                $.modalAlert("料包批次号不能为空！", "warning");
+                return;
+            }
+            if (item.trim() == '') {
+                $.modalAlert("原材料编号不能为空！", "warning");
+                return;
+            }
+            if (qty.trim() == '') {
+                $.modalAlert("上线数量不能为空！", "warning");
+                return;
+            }
+            if (isNaN(qty)) {
+                $.modalAlert("请输入正确的上线数量！", "warning");
+                return;
+            }
+            var _qty = parseInt(qty);
+            if (_qty <1) {
+                $.modalAlert("请输入正确的上线数量！", "warning");
+                return;
+            }
+            $.submitForm({
+                url: "/PressManage/PressFeed/SetOnlineJson",
+                param: { batchNo: batch, itemNo: item, qty: qty, remark: desc, line: line, loadType: loadtype },
+                success: function () {
+                    btn_clearTxt();
+                    $.currentWindow().$("#gridList").trigger("reloadGrid");
+                }
+            })
+
+        }
+
+
+        function btn_OutLineInfo() {
+            var arryid = []; //FID
+            var fid;
+            var batch;
+            var qty;
+            var selrow = $("#gridList").jqGridRowValue();
+            for (var i = 0; i < selrow.length; i++) {
+                    arryid.push(selrow[i].F_Id);
+                    fid = selrow[i].F_Id;
+                    batch = selrow[i].ItemBagBatch;
+                    qty = selrow[i].LeftQty;
+
+                }
+            if (arryid.length > 1) {
+                $.modalAlert("只能选择一条数据进行下线操作！", "warning")
+                return false;
+            }
+            if (selrow.length == 0) {
+                $.modalAlert("请选择一条有效数据！", "warning")
+                return false;
+            }
+            $.modalOpen({
+                id: "OutLine",
+                title: "料包下线",
+                url: "/PressManage/PressFeed/OutLine?keyValue=" + fid + "&batchNo=" + batch + "&qty=" + qty,
+                width: "500px",
+                height: "340px",
+                callBack: function (iframeId) {
+                    top.frames[iframeId].submitForm();
+                }
+            });
+        }
+        //原材料失去焦点事件-wangqiang
+        function lose_focus() {
+            //alert("c");
+            var ItemCode = document.getElementById("Vcode").value;
+            if (!!ItemCode) {
+                $.ajax({
+                    url: "/BaseManage/SysItem/GetData?ItemCode" + ItemCode,
+                    data: { ItemCode: ItemCode },
+                    dataType: "json",
+                    async: false,
+                    success: function (data) {
+                        if (data.length > 0) {
+                            document.getElementById("desc").value = data[0].F_Description
+                        } else {
+                            $.modalAlert("原材料编号不存在！", "warning")
+                            document.getElementById("Vcode").value = "";
+                        }
+
+                    }
+                });
+            }
+        }
+    //Enter跳下一个input,到最后一个时回到第一个。
+        function focusNextInput(thisInput) {
+            var inputs = document.getElementsByTagName("input");
+            for (var i = 0; i < inputs.length; i++) {
+                // 如果是最后一个，则焦点回到第一个 
+                if (i == (inputs.length - 1)) {
+                    inputs[0].focus(); break;
+                } else if (thisInput == inputs[i]) {
+                    inputs[i + 1].focus(); break;
+                }
+            }
+        }
+        function historyback() {
+            history.back(-1);
+        }
+ </script>
+<div id="content">
+    <div class="rows" style="margin-bottom: 1%; border: 1px solid #e6e6e6; overflow: hidden; padding-left: 1px;">
+        <div style="border: none; border-radius: 0px; margin-bottom: 0px; box-shadow: none; -webkit-box-shadow: none;">
+            <div style="font-size: 28px; color: #777;  border-color: #faebcc; padding: 10px 10px; ">
+               <span style="padding-left: 10px;">生产线：</span>
+               <span id="Line" style="color:blue;">冲压A线</span>
+               <span style="padding-left: 10px;">生产类型：</span>
+               <span id="prodType" style="color:blue;">冲压上料</span>
+               <span style="padding-left: 10px;">当前操作员：</span>
+               <span style="color:blue;">@Kezhi.Code.OperatorProvider.Provider.GetCurrent().UserName</span>
+            </div>
+            <table style="border-collapse: separate; border-spacing: 0px 2px; width: 100%; padding-left:10px;">
+                <tr>
+                    <td style="width: 70%;">
+                        <table style="border-collapse: separate; border-spacing: 0px 2px; width: 95%; padding-left:10px;">
+                            <tr>
+                                <td>
+                                    <input id="batchNo" type="text" placeholder="料包批次号" style="width:100%; height: 80px; font-size: 60px; float: left;background-color:yellow;" onkeypress="if(event.keyCode==13) focusNextInput(this);">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input id="Vcode" type="text" placeholder="输入或双击选择原材料" style="width: 78%; height: 80px; font-size: 60px; float: left; " onblur="lose_focus()" onkeypress="if (event.keyCode == 13) focusNextInput(this);">
+                                    <input id="qty" type="text" placeholder="数量" style="width: 20%; height: 80px; font-size: 60px; float: right;" onkeypress="if(event.keyCode==13) focusNextInput(this);">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input id="desc" type="text" placeholder="说明" style="width: 100%; height: 80px; font-size: 60px; float: left;" onkeypress="if(event.keyCode==13) focusNextInput(this);">
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td style="width: 30%;">
+                        <table style="border-collapse: separate; border-spacing: 0px 2px; width: 100%; padding-left:10px;">
+                            <tr>
+                                <td>
+                                    <span class="input-group-btn">
+                                        <a id="btn_submit" class="btn btn-primary " style="width: 80%; height: 55px; font-size: 40px; text-align: center" onclick="btn_submitInfo()">信息提交</a>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span class="input-group-btn">
+                                        <a id="btn_clear" class="btn btn-primary " style="width: 80%; height: 55px; font-size: 40px; text-align: center" onclick="btn_clearTxt()">内容清空</a>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span class="input-group-btn">
+                                        <a id="btn_Outline" class="btn btn-primary " style="width: 80%; height: 55px; font-size: 40px; text-align: center" onclick="btn_OutLineInfo()">料包下线</a>
+                                    </span>
+                                </td>
+                            </tr>
+                            @*<tr>
+                                <td>
+                                    <span class="input-group-btn">
+                                        <a id="btn_send" class="btn btn-primary " style="width: 80%; height: 55px; font-size: 40px; text-align: center; " onclick="historyback()" role="button">返回上层</a>
+                                    </span>
+                                </td>
+                            </tr>*@
+                        </table>
+                    </td>
+                </tr>
+            </table>
+          
+    </div>
+</div>
+</div>
+<div class="gridPanel" style="font-size:18px;">
+    <table id="gridList" style="font-size:18px;"></table>
+    <div id="gridPager" style="font-size:18px;"></div>
+</div>

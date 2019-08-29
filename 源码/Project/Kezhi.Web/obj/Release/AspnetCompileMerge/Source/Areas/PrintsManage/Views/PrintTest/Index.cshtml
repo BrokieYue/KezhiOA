@@ -1,0 +1,1104 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script language="javascript" src="~/Content/js/lodop/LodopFuncs.js"></script>
+<object id="LODOP_OB" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width=0 height=0>
+    <embed id="LODOP_EM" type="application/x-print-lodop" width=0 height=0 pluginspage="~/Content/js/lodop/install_lodop64.exe"></embed>
+</object>
+<style>
+    .tb {
+        width: 100%;
+        margin: 15px 0;
+    }
+        .tb th {
+            background-color: #93DAFF;
+            color: #000000;
+            font-size: 1.45em;
+            text-align: center;
+            padding: 4px;
+            border-collapse: collapse;
+        }
+
+         .tb td {
+                font-size: 1.45em;
+                text-align: center;
+                padding: 4px;
+                border: 1px solid #6fcdfe;
+                border-collapse: collapse;
+            }
+
+    .tb tr:nth-child(odd) {
+            background-color: #dbf2fe;
+        }
+
+    .tb tr:nth-child(even) {
+            background-color: #fdfdfd;
+        }
+
+    </style >
+<script language="javascript" type="text/javascript">
+    function CreateVINPrintPage() {
+        var LODOP = getLodop();
+        //LODOP.PRINT_INITA(3, 0, 1200, 1200, "随车跟踪卡打印");
+        //LODOP.ADD_PRINT_RECT(46, 61, 549, 314, 0, 1);
+        //LODOP.ADD_PRINT_SHAPE(4, 82, 62, 547, 2, 0, 1, "#000000");
+        //LODOP.ADD_PRINT_TEXT(100, 73, 89, 25, "  VIN码：    ");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        //LODOP.SET_PRINT_STYLEA(0, "Alignment", 3);
+        //LODOP.ADD_PRINT_TEXT(179, 72, 90, 25, "车型平台：");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        //LODOP.ADD_PRINT_TEXT(218, 73, 90, 25, "车型描述：");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        //LODOP.ADD_PRINT_TEXT(139, 73, 90, 25, "整车编码：");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        //LODOP.ADD_PRINT_SHAPE(4, 269, 62, 547, 2, 0, 1, "#000000");
+        //LODOP.ADD_PRINT_BARCODE(279, 101, 521, 76, "Code39", "123456789012");
+        //LODOP.ADD_PRINT_TEXT(55, 410, 84, 25, "制造日期：");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        //LODOP.ADD_PRINT_TEXT(55, 500, 100, 25, "2018-08-11");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        //LODOP.ADD_PRINT_BARCODE(93, 482, 163, 134, "QRCode", "123456789012");
+        //LODOP.ADD_PRINT_TEXT(100, 180, 234, 25, "LF0999992JA000014");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        //LODOP.ADD_PRINT_TEXT(139, 179, 237, 25, "L01AABAAA1AAW0102W");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        //LODOP.ADD_PRINT_TEXT(178, 180, 237, 25, "A11");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        //LODOP.ADD_PRINT_TEXT(217, 179, 412, 25, "A11五座 三能JT15T 盛瑞8AT 豪华型 浪漫白 黑色");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        //LODOP.ADD_PRINT_TEXT(55, 73, 136, 25, "【随车跟踪卡】");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+
+        LODOP.PRINT_INITA(3, 13, 790, 1200, "随车跟踪卡打印");
+        LODOP.ADD_PRINT_RECT(32, 65, 639, 404, 0, 1);
+        LODOP.ADD_PRINT_SHAPE(4, 82, 65, 638, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(107, 69, 137, 46, "VIN码：  ");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 18);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 3);
+        LODOP.SET_PRINT_STYLEA(0, "SpacePatch", 1);
+        LODOP.ADD_PRINT_SHAPE(4, 305, 65, 638, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(48, 463, 84, 25, "打印时间：");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.ADD_PRINT_TEXT(48, 544, 155, 25, "");//打印时间
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.ADD_PRINT_BARCODE(99, 509, 196, 190, "QRCode", "123456789");//二维码
+        LODOP.ADD_PRINT_TEXT(107, 211, 292, 46, "");//Vin码
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 20);
+        LODOP.ADD_PRINT_TEXT(310, 69, 633, 124, "");//整车描述
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 33);
+        LODOP.ADD_PRINT_TEXT(48, 325, 116, 25, "【随车跟踪卡】");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.ADD_PRINT_TEXT(174, 211, 292, 46, "");//工单号
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 20);
+        LODOP.ADD_PRINT_TEXT(174, 69, 137, 46, "工单号：");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 18);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 3);
+        LODOP.SET_PRINT_STYLEA(0, "SpacePatch", 1);
+        LODOP.ADD_PRINT_TEXT(240, 67, 137, 46, "整车编码：");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 18);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 3);
+        LODOP.SET_PRINT_STYLEA(0, "SpacePatch", 1);
+        LODOP.ADD_PRINT_TEXT(240, 211, 292, 46, "");//整车编码
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 20);
+        LODOP.ADD_PRINT_TEXT(48, 73, 84, 25, "上线时间：");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.ADD_PRINT_TEXT(48, 154, 155, 25, "");//上线时间
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+
+         
+    };
+    function CreateCYPrintPage() {
+        //var LODOP = getLodop();
+        //LODOP.PRINT_INITA(3, 13, 790, 1125, "冲压打印");
+        //LODOP.SET_PRINT_MODE("PRINT_NOCOLLATE", 1);
+        //LODOP.ADD_PRINT_RECT(579, 27, 719, 384, 0, 1);
+        //LODOP.ADD_PRINT_SHAPE(4, 644, 27, 719, 2, 0, 1, "#000000");
+        //LODOP.ADD_PRINT_TEXT(670, 53, 132, 35, "批次号：");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 20);
+        //LODOP.SET_PRINT_STYLEA(0, "Alignment", 3);
+        //LODOP.SET_PRINT_STYLEA(0, "SpacePatch", 1);
+        //LODOP.ADD_PRINT_SHAPE(4, 895, 27, 719, 2, 0, 1, "#000000");
+        //LODOP.ADD_PRINT_TEXT(928, 453, 104, 25, "打印时间：");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        //LODOP.ADD_PRINT_TEXT(928, 539, 200, 25, "2018-9-10 10:16:37");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        //LODOP.ADD_PRINT_BARCODE(657, 510, 275, 231, "QRCode", "123456789");
+        //LODOP.ADD_PRINT_TEXT(674, 193, 302, 31, "CYAX201807190001");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 20);
+        //LODOP.ADD_PRINT_TEXT(593, 247, 311, 40, "【冲压A线批次单】");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 25);
+        //LODOP.ADD_PRINT_TEXT(738, 193, 302, 31, "CC201807190001");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 20);
+        //LODOP.ADD_PRINT_TEXT(734, 53, 132, 35, "计划号：");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 20);
+        //LODOP.SET_PRINT_STYLEA(0, "Alignment", 3);
+        //LODOP.SET_PRINT_STYLEA(0, "SpacePatch", 1);
+        //LODOP.ADD_PRINT_TEXT(798, 34, 152, 35, "物料编码：");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 20);
+        //LODOP.SET_PRINT_STYLEA(0, "Alignment", 3);
+        //LODOP.SET_PRINT_STYLEA(0, "SpacePatch", 1);
+        //LODOP.ADD_PRINT_TEXT(802, 193, 302, 31, "A11AABABB3ABW0301W");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 20);
+        //LODOP.ADD_PRINT_SHAPE(4, 706, 27, 465, 1, 0, 1, "#000000");
+        //LODOP.ADD_PRINT_SHAPE(4, 770, 27, 465, 1, 0, 1, "#000000");
+        //LODOP.ADD_PRINT_SHAPE(4, 834, 27, 465, 1, 0, 1, "#000000");
+        //LODOP.ADD_PRINT_TEXT(863, 34, 152, 35, "批次数量：");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 20);
+        //LODOP.SET_PRINT_STYLEA(0, "Alignment", 3);
+        //LODOP.ADD_PRINT_TEXT(865, 193, 302, 31, "10000");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 20);
+
+
+        LODOP.PRINT_INITA(0, 0, 790, 1125, "");
+        LODOP.SET_PRINT_MODE("PRINT_NOCOLLATE", 1);
+        LODOP.ADD_PRINT_SHAPE(4, 566, 89, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 617, 89, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(569, 91, 631, 50, "合格批次单");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 24);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 667, 89, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 719, 89, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 770, 89, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 825, 89, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 864, 89, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 566, 89, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(634, 89, 105, 25, "零件号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(689, 89, 100, 24, "零件名称");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(731, 89, 100, 26, "批次数量");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(783, 89, 100, 25, "生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(831, 89, 100, 28, "生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 905, 89, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(875, 89, 100, 24, "捆包号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(944, 89, 100, 50, "检验员");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 22);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(629, 214, 504, 30, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(686, 216, 504, 25, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(728, 217, 503, 26, "\r\n\r\n");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(784, 215, 502, 31, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(833, 217, 153, 25, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_SHAPE(4, 618, 200, 1, 440, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 1012, 89, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 1058, 89, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 566, 723, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 827, 378, 1, 185, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(834, 389, 105, 25, "原生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_TEXT(875, 220, 151, 25, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_SHAPE(4, 825, 520, 1, 187, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(951, 395, 100, 40, "批次条码");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(831, 544, 165, 30, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(879, 391, 100, 20, "原生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_TEXT(879, 544, 165, 20, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_TEXT(959, 225, 100, 26, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 12);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(1028, 94, 100, 20, "批次号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(1029, 209, 503, 20, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_BARCODE(657, 510, 275, 231, "QRCode", "123456789");
+
+        //LODOP.PRINT_INITA(0, 0, 790, 1125, "");
+        //LODOP.SET_PRINT_MODE("PRINT_NOCOLLATE", 1);
+        //LODOP.ADD_PRINT_SHAPE(4, 566, 89, 634, 2, 0, 1, "#000000");
+        //LODOP.ADD_PRINT_SHAPE(4, 617, 89, 634, 2, 0, 1, "#000000");
+        //LODOP.ADD_PRINT_TEXT(569, 91, 631, 50, "合格批次单");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 24);
+        //LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        //LODOP.ADD_PRINT_SHAPE(4, 667, 89, 634, 1, 0, 1, "#000000");
+        //LODOP.ADD_PRINT_SHAPE(4, 719, 89, 634, 1, 0, 1, "#000000");
+        //LODOP.ADD_PRINT_SHAPE(4, 770, 89, 634, 1, 0, 1, "#000000");
+        //LODOP.ADD_PRINT_SHAPE(4, 825, 89, 634, 1, 0, 1, "#000000");
+        //LODOP.ADD_PRINT_SHAPE(4, 864, 89, 634, 1, 0, 1, "#000000");
+        //LODOP.ADD_PRINT_SHAPE(4, 566, 89, 1, 492, 0, 1, "#000000");
+        //LODOP.ADD_PRINT_TEXT(634, 89, 105, 25, "零件号");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        //LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        //LODOP.ADD_PRINT_TEXT(689, 89, 100, 24, "零件名称");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        //LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        //LODOP.ADD_PRINT_TEXT(731, 89, 100, 26, "批次数量");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        //LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        //LODOP.ADD_PRINT_TEXT(783, 89, 100, 25, "生产日期");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        //LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        //LODOP.ADD_PRINT_TEXT(831, 89, 100, 28, "生产班组");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        //LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        //LODOP.ADD_PRINT_SHAPE(4, 905, 89, 634, 1, 0, 1, "#000000");
+        //LODOP.ADD_PRINT_TEXT(875, 89, 100, 24, "捆包号");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        //LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        //LODOP.ADD_PRINT_TEXT(944, 89, 100, 50, "检验员");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 22);
+        //LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        //LODOP.ADD_PRINT_TEXT(629, 214, 504, 30, "零件号2");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        //LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        //LODOP.ADD_PRINT_TEXT(686, 216, 504, 25, "零件名称");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        //LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        //LODOP.ADD_PRINT_TEXT(728, 217, 503, 26, "批次数量\r\n\r\n");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        //LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        //LODOP.ADD_PRINT_TEXT(784, 215, 502, 31, "生产日期");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        //LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        //LODOP.ADD_PRINT_TEXT(833, 217, 153, 25, "上产班组2");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        //LODOP.ADD_PRINT_SHAPE(4, 618, 200, 1, 440, 0, 1, "#000000");
+        //LODOP.ADD_PRINT_SHAPE(4, 1012, 89, 635, 1, 0, 1, "#000000");
+        //LODOP.ADD_PRINT_SHAPE(4, 1058, 89, 635, 1, 0, 1, "#000000");
+        //LODOP.ADD_PRINT_SHAPE(4, 566, 723, 1, 492, 0, 1, "#000000");
+        //LODOP.ADD_PRINT_SHAPE(4, 827, 378, 1, 185, 0, 1, "#000000");
+        //LODOP.ADD_PRINT_TEXT(834, 389, 105, 25, "原生产班组");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        //LODOP.ADD_PRINT_TEXT(875, 220, 151, 25, "捆包号2");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        //LODOP.ADD_PRINT_SHAPE(4, 825, 520, 1, 187, 0, 1, "#000000");
+        //LODOP.ADD_PRINT_TEXT(951, 395, 100, 40, "批次条码");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        //LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        //LODOP.ADD_PRINT_TEXT(831, 544, 165, 30, "原生产班组2");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        //LODOP.ADD_PRINT_TEXT(879, 391, 100, 20, "原生产日期");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        //LODOP.ADD_PRINT_TEXT(874, 544, 165, 25, "原生产日期2");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        //LODOP.ADD_PRINT_TEXT(959, 225, 100, 26, "检验员2");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 12);
+        //LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        //LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        //LODOP.ADD_PRINT_TEXT(1028, 94, 100, 20, "批次号");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        //LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        //LODOP.ADD_PRINT_TEXT(1029, 209, 503, 20, "批次号2");
+        //LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+
+
+
+    };
+    function CreatePrintPage() {
+        var LODOP = getLodop();
+ 
+        LODOP.PRINT_INITA("0.26mm", "0mm", "100.54mm", "50.8mm", "随车跟踪卡打印");
+        LODOP.ADD_PRINT_RECT("0.79mm", "0.79mm", "98.43mm", "49.48mm", 0, 1);
+        LODOP.ADD_PRINT_SHAPE(4, "9.53mm", "1.06mm", "98.16mm", "0.53mm", 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT("11.11mm", "2.38mm", "22.49mm", "6.61mm", "VIN码：");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 3);
+        LODOP.ADD_PRINT_TEXT("18.79mm", "2.38mm", "22.49mm", "6.61mm", "工单号：");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 3);
+        LODOP.ADD_PRINT_TEXT("26.46mm", "2.38mm", "22.49mm", "6.61mm", "整车编码：");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 3);
+        LODOP.ADD_PRINT_SHAPE(4, "33.87mm", "1.06mm", "98.16mm", "0.53mm", 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT("2.12mm", "34.4mm", "22.23mm", "6.61mm", "制造日期：");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.ADD_PRINT_TEXT("2.12mm", "53.18mm", "46.3mm", "6.61mm", "2018-9-19 15:53:40");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.ADD_PRINT_BARCODE("11.64mm", "74.35mm", "23.02mm", "23.81mm", "QRCode", "LF0999992JA000014");
+        LODOP.ADD_PRINT_TEXT("11.11mm", "25.14mm", "44.98mm", "6.61mm", "LF0999992JA000014");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.ADD_PRINT_TEXT("18.79mm", "25.14mm", "44.98mm", "6.61mm", "L01AABAAA1AAW0102W");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.ADD_PRINT_TEXT("26.19mm", "25.14mm", "44.98mm", "6.61mm", "A11");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.ADD_PRINT_TEXT("35.19mm", "1.32mm", "97.1mm", "13.23mm", "A11五座 三能JT15T 盛瑞8AT 豪华型 浪漫白 黑色...(省略)");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT("2.12mm", "1.06mm", "32.01mm", "6.61mm", "【随车跟踪卡】");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+
+
+
+    };
+    //修改模板 -王强
+    function CreateVINPrintPage(batch, jobNo, Vcode, tQty, mName, ItemBagBatch) {
+       
+        LODOP = getLodop();
+        var titleName = "";//打印单标题
+        var number = $("#bgType").val();//1合格件 2：返工件 3：报废件
+        if (number == 1) {
+            titleName = "合格件批次单"
+        }
+        if (number == 2) {
+            titleName = "返工件批次单"
+        }
+        if (number == 3) {
+            titleName = "报废件批次单"
+        }
+
+        LODOP.PRINT_INITA(0, 0, 790, 1125, "冲压报工打印1");
+        LODOP.SET_PRINT_MODE("PRINT_NOCOLLATE", 1);
+        LODOP.ADD_PRINT_SHAPE(4, 566, 89, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 617, 89, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(575, 91, 631, 50, titleName);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 24);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 667, 89, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 719, 89, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 770, 89, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 825, 89, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 864, 89, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 566, 89, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(634, 89, 105, 25, "零件号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(689, 89, 100, 24, "零件名称");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(736, 89, 100, 26, "捆包号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(790, 89, 100, 25, "生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(836, 89, 100, 28, "生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 905, 89, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(875, 89, 100, 24, "批次数量");//捆包号改批次数量
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(944, 89, 100, 50, "检验员");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 22);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(632, 214, 504, 30, Vcode);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(686, 216, 504, 25, mName);//物料名称
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(734, 217, 503, 26, ItemBagBatch);//数量改为料包批次号
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(788, 215, 502, 31, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        //LODOP.ADD_PRINT_TEXT(833, 217, 153, 25, RealName);//当前操作人
+        LODOP.ADD_PRINT_TEXT(838, 205, 171, 25, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_SHAPE(4, 618, 200, 1, 440, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 1012, 89, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 1058, 89, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 566, 723, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 827, 378, 1, 185, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(836, 389, 105, 25, "原生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_TEXT(869, 205, 171, 35, tQty);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 21);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 825, 520, 1, 187, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(951, 395, 100, 40, "批次条码");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(831, 544, 165, 30, "");//原生产班组
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(879, 391, 100, 20, "原生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_TEXT(879, 544, 165, 20, "");//原生产日期
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_TEXT(959, 225, 100, 26, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 12);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(1028, 94, 100, 20, "批次号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(1029, 209, 503, 20, "批次号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_BARCODE(911, 571, 212, 94, "QRCode", batch);
+        // LODOP.SET_PRINT_MODE("WINDOW_DEFPAGESIZE:打印机名称或序号", 纸张名称);
+        //LODOP.SET_PRINTER_INDEX("HP LaserJet Professional P1106 (副本 1)");
+
+         
+        LODOP.SET_PRINT_PAGESIZE(1, 0, 0, "A4");
+ 
+        LODOP.ADD_PRINT_SHAPE(4, 36, 78, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 87, 78, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(39, 80, 631, 50, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 24);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 137, 78, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 189, 78, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 240, 78, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 295, 78, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 334, 78, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 36, 78, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(104, 78, 105, 25, "零件号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(159, 78, 100, 24, "零件名称");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(206, 78, 100, 26, "捆包号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(260, 78, 100, 25, "生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(306, 78, 100, 28, "生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 375, 78, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(345, 78, 100, 24, "批次数量");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(414, 78, 100, 50, "检验员");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(258, 204, 502, 31, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(308, 194, 171, 25, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_SHAPE(4, 88, 189, 1, 440, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 482, 78, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 528, 78, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 36, 712, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 297, 367, 1, 185, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(306, 378, 105, 25, "原生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 21);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 295, 509, 1, 187, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(421, 384, 100, 40, "批次条码");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(301, 533, 165, 30, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(349, 380, 100, 20, "原生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_TEXT(349, 533, 165, 20, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_TEXT(429, 214, 100, 26, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 12);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(498, 83, 100, 20, "批次号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+
+        LODOP.SET_PRINT_PAGESIZE(1, 0, 0, "A4");//设置纸型
+        // LODOP.SET_PRINT_MODE("CATCH_PRINT_STATUS", true);
+
+
+    }
+
+    function PrintOneURLsssssssssssssss() {
+    
+    
+        //LODOP.PRINT_INITA(0,0,790,1125,"冲压报工打印1");
+        //LODOP.SET_PRINT_PAGESIZE(1,0,0,"A4");
+        //LODOP.SET_PRINT_MODE("PRINT_NOCOLLATE",1);
+        //LODOP.ADD_PRINT_SHAPE(4,588,64,634,2,0,1,"#000000");
+        //LODOP.ADD_PRINT_SHAPE(4,639,64,634,2,0,1,"#000000");
+        //LODOP.ADD_PRINT_TEXT(597,66,631,50,"");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",24);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.ADD_PRINT_SHAPE(4,689,64,634,1,0,1,"#000000");
+        //LODOP.ADD_PRINT_SHAPE(4,741,64,634,1,0,1,"#000000");
+        //LODOP.ADD_PRINT_SHAPE(4,792,64,634,1,0,1,"#000000");
+        //LODOP.ADD_PRINT_SHAPE(4,847,64,634,1,0,1,"#000000");
+        //LODOP.ADD_PRINT_SHAPE(4,886,64,634,1,0,1,"#000000");
+        //LODOP.ADD_PRINT_SHAPE(4,588,64,1,492,0,1,"#000000");
+        //LODOP.ADD_PRINT_TEXT(656,64,105,25,"零件号");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.ADD_PRINT_TEXT(711,64,100,24,"零件名称");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.ADD_PRINT_TEXT(758,64,100,26,"捆包号");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.ADD_PRINT_TEXT(812,64,100,25,"生产日期");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.ADD_PRINT_TEXT(858,64,100,28,"生产班组");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.ADD_PRINT_SHAPE(4,927,64,634,1,0,1,"#000000");
+        //LODOP.ADD_PRINT_TEXT(897,64,100,24,"批次数量");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.ADD_PRINT_TEXT(966,64,100,50,"检验员");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",17);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+        //LODOP.ADD_PRINT_TEXT(810,190,502,31,"");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",17);
+        //LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+        //LODOP.ADD_PRINT_TEXT(860,180,171,25,"");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.ADD_PRINT_SHAPE(4,640,175,1,440,0,1,"#000000");
+        //LODOP.ADD_PRINT_SHAPE(4,1034,64,635,1,0,1,"#000000");
+        //LODOP.ADD_PRINT_SHAPE(4,1080,64,635,1,0,1,"#000000");
+        //LODOP.ADD_PRINT_SHAPE(4,588,698,1,492,0,1,"#000000");
+        //LODOP.ADD_PRINT_SHAPE(4,849,353,1,185,0,1,"#000000");
+        //LODOP.ADD_PRINT_TEXT(858,364,105,25,"原生产班组");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",21);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.ADD_PRINT_SHAPE(4,847,495,1,187,0,1,"#000000");
+        //LODOP.ADD_PRINT_TEXT(973,370,100,40,"批次条码");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.ADD_PRINT_TEXT(853,519,165,30,"");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.ADD_PRINT_TEXT(901,366,100,20,"原生产日期");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.ADD_PRINT_TEXT(901,519,165,20,"");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.ADD_PRINT_TEXT(981,200,100,26,"");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",12);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+        //LODOP.ADD_PRINT_TEXT(1050,69,100,20,"批次号");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.ADD_PRINT_SHAPE(4,27,65,634,2,0,1,"#000000");
+        //LODOP.ADD_PRINT_SHAPE(4,78,65,634,2,0,1,"#000000");
+        //LODOP.ADD_PRINT_TEXT(36,67,631,50,"titleName");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",24);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.ADD_PRINT_SHAPE(4,128,65,634,1,0,1,"#000000");
+        //LODOP.ADD_PRINT_SHAPE(4,180,65,634,1,0,1,"#000000");
+        //LODOP.ADD_PRINT_SHAPE(4,231,65,634,1,0,1,"#000000");
+        //LODOP.ADD_PRINT_SHAPE(4,286,65,634,1,0,1,"#000000");
+        //LODOP.ADD_PRINT_SHAPE(4,325,65,634,1,0,1,"#000000");
+        //LODOP.ADD_PRINT_SHAPE(4,27,65,1,492,0,1,"#000000");
+        //LODOP.ADD_PRINT_TEXT(95,65,105,25,"零件号");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.ADD_PRINT_TEXT(150,65,100,24,"零件名称");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.ADD_PRINT_TEXT(197,65,100,26,"捆包号");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.ADD_PRINT_TEXT(251,65,100,25,"生产日期");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.ADD_PRINT_TEXT(297,65,100,28,"生产班组");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.ADD_PRINT_SHAPE(4,366,65,634,1,0,1,"#000000");
+        //LODOP.ADD_PRINT_TEXT(336,65,100,24,"批次数量");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.ADD_PRINT_TEXT(405,65,100,50,"检验员");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",17);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+        //LODOP.ADD_PRINT_TEXT(249,191,502,31,"");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",17);
+        //LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+        //LODOP.ADD_PRINT_TEXT(299,181,171,25,"");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.ADD_PRINT_SHAPE(4,79,176,1,440,0,1,"#000000");
+        //LODOP.ADD_PRINT_SHAPE(4,473,65,635,1,0,1,"#000000");
+        //LODOP.ADD_PRINT_SHAPE(4,519,65,635,1,0,1,"#000000");
+        //LODOP.ADD_PRINT_SHAPE(4,27,699,1,492,0,1,"#000000");
+        //LODOP.ADD_PRINT_SHAPE(4,288,354,1,185,0,1,"#000000");
+        //LODOP.ADD_PRINT_TEXT(297,365,105,25,"原生产班组");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",21);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.ADD_PRINT_SHAPE(4,286,496,1,187,0,1,"#000000");
+        //LODOP.ADD_PRINT_TEXT(412,371,100,40,"批次条码");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.ADD_PRINT_TEXT(292,520,165,30,"");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.ADD_PRINT_TEXT(340,367,100,20,"原生产日期");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.ADD_PRINT_TEXT(340,520,165,20,"");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.ADD_PRINT_TEXT(420,201,100,26,"");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",12);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.SET_PRINT_STYLEA(0,"Bold",1);
+        //LODOP.ADD_PRINT_TEXT(489,70,100,20,"批次号");
+        //LODOP.SET_PRINT_STYLEA(0,"FontSize",13);
+        //LODOP.SET_PRINT_STYLEA(0,"Alignment",2);
+        //LODOP.ADD_PRINT_SHAPE(4,-11,721,85,1143,0,1,"#000000");
+        //LODOP.ADD_PRINT_SHAPE(4,-7,-6,50,1132,0,1,"#000000");
+
+        // 新~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        
+
+
+        LODOP.PRINT_INITA(0, 0, 790, 1125, "冲压报工打印1");
+        LODOP.SET_PRINT_PAGESIZE(1, 0, 0, "A4");
+        LODOP.SET_PRINT_MODE("PRINT_NOCOLLATE", 1);
+        LODOP.ADD_PRINT_SHAPE(4, 588, 64, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 639, 64, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(597, 66, 631, 50, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 24);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 689, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 741, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 792, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 847, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 886, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 588, 64, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(656, 64, 105, 25, "零件号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(711, 64, 100, 24, "零件名称");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(758, 64, 100, 26, "捆包号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(812, 64, 100, 25, "生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(858, 64, 100, 28, "生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 927, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(897, 64, 100, 24, "批次数量");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(966, 64, 100, 50, "检验员");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(800, 180, 512, 41, "2018");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(855, 180, 171, 28, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 640, 175, 1, 440, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 1034, 64, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 1080, 64, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 588, 698, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 849, 353, 1, 185, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(854, 364, 120, 30, "原生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 847, 495, 1, 187, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(973, 370, 100, 40, "批次条码");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(853, 519, 165, 30, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(901, 366, 100, 20, "原生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_TEXT(896, 519, 165, 25, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_TEXT(894, 176, 175, 31, "1");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(1050, 69, 100, 20, "批次号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 27, 65, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 78, 65, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(36, 67, 631, 50, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 24);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 128, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 180, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 231, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 286, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 325, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 27, 65, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(95, 65, 105, 25, "零件号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(150, 65, 100, 24, "零件名称");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(197, 65, 100, 26, "捆包号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(251, 65, 100, 25, "生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(297, 65, 100, 28, "生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 366, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(336, 65, 100, 24, "批次数量");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(405, 65, 100, 50, "检验员");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(237, 179, 514, 41, "2018");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(295, 181, 171, 28, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 79, 176, 1, 440, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 473, 65, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 519, 65, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 27, 699, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 288, 354, 1, 185, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(295, 365, 105, 25, "原生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 286, 496, 1, 187, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(412, 371, 100, 40, "批次条码");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(292, 520, 165, 30, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(340, 367, 100, 20, "原生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_TEXT(335, 505, 185, 28, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_TEXT(332, 180, 170, 26, "1");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(489, 70, 100, 20, "批次号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(748, 178, 514, 41, "1");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(696, 178, 514, 41, "1");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(648, 178, 515, 41, "1");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(186, 180, 512, 41, "1");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(135, 179, 512, 41, "1");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(87, 179, 512, 41, "1");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_BARCODE(374, 553, 102, 94, "QRCode", "1");
+        LODOP.ADD_PRINT_BARCODE(938, 547, 102, 94, "QRCode", "1");
+        LODOP.ADD_PRINT_TEXT(1046, 185, 463, 30, "1");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 15);
+        LODOP.ADD_PRINT_TEXT(485, 180, 506, 30, "1");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 15);
+        LODOP.ADD_PRINT_SHAPE(4, 588, -40, 100, 60, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 587, 704, 100, 60, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, -36, 705, 100, 90, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, -16, -39, 100, 70, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 1037, 703, 100, 85, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 1038, -31, 92, 81, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 460, 705, 85, 60, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 460, -40, 100, 60, 0, 1, "#000000");
+        LODOP.ADD_PRINT_RECT(57, 703, 60, 400, 0, 1);
+        LODOP.ADD_PRINT_TEXT(93, 706, 59, 298, "出\r\n\r\n库\r\n    联");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 36);
+        LODOP.ADD_PRINT_RECT(651, 703, 60, 381, 0, 1);
+        LODOP.ADD_PRINT_TEXT(685, 705, 59, 350, "车间留存联");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 36);
+
+
+    
+    }
+    function PrintOneURL(strID) {
+        var keyValue = "c42364f1-87e8-4320-b38d-ea9956294106";
+        LODOP = getLodop();
+        LODOP.PRINT_INIT("打印控件功能演示_Lodop功能_按网址打印");
+        LODOP.ADD_PRINT_URL(30, 20, 746, "95%", "Areas/ProduceManage/ReleaseTag/PrintFollow");
+        LODOP.SET_PRINT_STYLEA(0, "HOrient", 3);
+        LODOP.SET_PRINT_STYLEA(0, "VOrient", 3);
+        //		LODOP.SET_SHOW_MODE("MESSAGE_GETING_URL",""); //该语句隐藏进度条或修改提示信息
+        //		LODOP.SET_SHOW_MODE("MESSAGE_PARSING_URL","");//该语句隐藏进度条或修改提示信息
+        LODOP.PREVIEW();
+    };
+
+    function CreateVINPrintPage222222(batch, jobNo, Vcode, tQty, mName, ItemBagBatch) {
+        var date = "2018"
+        LODOP = getLodop();
+        var titleName = "";//打印单标题
+        var number = $("#bgType").val();//1合格件 2：返工件 3：报废件
+        if (number == 1) {
+            titleName = "合格件批次单"
+        }
+        if (number == 2) {
+            titleName = "返工件批次单"
+        }
+        if (number == 3) {
+            titleName = "报废件批次单"
+        }
+
+        LODOP.PRINT_INITA(0, 0, 790, 1125, "冲压报工打印1");
+        LODOP.SET_PRINT_PAGESIZE(1, 0, 0, "A4");
+        LODOP.SET_PRINT_MODE("PRINT_NOCOLLATE", 1);
+        LODOP.ADD_PRINT_SHAPE(4, 588, 64, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 639, 64, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(597, 66, 631, 50, titleName);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 24);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 689, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 741, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 792, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 847, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 886, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 588, 64, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(656, 64, 105, 25, "零件号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(711, 64, 100, 24, "零件名称");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(758, 64, 100, 26, "捆包号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(812, 64, 100, 25, "生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(858, 64, 100, 28, "生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 927, 64, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(897, 64, 100, 24, "批次数量");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(966, 64, 100, 50, "检验员");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(800, 180, 512, 41, date);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(855, 180, 171, 28, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 640, 175, 1, 440, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 1034, 64, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 1080, 64, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 588, 698, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 849, 353, 1, 185, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(854, 364, 120, 30, "原生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 847, 495, 1, 187, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(973, 370, 100, 40, "批次条码");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(853, 519, 165, 30, "");//原班组
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(901, 366, 100, 20, "原生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_TEXT(896, 519, 165, 25, "");//原生产日期
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_TEXT(894, 176, 175, 31, tQty);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(1050, 69, 100, 20, "批次号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 27, 65, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 78, 65, 634, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(36, 67, 631, 50, titleName);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 24);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 128, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 180, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 231, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 286, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 325, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 27, 65, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(95, 65, 105, 25, "零件号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(150, 65, 100, 24, "零件名称");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(197, 65, 100, 26, "捆包号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(251, 65, 100, 25, "生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(297, 65, 100, 28, "生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 366, 65, 634, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(336, 65, 100, 24, "批次数量");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(405, 65, 100, 50, "检验员");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(237, 179, 514, 41, date);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(295, 181, 171, 28, "");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 79, 176, 1, 440, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 473, 65, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 519, 65, 635, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 27, 699, 1, 492, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 288, 354, 1, 185, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(295, 365, 105, 25, "原生产班组");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_SHAPE(4, 286, 496, 1, 187, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(412, 371, 100, 40, "批次条码");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(292, 520, 165, 30, "");//原班组
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.ADD_PRINT_TEXT(340, 367, 100, 20, "原生产日期");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_TEXT(335, 505, 185, 28, "");//原生产日期
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_TEXT(332, 180, 170, 26, tQty);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(489, 70, 100, 20, "批次号");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 2);
+
+        LODOP.ADD_PRINT_TEXT(748, 178, 514, 41, ItemBagBatch);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(696, 178, 514, 41, mName);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(648, 178, 515, 41, Vcode);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(186, 180, 512, 41, ItemBagBatch);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(135, 179, 512, 41, mName);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT(87, 179, 512, 41, Vcode);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 17);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_BARCODE(374, 553, 102, 94, "QRCode", batch);
+        LODOP.ADD_PRINT_BARCODE(938, 547, 102, 94, "QRCode", batch);
+
+        LODOP.ADD_PRINT_TEXT(1046, 185, 463, 30, batch);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 15);
+        LODOP.ADD_PRINT_TEXT(485, 180, 506, 30, batch);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 15);
+
+        //if (number != 1) {
+        //    LODOP.ADD_PRINT_SHAPE(4, 588, -40, 100, 60, 0, 1, "#000000");
+        //    LODOP.ADD_PRINT_SHAPE(4, 587, 704, 100, 60, 0, 1, "#000000");
+        //    LODOP.ADD_PRINT_SHAPE(4, -36, 705, 100, 90, 0, 1, "#000000");
+        //    LODOP.ADD_PRINT_SHAPE(4, -16, -39, 100, 70, 0, 1, "#000000");
+        //    LODOP.ADD_PRINT_SHAPE(4, 1037, 703, 100, 85, 0, 1, "#000000");
+        //    LODOP.ADD_PRINT_SHAPE(4, 1038, -31, 92, 81, 0, 1, "#000000");
+        //    LODOP.ADD_PRINT_SHAPE(4, 460, 705, 85, 60, 0, 1, "#000000");
+        //    LODOP.ADD_PRINT_SHAPE(4, 460, -40, 100, 60, 0, 1, "#000000");
+        //}
+        LODOP.ADD_PRINT_RECT(27, 703, 65, 492, 0, 1);
+        LODOP.ADD_PRINT_TEXT(93, 706, 59, 298, "出\r\n\r\n库\r\n\r\n联");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 40);
+        LODOP.ADD_PRINT_RECT(589, 703, 65, 492, 0, 1);
+        LODOP.ADD_PRINT_TEXT(657, 705, 59, 385, "车存间留联");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 40);
+        // LODOP.SET_PRINT_MODE("WINDOW_DEFPAGESIZE:打印机名称或序号", 纸张名称);
+        //LODOP.SET_PRINTER_INDEX("HP LaserJet Professional P1106 (副本 1)");
+        LODOP.SET_PRINT_PAGESIZE(1, 0, 0, "A4");//设置纸型
+        // LODOP.SET_PRINT_MODE("CATCH_PRINT_STATUS", true);
+
+    }
+</script>
+<form>
+    <div style="padding-top: 10px; margin-right: 20px;margin-left:20px;">
+        <table class="tb">
+            <tr>
+                <th>模板设计</th>
+                <th>模板打印预览</th>
+            </tr>
+            <tr>
+                <td>
+                    <a href="javascript:;" onclick="javascript:CreateVINPrintPage();LODOP.PRINT_DESIGN();">随车单设计</a>
+                </td>
+                <td>
+                    <a href="javascript:;" onclick="javascript:CreateVINPrintPage();LODOP.PREVIEW();">随车单卡打印预览</a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="javascript:;" onclick="javascript: CreatePrintPage(); LODOP.PRINT_DESIGN();">随车跟踪卡设计</a>
+                </td>
+                <td>
+                    <a href="javascript:;" onclick="javascript: CreatePrintPage(); LODOP.PREVIEW();">随车跟踪卡打印预览</a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="javascript:;" onclick="javascript: CreateCYPrintPage(); LODOP.PRINT_DESIGN();">冲压模板设计</a>
+                </td>
+                <td>
+                    <a href="javascript:;" onclick="javascript: CreateCYPrintPage(); LODOP.PREVIEW();">冲压模板打印预览</a>
+                </td>
+                <td>
+                    <a href="javascript:;" onclick="javascript: CreateVINPrintPage222222('1', '1', '1', '1', '1', '1'); LODOP.PRINT_DESIGN();">冲压222222s模板</a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="javascript:;" onclick="javascript:CreatePrintPage();LODOP.PRINT_DESIGN();">随车检验卡模板设计</a>
+                </td>
+                <td>
+                    <a href="javascript:;" onclick="PrintOneURL()">随车检验卡模板打印预览</a>
+                </td>
+            </tr>
+
+        </table>
+    </div>
+
+</form>

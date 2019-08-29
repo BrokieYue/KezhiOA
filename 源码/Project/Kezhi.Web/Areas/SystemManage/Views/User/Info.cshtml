@@ -1,0 +1,245 @@
+﻿@{
+    ViewBag.Title = "Info";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        $('.wrapper').height($(window).height() - 11);
+        $.ajax({
+            type: "Get",
+            url: "/SystemManage/User/GetUserJson",
+            data: null,
+            success: function (data) {
+                var user = eval("(" + data + ")")
+                $("#F_Account").val(user.F_Account).attr('disabled', 'disabled');
+                $("#F_RealName").val(user.F_RealName).attr('disabled', 'disabled');
+                $("#F_Id").val(user.F_Id).attr('disabled', 'disabled');
+            }
+        });
+       
+    })
+    function btn_add() {
+        var pass1 = $("#pass1").val();
+        var pass2 = $("#pass2").val();
+        
+        if (pass1 != pass2 || pass1 == "") {
+            $.modalAlert("两次密码不一致", "error");
+            return;
+        }
+        if(pass1.length < 4 || pass1.length > 12){
+            $.modalAlert("密码长度为4-12位", "error");
+            return;
+        }
+        var postData = $("#form1").formSerialize();
+        postData["userPassword"] = pass1;
+        postData["keyValue"] = $("#F_Id").val();
+        $.ajax({
+            type:"post",
+            url: "/SystemManage/User/InfoRevisePassword",
+            data: { userPassword: pass1, keyValue: $("#F_Id").val() },
+            success: function (data) {
+                $.modalConfirm("注：密码已修改，请重新登录", function (r) {
+                    if (r) {
+                        top.location = "/Login/OutLogin";
+                        $.currentWindow().$("#gridList").trigger("reloadGrid");
+                    } else {
+                        top.location = "/Login/OutLogin";
+                        $.currentWindow().$("#gridList").trigger("reloadGrid");
+                    }
+                });
+            }
+        });
+    }
+</script>
+<style>
+    .pass{
+        width:300px;
+    }
+</style>
+<div class="wrapper">
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="#a" data-toggle="tab">修改密码</a></li>
+        @*<li><a href="#b" data-toggle="tab">注册信息</a></li>
+        <li><a href="#c" data-toggle="tab">安全验证</a></li>
+        <li><a href="#c" data-toggle="tab">系统日志</a></li>
+        <li><a href="#c" data-toggle="tab">个性化设置</a></li>*@
+    </ul>
+    <div class="tab-content" style="padding-top: 5px;">
+        <div id="a" class="tab-pane active" style="padding: 15px;">
+            <form id="form1">
+                <div style="padding-top: 30px; margin-right: 40px;">
+                    <table class="form">
+                        <tr>
+                            <th class="formTitle" style="color: red; font-family: KaiTi; font-size: 18px;"></th>
+                            <td class="formValue">
+                                <span style="color:red;font-family:KaiTi;font-size:18px;">注：密码长度为4-12位的任意字符</span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th class="formTitle">账户</th>
+                            <td class="formValue">
+                                <input id="F_Account" name="F_Account" readonly type="text" class="form-control pass" />
+                                <input id="F_Id" name="F_Id" hidden type="text"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="formTitle">姓名</th>
+                            <td class="formValue">
+                                <input id="F_RealName" name="F_RealName" readonly type="text" class="form-control pass" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="formTitle">新密码</th>
+                            <td class="formValue">
+                                <input id="pass1" type="password" name="F_UserPassword"  maxlength="12" class="form-control required pass" placeholder="请输入新密码" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="formTitle">确认密码</th>
+                            <td class="formValue">
+                                <input id="pass2" type="password" class="form-control required pass" maxlength="12" placeholder="请再次输入新密码" />
+                            </td>
+                        </tr>
+                        
+                    </table>
+                    
+                </div>
+                <a class="btn btn-primary" onclick="btn_add()" style="margin-left:200px;margin-top:20px"><i class="fa fa-save" style="margin-right:5px;"></i>确认修改</a>
+            </form>
+            @*<ul class="pop-list">
+                @*<li class="line">
+                    <h5><span>修改密码</span></h5>
+                </li>
+                <li>
+                    <label>新密码</label>
+                    <input type="password" id="pass1" class="form-control" />
+                </li>
+                <li>
+                    <label>确认新密码</label>
+                    <input type="password" id="pass2" class="form-control" />
+                </li>
+                <li>
+                    <div style="padding-left: 115px;">
+                        <a class="btn btn-primary" onclick="btn_add()"><i class="fa fa-save" style="margin-right:5px;"></i>确认修改</a>
+                    </div>
+
+                </li>
+                <li>
+                    <label>账户</label>
+                    <input type="text" class="form-control" />
+                </li>
+                <li>
+                    <label>姓名</label>
+                    <input type="text" class="form-control" />
+                </li>
+                <li>
+                    <label>性别</label>
+                    <input type="text" class="form-control" />
+                </li>
+                <li>
+                    <label>出生</label>
+                    <input type="text" class="form-control" />
+                </li>
+                <li>
+                    <label>公司</label>
+                    <input type="text" class="form-control" />
+                </li>
+                <li>
+                    <label>部门</label>
+                    <input type="text" class="form-control" />
+                </li>
+                <li>
+                    <label>角色</label>
+                    <input type="text" class="form-control" />
+                </li>
+                <li>
+                    <label>岗位</label>
+                    <input type="text" class="form-control" />
+                </li>
+                <li>
+                    <label>自我介绍</label>
+                    <textarea class="form-control" style="height: 60px;"></textarea>
+                </li>
+                <li class="line">
+                    <h5><span>联系方式</span></h5>
+                </li>
+                <li>
+                    <label>手机号码</label>
+                    <input type="text" class="form-control" />
+                </li>
+                <li>
+                    <label>电子邮箱</label>
+                    <input type="text" class="form-control" />
+                </li>
+                <li>
+                    <label>微信号</label>
+                    <input type="text" class="form-control" />
+                </li>
+            </ul>*@
+        </div>
+        @*<div id="b" class="tab-pane" style="padding: 15px;">
+            <ul class="pop-list">
+                <li>
+                    <label>账户</label>
+                    <input type="text" class="form-control" />
+                </li>
+                <li>
+                    <label>密码</label>
+                    <input type="text" class="form-control" />
+                </li>
+                <li>
+                    <label>第一次访问时间</label>
+                    <input type="text" class="form-control" />
+                </li>
+                <li>
+                    <label>上一次访问时间</label>
+                    <input type="text" class="form-control" />
+                </li>
+                <li>
+                    <label>最后修改密码时间</label>
+                    <input type="text" class="form-control" />
+                </li>
+                <li>
+                    <label>登录时间</label>
+                    <input type="text" class="form-control" />
+                </li>
+                <li>
+                    <label>登录次数</label>
+                    <input type="text" class="form-control" />
+                </li>
+                <li>
+                    <label>账户类型</label>
+                    <input type="text" class="form-control" />
+                </li>
+                <li class="line">
+                    <h5><span>修改密码</span></h5>
+                </li>
+                <li>
+                    <label>旧密码</label>
+                    <input type="text" class="form-control" />
+                </li>
+                <li>
+                    <label>新密码</label>
+                    <input type="text" class="form-control" />
+                </li>
+                <li>
+                    <label>确认新密码</label>
+                    <input type="text" class="form-control" />
+                </li>
+                <li>
+                    <div style="padding-left: 115px;">
+                        <a class="btn btn-primary" onclick="btn_add()"><i class="fa fa-save" style="margin-right:5px;"></i>确认修改</a>
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+        <div id="c" class="tab-pane" style="padding-right: 15px;">
+            3
+        </div>
+        <div id="d" class="tab-pane" style="padding-right: 15px;">
+            4
+        </div>*@
+    </div>
+</div>

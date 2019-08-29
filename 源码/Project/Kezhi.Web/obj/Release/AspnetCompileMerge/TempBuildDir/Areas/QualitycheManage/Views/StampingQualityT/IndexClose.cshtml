@@ -1,0 +1,139 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+
+}
+<script>
+
+   
+
+    $(function () {
+       
+
+        
+    });
+   
+   
+
+
+</script>
+<div class="topPanel2" id="form1">
+     
+        @*<div style="padding-top: 5px; margin-right: 5px; padding-left: 5px;">
+                <i style="padding-right: 5px;"></i>批次信息
+            </div>*@
+        @*<div style="padding-top: 5px; padding-left: 20px;">
+                        <a id="NextPage" class="btn btn-primary " style="width: 10%; height: 25px; font-size: 15px; text-align: center" onclick="btn_NextPage()">下一页</a>
+            </div>*@
+
+        <div style="padding-top: 5px; padding-left: 20px;">
+            <table style="width:100%;border-collapse:separate; border-spacing:0px 10px;">
+
+                <tr style="width:100%">
+                    <td width="10%" colspan="7">
+                        <input id="BatchNo" name="BatchNo" type="text" placeholder="批次号扫描" style="width:100%; height: 80px; font-size: 60px; float: left;background-color:yellow;">
+                    </td>
+                </tr>
+                @*<tr>
+                        <div style="padding-top: 5px; border-top: solid 2px LightGrey; "></div>
+                    </tr>*@
+                <tr style="width:100%">
+                    <th width="5%" style="text-align:left">计划号：</th>
+                    <td width="10%" colspan="2">
+                        <input id="JobNo" name="JobNo" type="text" class="form-control required" style="width:100%; background-color: WhiteSmoke" readonly="readonly">
+                    </td>
+                    <td width="5%"></td>
+                    <th width="5%" style="text-align:left">物料编号：</th>
+                    <td width="10%" colspan="2">
+                        <input id="Vcode" name="Vcode" type="text" class="form-control required" style="width:100%;  background-color: WhiteSmoke" readonly="readonly" />
+                    </td>
+                </tr>
+                <tr style="width:100%">
+                    <th width="5%" style="text-align:left">批次数量：</th>
+                    <td width="10%" colspan="2">
+                        <input id="ProdPassQty" name="ProdPassQty" type="text" class="form-control required" style="background-color: WhiteSmoke; " readonly="readonly" />
+                    </td>
+                    <td width="5%"></td>
+                    <th width="5%" style="text-align:left">不合格总数：</th>
+                    <td width="10%" colspan="2">
+                        <input id="QAFailQty" name="ScrapQty" type="text" class="form-control required" style="background-color: White; " onkeyup="value=value.replace(/[^\d]/g,'')" />
+                    </td>
+                </tr>
+                <tr style="width:100%">
+                    <th width="5%" style="text-align:left">返修总数：</th>
+                    <td width="10%" colspan="2">
+                        <input id="RepairQty" name="RepairQty" type="text" class="form-control required" style="background-color: White; " onkeyup="value=value.replace(/[^\d]/g,'')" />
+                    </td>
+                    <td width="5%"></td>
+                    <th width="5%" style="text-align:left">报废总数：</th>
+                    <td width="10%" colspan="2">
+                        <input id="ScrapQty" name="ScrapQty" type="text" class="form-control required" style="background-color: White; " onkeyup="value=value.replace(/[^\d]/g,'')" />
+                    </td>
+                </tr>
+                <tr style="width:100%">
+                    <th width="5%" style="text-align:left">物料描述：</th>
+                    <td width="10%" colspan="6" rowspan="2">
+                        <input id="Description" name="Description" type="text" class="form-control required" style="background-color: White; " />
+                    </td>
+                </tr>
+                <tr style="width:100%"></tr>
+
+                <tr style="width:100%">
+                    <td width="10%"></td>
+                    <td width="10%"></td>
+                    <td width="10%"></td>
+                    <td width="10%"></td>
+                    <td width="10%"></td>
+                    <td width="10%"></td>
+                    <td width="10%"></td>
+                    <td width="10%"></td>
+                    <td width="10%"></td>
+                    <td width="10%">
+                        <a id="NextPage" href="/QualitycheManage/StampingQualityT/Form" class="btn btn-primary " style="width: 100%; height: 25px; font-size: 15px; text-align: center">下一页</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+   
+     <div style="padding-top: 5px; border-top: solid 2px LightGrey; ">
+    <div class="search" style="padding-left: 10px; ">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="CategoryName" type="text" class="form-control" placeholder="质检类型" style="display:none ">
+                        <input id="picion" type="text" class="form-control" placeholder="批次号" style="display:none ">
+                    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="gridPanel" style="padding-top: 10px; padding-left: 5px; padding-right: 10px; ">
+        <table id="gridList"></table>
+        <div id="gridPager"></div>
+    </div>
+    <div style="padding-top: 5px; margin-right: 5px; padding-left: 5px;">
+        <table>
+            <tr>
+
+                @*<th class="formTitle" style="height: 35px;">选择返工方式：</th>*@
+                <td class="formValue" colspan="3" style="padding-top: 1px;">
+                    @*<div class="ckbox">
+                        <input id="DefectsMKTO" name="DefectsMKTO" type="checkbox" checked="checked"><label for="DefectsMKTO">新建返工批次</label>
+                    </div>
+                    <div class="ckbox">
+                        <input id="F_EnabledMark" name="F_EnabledMark" type="checkbox"><label for="F_EnabledMark">返工批次合并</label>
+                    </div>*@
+                </td>
+
+            </tr>
+        </table>
+    </div>
+    <div id="getshou" class="gridPanel ">
+       
+        <table id="gridList2"></table>
+        <div id="gridPager2"></div>
+    </div>
+</div>

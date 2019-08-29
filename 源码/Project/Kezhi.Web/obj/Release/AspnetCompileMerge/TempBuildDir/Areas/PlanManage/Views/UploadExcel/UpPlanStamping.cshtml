@@ -1,0 +1,187 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+    })
+
+    function gridList(filepath) {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            //url: "/ProductionManage/OrderManage/GetUploadGridJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "计划号", name: "计划号", width: 100, align: 'left', key: true },
+                { label: "顺序", name: "顺序", width: 50, align: 'left', key: true },
+                { label: '物料编号', name: '物料编号', width: 120, align: 'left' },
+                { label: '计划生产日期', name: '计划生产日期', width: 100, align: 'left' },
+                { label: '交期', name: '交期', width: 100, align: 'left' },
+                { label: '计划数量', name: '计划数量', width: 80, align: 'left' },
+                //{ label: 'BOM编号', name: 'BOM编号', width: 50, align: 'left' },
+                { label: '计划类型', name: '计划类型', width: 120, align: 'left' },
+                { label: '描述', name: '描述', width: 150, align: 'left' }
+            ],
+            pager: "#gridPager",
+            sortname: 'JobNo asc',
+            rowNum: 1000,
+            viewrecords: true
+        });
+    }
+
+    function uploadFile() {
+        upload(function (data) {
+            console.log(data);
+            showList(data.fileName);
+            $("#hidFileName").val(data.fileName);
+        });
+    }
+
+    function upload(afterUploadFunc) {
+        var xlsFile = $("#fileInput")[0];
+
+        var result = {};
+        var formData = new FormData();
+        if (xlsFile.files.length > 0) {
+            $("#lblFileName").html(xlsFile.files[0].name);
+            formData.append('file', xlsFile.files[0]);
+        } else {
+            return;
+        }
+
+        $.ajax({
+            url: '../../Attachment/Attachment.aspx?action=upload',
+            type: 'POST',
+            data: formData,
+            dataType: 'JSON',
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+
+                if (data.result == "ok") {
+                    if (afterUploadFunc) {
+                        afterUploadFunc(data);
+                    }
+                }
+            }
+        });
+    }
+
+    function showList(fileName) {
+        var $gridList = $("#gridList");
+        $gridList.jqGrid('setGridParam', {
+            url: "/PlanManage/UploadExcel/GetUploadStampingGridJson",
+            postData: { fileName: fileName },
+            success: function (data) {
+
+                alert(11);
+            }
+        }).trigger('reloadGrid');
+    }
+
+    function submitForm() {
+        // alert($("#hidFileName").val())
+        var allCountID = $("#gridList").jqGrid('getDataIDs');
+        if (allCountID.length == 0) {
+            $.modalAlert("记录数据行为0！", "warning")
+            return false;
+        }
+
+        var _list = {};
+        var sterow = $("#gridList").jqGrid('getRowData');
+        var allCountID = $("#gridList").jqGrid('getDataIDs');
+        sterow.push($("#gridList").jqGrid('getRowData', allCountID[allCountID.length - 1])); //解决 jqGrid('getRowData') 获取 少最后一行 bug
+        for (var i = 0; i < allCountID.length; i++) {
+            
+            _list["selectedIDs[" + i + "].JobNo"] = sterow[i].计划号;
+            _list["selectedIDs[" + i + "].Vcode"] = sterow[i].物料编号;
+            _list["selectedIDs[" + i + "].PlanDate"] = sterow[i].计划生产日期;
+            _list["selectedIDs[" + i + "].Deadline"] = sterow[i].交期;
+            _list["selectedIDs[" + i + "].HeaderName"] = sterow[i].计划数量;
+            _list["selectedIDs[" + i + "].Type_Code"] = sterow[i].计划类型;
+            _list["selectedIDs[" + i + "].F_Description"] = sterow[i].描述;
+        }
+        if (sterow.length == 0) {
+            $.modalAlert("请选择一条有效数据！", "warning")
+            return false;
+        }
+        $.submitForm({
+            url: "/PlanManage/UploadExcel/SubmitExcelStamping",
+            param: _list,
+            success: function () {
+                $("#hidFileName").val("");
+                $("#fileInput").val("");
+                $("#lblFileName").html("");
+                $("#gridList").jqGrid("clearGridData");
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+                if (callbackFunc) {
+                    callbackFunc();
+                }
+            }
+        })
+
+    }
+
+    //下载模板 -Liko
+    function btn_downimport() {
+        var form = $("<form>");   //定义一个form表单
+        form.attr('style', 'display:none');   //在form表单中添加查询参数
+        form.attr('target', '');
+        form.attr('id', 'formDownload');
+        form.attr('method', 'post');
+        var url = "/PlanManage/PlanInfoStamping/PlanExcel";
+        form.attr('action', url);
+
+        $('body').append(form);  //将表单放置在web中
+        form.submit();
+
+        $('#formDownload').remove();
+    }
+
+    //function btn_CreateJobNo() {
+    //    var allCountID = $("#gridid").getGridParam("reccount");
+    //    //for (var i = 0; i < selrow.length; i++) {
+    //    //    if (selrow[i].物料编号.length > 3 && selrow[i].计划单号.length < 3) {
+    //    //        var Type_Name = selrow[i].计划类型
+    //    //    }
+    //    //}
+    //    if (allCountID.length == 0) {
+    //        $.modalAlert("记录数据行为0！", "warning")
+    //        return false;
+    //    }
+    //}
+</script>
+
+<div class="topPanel">
+    @*<div class="toolbar">
+        <div class="btn-group">
+            <a id="NF-import" authorize="yes" class="btn btn-primary " onclick="btn_CreateJobNo()">计划号生成</a>
+        </div>
+    </div>*@
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <span id="lblFileName" style="height: 25px; width: 250px; display: inline-block; float: left; border: 1px solid #000; padding-left: 5px;"></span>
+                        <label for="fileInput" style="float: left; cursor: pointer; display: inline-block;">&nbsp;&nbsp;<i class="fa fa-cloud-upload fa-1x"></i>选择文件</label>
+                        <label id="fileUpload" style="float: left; cursor: pointer; display: inline-block;" onclick="btn_downimport()">&nbsp;&nbsp;<i class="fa fa-cloud-download fa-1x"></i>下载模板</label>
+                         @*<a id="NF-downimport"  class="btn btn-primary " onclick="btn_downimport()"><i class="fa fa-download"></i>下载模板</a>*@
+                        <input type="file" id="fileInput" accept="application/vnd.ms-excel" style="display: none" onchange="uploadFile()" />
+                        <input type="hidden" id="hidFileName" />
+                    </div>
+                </td>
+                
+            </tr>
+        </table>
+    </div>
+    <div><label>(说明：支持计划类型（返工，落料，凸焊），选择文件后先选择生成计划号再导入)</label></div>
+</div>
+
+<div class="gridPanel">
+        <table id="gridList"></table>
+</div>
+
+

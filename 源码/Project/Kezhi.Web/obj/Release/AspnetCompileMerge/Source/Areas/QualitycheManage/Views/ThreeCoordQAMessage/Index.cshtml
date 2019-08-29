@@ -1,0 +1,282 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script>
+    $(function () {
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/QualitycheManage/ThreeCoordQAMessage/GetResultJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: '年月', name: 'F_DateTime', width: 150, align: 'left' },
+                { label: "文件地址", name: "F_FileAddress", width: 100,  align: 'left' },
+                { label: "文件名", name: "F_Filename", width: 130, align: 'left' },
+                 { label: "创建人", name: "F_CreatorUserName", width: 130, align: 'left' },
+
+               {
+                   label: '创建时间', name: 'F_CreatorTime', width: 150, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                       if (cellvalue != "") {
+                           return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                       }
+                   }
+
+               },
+                { label: "修改人", name: "F_LastModifyUserName", width: 130, align: 'left' },
+                {
+                    label: '修改时间', name: 'F_LastModifyTime', width: 150, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "") {
+                            return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                        }
+                    }
+
+                },
+               { label: "备注", name: "F_Description", width: 100, align: 'left' },
+               
+            ],
+            pager: "#gridPager",
+            sortname: 'F_FileAddress asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { vinCode: $("#VinCode").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+    }
+
+    function btn_add() {
+        $.modalOpen({
+            id: "Form",
+            title: "新建",
+            url: "/QualitycheManage/QAThreeCoordResult/Form?",
+            width: "400px",
+            height: "330px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+
+    //文件更新-wangqiang
+    function updataFile() {
+    }
+
+
+
+    //文件上传-wangqiang
+    function uploadFile() {
+        upload(function (data) {
+            console.log(data);
+            //showList(data.fileName);
+            $("#hidFileName").val(data.fileName);
+        });
+    }
+
+    function upload(afterUploadFunc) {
+        var xlsFile = $("#fileInput")[0];
+
+        var result = {};
+        var formData = new FormData();
+        if (xlsFile.files.length > 0) {
+           // $("#lblFileName").html(xlsFile.files[0].name);
+            formData.append('file', xlsFile.files[0]);
+        } else {
+            return;
+        }
+
+        $.ajax({
+            url: '../../Attachment/Attachment.aspx?action=upload',
+            type: 'POST',
+            data: formData,
+            dataType: 'JSON',
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+
+                if (data.result == "ok") {
+                    if (afterUploadFunc) {
+                        afterUploadFunc(data);
+                    }
+                }
+            }
+        });
+    }
+
+   
+
+    //上传文件
+    function btn_import() {
+        $.modalOpen({
+            id: "from",
+            title: "上传文件",
+            url: "/QualitycheManage/ThreeCoordQAMessage/Form",
+            width: "400px",
+            height: "200px",
+            btn : null,
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+
+    //更新文件
+    function btn_UpdateFile() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        //修改 进行修改操作确定后没有选中行却一样可以操作--bichen
+        if (keyValue == null) {
+            $.modalAlert("请选中一行", "warning")
+            return;
+        }
+        $.modalOpen({
+            id: "from",
+            title: "更新文件",
+            url: "/QualitycheManage/ThreeCoordQAMessage/Form",
+            width: "400px",
+            height: "200px",
+            btn: null,
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+
+        
+
+    //function btn_DownFile() {
+
+    //    var FileAddress = $("#gridList").jqGridRowValue().F_FileAddress;//文件地址
+    //    var Filename = $("#gridList").jqGridRowValue().F_Filename;//文件名
+
+    //    var form = $("<form>");   //定义一个form表单
+    //    form.attr('style', 'display:none');   //在form表单中添加查询参数
+    //    form.attr('target', '');
+    //    form.attr('id', 'formDownload');
+    //    form.attr('method', 'post');
+    //    var url = "/QualitycheManage/ThreeCoordQAMessage/Download";
+    //    form.attr('action', url);
+
+    //    $('body').append(form);  //将表单放置在web中
+
+    //    var input1=$("<input>");
+    //         input1.attr("type","hidden");
+    //         input1.attr("name", "serverFileAddress");
+    //         input1.attr("value", FileAddress);
+    //         form.append(input1);
+         
+    //    var input2=$("<input>");
+    //    input2.attr("type","hidden");
+    //    input2.attr("name", "fileName");
+    //    input2.attr("value", Filename);
+    //    form.append(input2);
+
+
+    //    form.submit();
+
+    //    //$('#formDownload').remove();
+    //}
+    
+
+    //下载文件
+    function btn_DownFile() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        var FileAddress = $("#gridList").jqGridRowValue().F_FileAddress;//文件地址
+        var DateTime = $("#gridList").jqGridRowValue().F_DateTime;//文件所在的文件夹
+        var Filename = $("#gridList").jqGridRowValue().F_Filename;//文件名
+       
+        if (keyValue == null) {
+                $.modalAlert("请选择需要下载的文件", "warning");
+        } else {
+                $.ajax({
+                    url: "/QualitycheManage/ThreeCoordQAMessage/Download",
+                    data: { serverFileAddress: FileAddress, fileName: Filename },
+                    //data: { keyValue: keyValue},
+                    dataType: "json",
+                    async: false,
+                    success: function (data) {
+                        $.modalAlert("下载成功！", "warning");
+                        //$("#form1").formSerialize(data);
+                    }
+
+                });
+              
+            }
+        
+    } 
+ 
+</script>
+<div class="topPanel">
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="F_FileAddress" type="text" class="form-control" placeholder="文件地址" style="width: 250px; margin-right:10px">
+                       
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+                @*
+                <td>
+                    <div class="input-group">
+                        <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class=" fa fa-link"></i></button>
+                    </div>
+                </td>*@
+            </tr>
+        </table>
+    </div>
+    <div class="toolbar">
+        @*<div class="btn-group">
+            
+            <label for="fileInput" style="float: left; cursor: pointer; display: inline-block;">&nbsp;&nbsp;<i class="fa fa-cloud-upload fa-1x"></i>上传文件</label>
+            <input type="file" id="fileInput" accept="application/vnd.ms-excel" style="display: none" onchange="uploadFile()" />
+            <input type="hidden" id="hidFileName" />
+            
+        </div>*@
+        <div class="btn-group">
+            <a id="NF-upload" authorize="yes" class="btn btn-primary " onclick="btn_import()"><i class="fa fa-upload"></i>上传文件</a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-update" authorize="yes" class="btn btn-primary " onclick="btn_UpdateFile()"><i class="fa fa-upload"></i>更新文件</a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-dowmload" authorize="yes" class="btn btn-primary " onclick="btn_DownFile()"><i class="fa fa-download"></i>下载文件</a>
+        </div>
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+
+        @*<div class="btn-group">
+            <a id="NF-add"  class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建</a>
+        </div>*@
+        @*<div class="operate">
+            <ul class="nav nav-pills">
+                <li class="first">已选中<span>1</span>项</li>
+                <li><a id="NF-edit"  onclick="btn_edit()"><i class="fa fa-pencil-square-o"></i>修改</a></li>
+                <li><a id="NF-delete"  onclick="btn_delete()"><i class="fa fa-trash-o"></i>删除</a></li>
+            </ul>
+            <a href="javascript:;" class="close"></a>
+        </div>*@
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+

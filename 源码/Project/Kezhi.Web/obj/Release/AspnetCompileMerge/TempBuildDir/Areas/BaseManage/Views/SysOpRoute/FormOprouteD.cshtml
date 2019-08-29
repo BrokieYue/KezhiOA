@@ -1,0 +1,230 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+
+}
+<script>
+
+    var keyValue = $.request("keyValue");
+    var RouteNo = $.request("RouteNo");
+    var lastrow;
+    var lastcell;
+    $(function () {   
+        gridList();
+    });
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/BaseManage/ProcesSmanagement/GetOprouteD",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "车间", name: "Plant", align: 'left', hidden: true, },
+           {
+               label: '车间', name: 'PlantStr', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                   if ($.trim(rowObject.Plant) == $.trim("StampingShop")) {
+                       return '<span >冲压车间</span>';
+                   }
+                   if ($.trim(rowObject.Plant) == $.trim("AssemblyShop")) {
+                       return '<span >总装车间</span>';
+                   }
+                   if ($.trim(rowObject.Plant) == $.trim("PaintShop")) {
+                       return '<span >涂装车间</span>';
+                   }
+                   if ($.trim(rowObject.Plant) == $.trim("WeldingShop")) {
+                       return '<span >焊装车间</span>';
+                   }
+                   if ($.trim(rowObject.Plant) == $.trim("InspectionShop")) {
+                       return '<span >交检车间</span>';
+                   }
+               }
+           },
+                { label: "工序编号", name: "OpNo", width: 90, align: 'left' },
+                { label: "工序名称", name: "OpName", width: 150, align: 'left' },
+                
+                {
+                    label: '工序类型', name: 'OpType', width: 90, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (rowObject.OpType == 1) {
+                            return '<span >生产工序</span>';
+                        }
+                        if (rowObject.OpType == 2) {
+                            return '<span >质量工序</span>';
+                        }
+                        if (rowObject.OpType == 3) {
+                            return '<span >换撬工序</span>';
+                        }
+                        else {
+                            return '<span >切入切出工序</span>';
+                        }
+                    }
+                },
+             { label: '工序序号', name: 'OPNum', width: 80, align: 'left', editable: true},
+             {
+                 label: '末工序', name: 'OpLast', width: 90, align: 'left', editable: true, edittype: "select", editoptions: { value: "0:否;1:是" }
+             },
+             {
+                 label: '工艺工序属性', name: 'RouteAttribute', width: 90, align: 'left', editable: true, edittype: "select", editoptions: { value: "0:选做工序;1:必做工序" }
+             },
+            ],
+            pager: "#gridPager",
+            sortname: 'Plant asc ,OpNo asc',
+            viewrecords: true,
+            multiselect: true,//复选框
+            cellEdit: true,
+            cellsubmit: 'clientArray',
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true,
+            beforeEditCell: function (rowid, cellname, v, iRow, iCol)
+        {
+            lastrow = iRow; lastcell = iCol;
+        }
+
+
+        });
+        $("#btn_search").click(function () {
+           
+            $gridList.jqGrid('setGridParam', {
+                postData: { Plant: $("#Plant").val(), StationName: $("#OpName").val(), StationType: $("#OpType").val() }, page: 1
+
+            }).trigger('reloadGrid');
+        });
+    }
+    function submitForm() {
+        $("#gridList").jqGrid("saveCell", lastrow, lastcell);
+        var _list = {};
+        var sterow = $("#gridList").jqGridRowValue();
+        for (var i = 0; i < sterow.length; i++) {
+            _list["selectedIDs[" + i + "].OpID"] = sterow[i].F_Id;
+            _list["selectedIDs[" + i + "].Plant"] = sterow[i].Plant;
+            _list["selectedIDs[" + i + "].OpNo"] = sterow[i].OpNo;
+            _list["selectedIDs[" + i + "].OPNum"] = sterow[i].OPNum;
+            _list["selectedIDs[" + i + "].RouteID"] = keyValue;
+            _list["selectedIDs[" + i + "].RouteNo"] = RouteNo;
+            if (sterow[i].OpLast == "否") {
+                _list["selectedIDs[" + i + "].OpLast"] = 0;
+            } else {
+                _list["selectedIDs[" + i + "].OpLast"] = 1;
+            }
+            if (sterow[i].RouteAttribute == "选做工序") {
+                _list["selectedIDs[" + i + "].RouteAttribute"] = 0;
+            } else {
+                _list["selectedIDs[" + i + "].RouteAttribute"] = 1;
+            }
+           
+        }
+        if (sterow.length == 0)
+        {
+            $.modalAlert("请选择一条有效数据！", "warning")
+            return false;
+        }
+
+        $.submitForm({
+            url: "/BaseManage/SysOpRoute/SubmitFormOpStation",
+            param:  _list,
+            success: function () {
+                $.currentWindow().$("#gridList2").trigger("reloadGrid");
+            }
+        })
+    }
+ 
+</script>
+<div class="topPanel">
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="OpName" type="text" class="form-control" placeholder="工序名称" style="width: 100px; margin-right:5px">
+                        <select id="Plant" name="Plant" class="form-control required" style="width:120px; margin-right:5px">
+                            <option value="">==请选择车间==</option>
+                            <option value="StampingShop">冲压车间</option>
+                            <option value="WeldingShop">焊装车间</option>
+                            <option value="PaintShop">涂装车间</option>
+                            <option value="AssemblyShop">总装车间</option>
+                            <option value="InspectionShop">交检车间</option>
+
+                        </select>
+                        <select id="OpType" name="OpType" class="form-control required" style="width: 120px; margin-right: 5px">
+                            <option value="">==工序类型==</option>
+                            <option value="1">生产工序</option>
+                            <option value="2">质量工序</option>
+                            <option value="3">换撬工序</option>
+                            <option value="4">切入切出工序</option>
+                        </select>
+
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+@*<form id="form1">
+        <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+
+            <div style="padding-top: 20px; margin-right: 30px;">
+                <table class="form">
+           
+                    <tr>
+                        <th class="formTitle"> 工序序号：</th>
+                        <td class="formValue">
+                            <input id="OPNum" name="OPNum" type="text" style="width:270px;" class="form-control required" placeholder="工序序号" />
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="formTitle"> 上一个工序序号：</th>
+                        <td class="formValue">
+                            <input id="PreOPNum" name="PreOPNum" type="text" style="width:270px;" class="form-control required" placeholder="上一个工序序号" />
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="formTitle">是否末工序：</th>
+                        <td class="formValue">
+                            <select id="OpLast" name="OpLast" class="form-control" style="height:20px;width:250px;">
+                                <option value=-1>==请选择==</option>
+                                <option value=0>否</option>
+                                <option value=1>是</option>
+
+                            </select>
+                        </td>
+                    </tr>
+       
+                    <tr>
+                        <th class="formTitle">工艺工序属性：</th>
+                        <td class="formValue">
+                            <select id="RouteAttribute" name="RouteAttribute" class="form-control" style="height:20px;width:250px;">
+                                <option value=-1>==请选择==</option>
+                                <option value=0>选做工序</option>
+                                <option value=1>必做工序</option>
+
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="formValue">
+                            <input id="RouteID" name="RouteID" type="text" style="display:none" />
+                            <input id="RouteNo" name="RouteNo" type="text" style="display:none" />
+                            
+                            <input id="Plant" name="Plant" type="text" style="display:none" />
+                            <input id="OpID" name="OpID" type="text" style="display:none" />
+                            <input id="OpNo" name="OpNo" type="text" style="display:none" />
+                        </td>
+                    </tr>
+    </table>
+
+            </div>
+        </div>
+    </form>*@

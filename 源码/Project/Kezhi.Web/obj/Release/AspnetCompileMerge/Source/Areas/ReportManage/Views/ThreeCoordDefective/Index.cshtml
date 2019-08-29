@@ -1,0 +1,148 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script src="~/Content/js/echarts/echarts.js"></script>
+<script src="~/Content/js/echarts/echarts.min.js"></script>
+<script>
+
+    var names = [];    //类别数组（实际用来盛放X轴坐标值）
+    var nums = [];    //销量数组（实际用来盛放Y坐标值）
+    var startTimeInput = $("#Deadline_start").val();
+    var endTimeInput = $("#Deadline_end").val();
+    var myChart;
+
+    $(function () {
+        myChart = echarts.init(document.getElementById('main'));
+
+        myChart.setOption({
+            title: {
+                text: '三坐标质检部合格率报表',
+                name: '不合格率'
+            },
+            tooltip: {},
+            legend: {
+                data: ['不合格率']
+            },
+            xAxis: {
+                data: [],
+                show: true,
+                axisLabel: {  
+                    interval:0,  
+                    rotate:25,
+                },
+                splitLine: {
+                    show: false
+                }
+            },
+            yAxis: [{
+                axisLabel: { show: true, interval: 'auto', formatter: '{value} %' },
+                show: true
+
+            }],
+            series: [{
+                name: '不合格率',
+                type: 'line',
+                barWidth: 80,//柱图宽度
+                itemStyle: {
+                    normal: {
+                        color: '#63B8FF',
+                        label: {
+                            show: true, //开启显示
+                            position: 'top', //在上方显示
+                            formatter: '{c}%',
+                            textStyle: { //数值样式
+                                color: 'black',
+                                fontSize: 12
+                            }
+                        }
+                    }
+                },
+
+                data: []
+            }]
+        });
+       
+    });
+
+    //报表导出
+    function btn_export() {
+
+
+        if ($("#Deadline_start").val() == "" && $("#Deadline_end").val() == "") {
+            $.modalAlert("请选择要导出的时间段", "warning")
+            return;
+        }
+        var form = $("<form>");   //定义一个form表单
+        form.attr('style', 'display:none');   //在form表单中添加查询参数
+        form.attr('target', '');
+        form.attr('id', 'formDownload');
+        form.attr('method', 'post');
+        var url = "/ReportManage/ThreeCoordFailPoint/DownLoadOrderExcel?starttime=" + $("#Deadline_start").val() + "&endtime=" + $("#Deadline_end").val();
+        form.attr('action', url);
+        form.append(startTimeInput);
+        form.append(endTimeInput);
+        $('body').append(form);  //将表单放置在web中
+        form.submit();
+
+        $('#formDownload').remove();
+    };
+
+    function submit() {
+        if ($("#Deadline_start").val() == "" && $("#Deadline_end").val() == "") {
+            $.modalAlert("请选择要查询的时间段", "warning")
+            return;
+        }
+        $.ajax({
+            type: "post",
+            async: true,            //异步请求（同步请求将会锁住浏览器，用户其他操作必须等待请求完成才可以执行）
+            url: "/ReportManage/ThreeCoordDefective/GetJson",    //请求发送到TestServlet处
+            data: { starttime: $("#Deadline_start").val(), endtime: $("#Deadline_end").val() },
+            dataType: "json",        //返回数据形式为json
+            success: function (data) {
+                //请求成功时执行该函数内容，result即为服务器返回的json对象
+                if (data.length>0) {
+                    for (var i = 0; i < data.length; i++) {
+                        names.push(data[i].datatime);    //挨个取出类别并填入类别数组
+                    }
+                    for (var i = 0; i < data.length; i++) {
+                        nums.push(data[i].VehiclePass);    //挨个取出销量并填入销量数组
+                    }
+                    myChart.hideLoading();    //隐藏加载动画
+                    myChart.setOption({        //加载数据图表
+                        xAxis: {
+                            data: names
+                        },
+                        series: [{
+                            // 根据名字对应到相应的系列
+                            name: '销量',
+                            data: nums
+                        }]
+                    });
+
+                } else {
+                    $.modalAlert("该时间段无数据", "warning")
+                }
+                //alter(result.Result);
+
+            },
+            error: function (errorMsg) {
+                //请求失败时执行该函数
+                alert("图表请求数据失败!");
+                myChart.hideLoading();
+            }
+         
+        })
+        
+    }
+</script>
+
+<div id="main" style="height:600px;width:1300px"></div>
+<div style="height:100%;width:1300px">
+    <div class="btn-group" style="position:relative">
+        <input id="Deadline_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'Deadline_end\')}' })" placeholder="开始时间" style="width: 120px;float:left;height:20px">
+        <input id="Deadline_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'Deadline_start\')}' })" placeholder="结束时间" style="width: 120px;float:left;;height:20px">
+        <a id="NF-export" authorize="yes" class="btn btn-primary dropdown-text" style="width:100px;height:20px; float:left;margin-left:5px" onclick="btn_export()">导出</a>
+        <a id="NF-export" authorize="yes" class="btn btn-primary dropdown-text" style="width:100px;height:20px; float:left;margin-left:5px" onclick="submit()">确认</a>
+    </div>
+</div>

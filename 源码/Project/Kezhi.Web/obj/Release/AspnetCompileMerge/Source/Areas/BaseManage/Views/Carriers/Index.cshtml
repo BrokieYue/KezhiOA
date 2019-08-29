@@ -1,0 +1,182 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+        initControl();
+    })
+    $(window).resize(function () {
+        $("#gridList").setGridWidth($(window).width());
+    })
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/BaseManage/Carriers/GetPlanJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+            
+                { label: "载码体编码", name: "CarrierCode", width: 100, align: 'left' },
+                { label: "载码体型号", name: "CarrierModel", width: 100, align: 'left' },
+        
+            
+                { label: "载码体描述", name: "CarrierDesc", width: 100, align: 'left' },
+                { label: "制造商", name: "Manufacturer", width: 100, align: 'left' },
+                 { label: "创建人", name: "F_CreatorUserName", width: 100, align: 'left' },
+
+               {
+                   label: '创建时间', name: 'F_CreatorTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                       if (cellvalue != "") {
+                           return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                       }
+                   }
+
+               },
+                { label: "修改人", name: "F_LastModifyUserName", width: 100, align: 'left' },
+                {
+                    label: '修改时间', name: 'F_LastModifyTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "" && cellvalue != null && cellvalue != undefined) {
+                            return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                        }
+                    }
+
+                },
+               
+            ],
+            pager: "#gridPager",
+            sortname: 'CarrierCode asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { CarrierCode: $("#CarrierCode").val(), CarrierModel: $("#CarrierModel").val(), Manufacturer: $("#Manufacturer").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+    }
+
+    function btn_add() {
+        $.modalOpen({
+            id: "Form",
+            title: "新建",
+            url: "/BaseManage/Carriers/Form?planState=1",
+            width: "400px",
+            height: "350px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_edit() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        //修改 进行修改操作确定后没有选中行却一样可以操作--bichen
+        if (keyValue == null) {
+            $.modalAlert("请选中一行", "warning");
+        } else {
+            $.modalOpen({
+                id: "Form",
+                title: "修改",
+                url: "/BaseManage/Carriers/Form?keyValue=" + keyValue + "",
+                width: "400px",
+                height: "400px",
+                callBack: function (iframeId) {
+                    top.frames[iframeId].submitForm();
+                }
+            });
+        }
+    }
+    //导出-yangxin
+    function btn_export() {
+        var form = $("<form>");   //定义一个form表单
+        form.attr('style', 'display:none');   //在form表单中添加查询参数
+        form.attr('target', '');
+        form.attr('id', 'formDownload');
+        form.attr('method', 'post');
+        var url = "/BaseManage/AVIStation/DownLoadOrderExcel?Plant=" + $("#Plant").val() + "&StationType=" + $("#StationType").val() + "&StationCode=" + $("#StationCode").val() + "&StationName=" + $("#StationName").val();
+        form.attr('action', url);
+        $('body').append(form);  //将表单放置在web中
+        form.submit();
+
+        $('#formDownload').remove();
+    };
+ 
+    function btn_delete() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        //修改 进行修改操作确定后没有选中行却一样可以操作--bichen
+        if (keyValue == null) {
+            $.modalAlert("请选中一行", "warning");
+        } else {
+            $.deleteForm({
+                url: "/BaseManage/Carriers/DeleteForm",
+                param: { keyValue:keyValue},
+                success: function () {
+                    $("#gridList").resetSelection();
+                    $("#gridList").trigger("reloadGrid");
+                }
+            })
+        }
+    }
+    //清空文本框--bichen
+    function clean() {
+        $("#CarrierCode").val("");
+        $("#CarrierModel").val("");
+        $("#Manufacturer").val("");
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建</a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-export" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_export()">导出</a>
+        </div>
+        <div class="operate">
+            <ul class="nav nav-pills">
+                <li class="first">已选中<span>1</span>项</li>
+                <li><a id="NF-edit" authorize="yes" onclick="btn_edit()"><i class="fa fa-pencil-square-o"></i>修改</a></li>
+                <li><a id="NF-delete" authorize="yes" onclick="btn_delete()"><i class="fa fa-trash-o"></i>删除</a></li>
+            </ul>
+            <a href="javascript:;" class="close"></a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="CarrierCode" type="text" class="form-control" placeholder="载码体编号" style="width: 100px; margin-right:10px">
+                        <input id="CarrierModel" type="text" class="form-control" placeholder="载码体型号" style="width: 100px; margin-right:10px">
+                        <input id="Manufacturer" type="text" class="form-control" placeholder="供应商" style="width: 100px;">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+                @* 清空文本框--bichen*@
+                <td>
+                    <div class="input-group">
+                        <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class=" fa fa-link"></i></button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+

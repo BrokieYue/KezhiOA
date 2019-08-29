@@ -1,0 +1,91 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+
+}
+<script>
+    $(function () {
+        document.getElementById("vinma").focus();
+    })
+ 
+
+ 
+    document.onkeydown = function (e) {
+
+        if (!e) e = window.event;
+        if ((e.keyCode || e.which) == 13) {
+            var vin = $("#vinma").val();
+            if (vin == "") {
+                $("#vinma").val("");
+                return false;
+            }
+            if (vin.length != 17) {
+                $("#vinma").css('background-color', 'red')
+                document.getElementById("tipTxt").innerText = "VIN码不存在...";
+                $("#vinma").val("");
+                return false;
+            }
+            $.ajax({
+                url: "/ProduceManage/AVIStationLabor/ExistsVINJson?keyword=" + vin,
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    if (data.rows.length > 0) {
+                        var state = data.rows[0].VINState;
+                        var CarryOut = data.rows[0].CurrStation
+                        if (state == "3") {
+                            $.submitForm({
+                                url: "/ProduceManage/AVIOutIn/ScanningSubmitForm",
+                                param: { keyValue: vin, CarryOutDesc: CarryOut, state: 1 },
+                                success: function () {
+                                    $("#vinma").css('background-color', '#2ecc71')
+                                    $("#vinma").val("");
+                                }
+                            })
+                             
+                        } else if (state == "6") {
+                            $.submitForm({
+                                url: "/ProduceManage/AVIOutIn/ScanningSubmitForm",
+                                param: { keyValue: vin, CarryOutDesc: CarryOut, state: 2 },
+                                success: function () {
+                                    $("#vinma").css('background-color', '#2ecc71')
+                                    $("#vinma").val("");
+                                }
+                            })
+
+
+                        } else {
+                            $("#vinma").css('background-color', 'red')
+                            $("#vinma").val("");
+                          document.getElementById("tipTxt").innerText = "车辆尚未切入或切出";
+                        }
+                      
+                    }
+                }
+            })
+            }
+    }
+</script>
+ 
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+
+        <div style="padding-top: 10px; ">
+            <table  >
+                <tr>
+                   
+                    <td>
+                        <input id="vinma" type="text" placeholder="请扫描VIN码" style="width: 100%; height: 80px; font-size: 50px;   background-color: yellow;">
+                    </td>
+                   
+                </tr>
+                <tr>
+
+                    
+                    <td>
+                        <span id="tipTxt" style="font-size: 40px; float: left; color: red;"></span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+ 

@@ -1,0 +1,60 @@
+﻿@{
+    ViewBag.Title = "料包下线";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+
+<script>
+    var fid = $.request("keyValue");
+    var batchNo = $.request("batchNo");
+    var qty = $.request("qty");
+    $(function () {
+        $("#lab_batch").text(batchNo);
+        $("#lab_qty").text(qty);
+    })
+    //document.getElementById("lab_qty").innerText = "1234";
+    //document.getElementById("lab_batch").innerText = "23213";
+
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        $.submitForm({
+            url: "/PressManage/PressFeed/OutLinePress",
+            param: { keyValue: fid, batch: batchNo, remark: $("#F_Description").val() },
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+
+
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+        <div style="margin-bottom: 0px; border-radius: 0px;" class="alert alert-warning alert-dismissable">
+            <strong>料包批次号：&nbsp;&nbsp;</strong>
+            <span id="lab_batch"></span>
+            <strong>下线数量：&nbsp;&nbsp;</strong>
+            <span id="lab_qty"></span>
+        </div>
+        <div style="padding-top: 10px; margin-right: 10px;">
+            <table class="form">
+                <tr>
+                    @*<th class="formTitle" valign="top" style="padding-top: 5px;line-height:100px">
+                            请输入取消排产原因:
+                        </th>*@
+                    <td class="formValue" colspan="3">
+                        请输入料包下线原因:
+                    </td>
+                </tr>
+                <tr>
+
+                    <td class="formValue" colspan="3">
+                        <textarea id="F_Description" name="F_Description" class="form-control required" placeholder="请输入料包下线原因" style="height: 130px;"></textarea>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>
+

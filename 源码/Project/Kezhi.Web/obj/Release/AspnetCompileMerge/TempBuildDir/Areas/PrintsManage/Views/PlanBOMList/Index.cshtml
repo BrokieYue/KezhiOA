@@ -1,0 +1,132 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script>
+    $(function () {
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/PrintsManage/PlanBOMList/GetPlanJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+              
+                { label: "VIN码", name: "VINNo", width: 250, align: 'left' },
+                { label: "计划ID", name: "PlanID", align: 'left', hidden: true },
+                { label: "物料ID", name: "ItemID", align: 'left', hidden: true },
+                { label: "物料编号", name: "ItemCode", width: 250, align: 'left' },
+
+                { label: "用料数量", name: "UsedQty", width: 100, align: 'left' },
+                { label: "单位", name: "Unit", width: 100, align: 'left' },
+   
+
+            ],
+            pager: "#gridPager",
+            sortname: 'ItemCode asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true,
+            postData: { VINCode: "&*" },
+            unwritten: false,  //设置无数据时提示文字不显示
+           
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { VINCode: $("#VINCode").val() },
+            }).trigger('reloadGrid');
+        });
+    }
+
+    //function btn_add() {
+    //    $.modalOpen({
+    //        id: "Form",
+    //        title: "新建",
+    //        url: "",
+    //        width: "400px",
+    //        height: "300px",
+    //        callBack: function (iframeId) {
+    //            top.frames[iframeId].submitForm();
+    //        }
+    //    });
+    //}
+    //function btn_edit() {
+    //    var keyValue = $("#gridList").jqGridRowValue().F_Id;
+
+    //    $.modalOpen({
+    //        id: "Form",
+    //        title: "修改",
+    //        url: "",
+    //        width: "400px",
+    //        height: "300px",
+    //        callBack: function (iframeId) {
+    //            top.frames[iframeId].submitForm();
+    //        }
+    //    });
+    //}
+
+
+    //function btn_delete() {
+    //    $.deleteForm({
+    //        url: "",
+    //        param: { keyValue: $("#gridList").jqGridRowValue().F_Id },
+    //        success: function () {
+    //            $("#gridList").resetSelection();
+    //            $("#gridList").trigger("reloadGrid");
+    //        }
+    //    })
+    //}
+
+</script>
+<div class="topPanel">
+    @*<div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建</a>
+        </div>
+        <div class="operate">
+            <ul class="nav nav-pills">
+                <li class="first">已选中<span>1</span>项</li>
+                <li><a id="NF-edit" authorize="yes" onclick="btn_edit()"><i class="fa fa-pencil-square-o"></i>修改</a></li>
+                <li><a id="NF-delete" authorize="yes" onclick="btn_delete()"><i class="fa fa-trash-o"></i>删除</a></li>
+            </ul>
+            <a href="javascript:;" class="close"></a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>*@
+    <div class="search">
+        <table>
+            <tr>
+
+                <td>
+                    <div class="input-group">
+                      
+                        
+                        <input id="VINCode" type="text" class="form-control" placeholder="VIN码号" style="width:250px; margin-right:10px">
+    
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+
+                </td>
+            </tr>
+
+        </table>
+
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+

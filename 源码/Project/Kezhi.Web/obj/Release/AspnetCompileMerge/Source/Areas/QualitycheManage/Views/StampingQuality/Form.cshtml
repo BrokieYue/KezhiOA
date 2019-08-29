@@ -1,0 +1,385 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+
+}
+<script>
+
+    var keyValue = $.request("keyValue");
+    var BatchSourceType = $.request("BatchSourceType");
+    var lastrow;
+    var lastcell;
+ 
+   
+    $(function () {
+        inputbind();
+        checkbox();
+        if (!!keyValue) {
+            $.ajax({
+                url: "/QualitycheManage/StampingQuality/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#BatchNo").val(data.BatchNo);
+                    $("#JobNo").val(data.JobNo);
+                    $("#Vcode").val(data.Vcode);
+                    $("#LOT_Code").val(data.LOT_Code);
+                    $("#ProdPassQty").val(data.ProdPassQty);
+                    $("#F_Description").val(data.F_Description);
+                    $("#CategoryName").val(data.Type_Code);
+                    $("#RepairQty").val(0);
+                    $("#QAFailQty").val(0);
+                    $("#ScrapQty").val(0);
+                }
+            });
+        }
+     
+        gridList();
+        gridList2();
+        $("#getshou").hide();
+    });
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/QualitycheManage/QACheckItem/StampingGetPlanJson",
+            height: 120,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "项目编号", name: "ItemCode", width: 90, align: 'left' },
+                { label: "项目名称", name: "ItemName", width: 90, align: 'left' },
+                { label: "质检区域ID", name: "AreaID", width: 90, align: 'left', hidden: true, },
+                { label: "质检类型ID", name: "CategoryID", width: 90, align: 'left', hidden: true, },
+                { label: "质检单ID", name: "CheckResultID", width: 90, align: 'left', hidden: true, },
+                { label: "质检区域", name: "AreaName", width: 90, align: 'left' },
+                { label: "质检类型", name: "CategoryName", width: 90, align: 'left', hidden: true, },
+                { label: "问题等级", name: "Level", width: 90, align: 'left' },
+                { label: '不合格数量', name: 'UnqualifiedQty', width: 80, align: 'left', editable: true }, 
+            ],
+            pager: "#gridPager",
+            sortname: 'ItemCode asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            cellEdit: true,
+            checkOnSelect: true,
+            cellsubmit: 'clientArray',
+            rowNum: 4,
+            rowList: [20, 50, 100],
+            viewrecords: false,
+            postData: { CategoryName: $("#CategoryName").val(), BatchNo: $("#picion").val() },
+            beforeEditCell: function (rowid, cellname, v, iRow, iCol) {
+                lastrow = iRow; lastcell = iCol;
+            }, 
+            afterSaveCell: function (rowid, cellname, value, iRow, iCol) {
+                submitpassQty();
+            },
+     
+        });
+        $("#btn_search").click(function () {
+
+            $gridList.jqGrid('setGridParam', {
+                postData: { CategoryName: $("#CategoryName").val(), },
+
+            }).trigger('reloadGrid');
+        });
+    }
+    
+    function gridList2() {
+        var $gridList = $("#gridList2");
+        $gridList.dataGrid({
+            url: "/QualitycheManage/StampingQuality/GetPlanJson",
+            height: 50,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "批次号", name: "BatchNo", width: 130, align: 'left' },
+                { label: "物料编码‘", name: "Vcode", width: 150, align: 'left' },
+                { label: "物料特性值", name: "LOT_Code", width: 100, align: 'left' },
+                { label: "批次数量", name: "ProdPassQty", width: 100, align: 'left' },
+              
+              {
+                  label: '批次号状态', name: 'BatchState', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                      if ($.trim(rowObject.BatchState) == 1) {
+                          return '<span >未入库</span>';
+                      }
+                      if ($.trim(rowObject.BatchState) == 2) {
+                          return '<span >已入库</span>';
+                      }
+                      if ($.trim(rowObject.BatchState) == 3) {
+                          return '<span >返工库</span>';
+                      }
+                      if ($.trim(rowObject.BatchState) == 4) {
+                          return '<span >AUDIT</span>';
+                      }
+
+                  }
+              },
+
+                     {
+                         label: '批次号来源', name: 'BatchSource', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                             if ($.trim(rowObject.BatchSource) == 1) {
+                                 return '<span >生产报工</span>';
+                             }
+                             if ($.trim(rowObject.BatchSource) == 2) {
+                                 return '<span >质检拆单</span>';
+                             }
+                             if ($.trim(rowObject.BatchSource) == 3) {
+                                 return '<span >挑件拆单</span>';
+                             }
+                             if ($.trim(rowObject.BatchSource) == 4) {
+                                 return '<span >合单</span>';
+                             }
+
+                         }
+                     },
+
+ 
+            ],
+            pager: "#gridPager2",
+            sortname: 'BatchNo asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 5,
+            rowList: [20, 50, 100],
+            viewrecords: true,
+            postData: {  BatchState: "3",BatchQAFlag:"1" },
+        });
+    }
+    
+    function submitForm() {
+        var smu1 = $("#QAFailQty").val();
+        var smu2 = $("#ProdPassQty").val();
+        var ReworkBatchID  = $("#gridList2").jqGridRowValue().F_Id;
+        var type;
+        $("#gridList").jqGrid("saveCell", lastrow, lastcell);
+        if ($("#DefectsMKTO").prop('checked')) {
+            type = 1;
+        } else {
+            if (ReworkBatchID) {
+
+                type = 2;
+
+            } else {
+                $.modalAlert("请选择一条有效的返工批次数据！", "warning")
+                return false;
+            }
+
+        }
+        if (Number(smu1) > Number(smu2)) {
+            $.modalAlert("不合格数量不能大于批次总数量", "warning")
+            return false;
+        }
+        var _list = {};
+        var selrow = $("#gridList").jqGrid('getRowData');
+        var allCountID = $("#gridList").jqGrid('getDataIDs');
+        selrow.push($("#gridList").jqGrid('getRowData', allCountID[allCountID.length - 1])); //解决 jqGrid('getRowData') 获取 少最后一行 bug
+ 
+        for (var i = 0; i < selrow.length; i++) {
+            if (Number(selrow[i].UnqualifiedQty)>0) {
+                _list["selectedIDs[" + i + "].F_Id"] = selrow[i].F_Id;
+                _list["selectedIDs[" + i + "].ItemName"] = selrow[i].ItemName;
+                _list["selectedIDs[" + i + "].AreaID"] = selrow[i].AreaID;
+                _list["selectedIDs[" + i + "].AreaName"] = selrow[i].AreaName;
+                _list["selectedIDs[" + i + "].DownLimit"] = Number(selrow[i].UnqualifiedQty);
+                _list["selectedIDs[" + i + "].CategoryID"] = selrow[i].CategoryID;
+                _list["selectedIDs[" + i + "].SeqNo"] = selrow[i].CheckResultID;
+            }
+ 
+        }
+        
+  
+        $.submitForm({
+            url: "/QualitycheManage/StampingQuality/Submitquality?keyValue="
+                + keyValue + "&Vcode=" + $("#Vcode").val() + "&Lotcode=" + $("#LOT_Code").val()
+                + "&BatchNo=" + $("#BatchNo").val() + "&ProdPassQty=" + $("#ProdPassQty").val() + ""
+                + "&QAFailQty=" + $("#QAFailQty").val() + "" + "&ReworkBatchID=" + ReworkBatchID + ""
+                + "&type=" + type + "" + "&ScrapQty=" + $("#ScrapQty").val() + "" + "&RepairQty="
+                + $("#RepairQty").val() + "" + "&BatchSourceType=" +BatchSourceType+ "",
+            param: _list,
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+        //$.submitForm({
+        //    url: "/QualitycheManage/StampingQuality/Submitquality",
+        //    param: { selectedIDs: _list, keyValue: keyValue, Vcode: $("#Vcode").val(), Lotcode: $("#LOT_Code").val(), BatchNo: $("#BatchNo").val(), ProdPassQty: $("#ProdPassQty").val(), QAFailQty: $("#QAFailQty").val(), ReworkBatchID: ReworkBatchID, type: type, ScrapQty: $("#ScrapQty").val() },
+        //    success: function () {
+        //        $.currentWindow().$("#gridList").trigger("reloadGrid");
+        //    }
+        //})
+    }
+ 
+    //统计不合格总数-yangxin
+    function submitpassQty() {
+        var selrow = $("#gridList").jqGrid('getRowData');
+        var allCountID = $("#gridList").jqGrid('getDataIDs');
+        selrow.push($("#gridList").jqGrid('getRowData', allCountID[allCountID.length - 1])); //解决 jqGrid('getRowData') 获取 少最后一行 bug
+        var passQty=0;
+        for (var i = 0; i < selrow.length; i++) {
+            passQty = Number(passQty) + Number(selrow[i].UnqualifiedQty);
+        }
+        $("#QAFailQty").val(passQty);
+        $("#RepairQty").val($("#QAFailQty").val());
+        $("#ScrapQty").val(0);
+    }
+
+    function checkbox() {
+    
+            $("#DefectsMKTO").click(function () {
+                if ($("#DefectsMKTO").prop('checked')) {
+
+                    $("#F_EnabledMark").removeAttr('checked');
+                    $("#getshou").hide();
+                } else {
+
+                    $("#F_EnabledMark").prop("checked",true);
+                    $("#getshou").show();
+                }
+            });
+
+            $("#F_EnabledMark").click(function () {
+
+                if ($("#F_EnabledMark").prop('checked')) {
+
+                    $("#DefectsMKTO").removeAttr('checked');
+                    $("#getshou").show();
+                } else {
+
+                    $("#DefectsMKTO").prop("checked", true);
+                    $("#getshou").hide();
+                }
+            });
+      
+    }
+    function inputbind() {
+        $("#QAFailQty").bind('input propertychange', function () {
+            
+            $("#RepairQty").val($("#QAFailQty").val());
+            $("#ScrapQty").val(0);
+
+        });
+
+        $("#ScrapQty").bind('input propertychange', function () {
+            var Scrapsummary = $("#ScrapQty").val();
+            var QAFummary = $("#QAFailQty").val();
+            $("#RepairQty").val(QAFummary - Scrapsummary);
+            if ($("#RepairQty").val() < 0) {
+                $("#RepairQty").val(0);
+                $("#ScrapQty").val(0);
+            }
+        
+        });
+
+        $("#RepairQty").bind('input propertychange', function () {
+            var Scrapsummary = $("#RepairQty").val();
+            var QAFummary = $("#QAFailQty").val();
+            $("#ScrapQty").val(QAFummary - Scrapsummary);
+            if ($("#ScrapQty").val() < 0) {
+                $("#ScrapQty").val(0);
+                $("#RepairQty").val(0);
+            }
+
+        });
+ 
+    }
+  
+
+</script>
+<div class="topPanel2" id="form1">
+    <div class="input-group" style="font-size: larger; padding-left: 10px; ">
+        <i class="fa fa-user" style="padding-right: 5px; padding-top: 5px;"></i>当前操作员：
+        <span style="color:blue;">@Kezhi.Code.OperatorProvider.Provider.GetCurrent().UserName</span>
+    </div>
+    <div style="padding-top: 5px; border-top: solid 2px LightGrey; ">
+    </div>
+    @*<div style="padding-top: 5px; margin-right: 5px; padding-left: 5px;">
+        <i style="padding-right: 5px;"></i>批次信息
+    </div>*@
+    <div style="padding-top: 5px; padding-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">批次号：</th>
+                <td class="formValue">
+                    <input id="BatchNo" name="BatchNo" type="text" class="form-control required" style="background-color: WhiteSmoke" readonly="readonly" />
+                </td>
+                <th class="formTitle">计划号：</th>
+                <td class="formValue">
+                    <input id="JobNo" name="JobNo" type="text" class="form-control required" style="background-color: WhiteSmoke" readonly="readonly" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">物料编号：</th>
+                <td class="formValue">
+                    <input id="Vcode" name="Vcode" type="text" class="form-control required" style=" background-color: WhiteSmoke" readonly="readonly" />
+                </td>
+                <th class="formTitle">特性值：</th>
+                <td class="formValue">
+                    <input id="LOT_Code" name="LOT_Code" type="text" class="form-control required" style="background-color: WhiteSmoke" readonly="readonly" />
+                </td>
+            </tr>
+        </table>
+        <table class="form">
+            <tr>
+                <th class="formTitle">批次数量：</th>
+                <td class="formValue">
+                    <input id="ProdPassQty" name="ProdPassQty" type="text" class="form-control required" style="background-color: WhiteSmoke; " readonly="readonly" />
+                </td>
+                <th class="formTitle">不合格总数：</th>
+                <td class="formValue">
+                    <input id="QAFailQty" name="ScrapQty" type="text" class="form-control required" style="background-color: White; " onkeyup="value=value.replace(/[^\d]/g,'')" />
+                </td>
+                <th class="formTitle">返修总数：</th>
+                <td class="formValue">
+                    <input id="RepairQty" name="RepairQty" type="text" class="form-control required" style="background-color: White; " onkeyup="value=value.replace(/[^\d]/g,'')" />
+                </td>
+                <th class="formTitle">报废总数：</th>
+                <td class="formValue">
+                    <input id="ScrapQty" name="ScrapQty" type="text" class="form-control required" style="background-color: White; " onkeyup="value=value.replace(/[^\d]/g,'')" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div style="padding-top: 5px; border-top: solid 2px LightGrey; ">
+    </div>
+    <div style="padding-top: 0px; margin-right: 5px; padding-left: 5px;">
+        <i   style="padding-right: 5px;"></i>质检项目
+    </div>
+    <div class="search" style="padding-left: 10px; ">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="CategoryName" type="text" class="form-control" placeholder="质检类型" style="display:none ">
+                        <input id="picion" type="text" class="form-control" placeholder="批次号" style="display:none ">
+                    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="gridPanel" style="padding-top: 10px; padding-left: 5px; padding-right: 10px; ">
+        <table id="gridList"></table>
+        <div id="gridPager"></div>
+    </div>
+    <div style="padding-top: 5px; margin-right: 5px; padding-left: 5px;">
+        <table>
+            <tr>
+
+                <th class="formTitle" style="height: 35px;">选择返工方式：</th>
+                <td class="formValue" colspan="3" style="padding-top: 1px;">
+                    <div class="ckbox">
+                        <input id="DefectsMKTO" name="DefectsMKTO" type="checkbox" checked="checked"><label for="DefectsMKTO">新建返工批次</label>
+                    </div>
+                    <div class="ckbox">
+                        <input id="F_EnabledMark" name="F_EnabledMark" type="checkbox"><label for="F_EnabledMark">返工批次合并</label>
+                    </div>
+                </td>
+
+            </tr>
+        </table>
+    </div>
+    <div id="getshou" class="gridPanel ">
+        <i style="padding-right: 5px;"></i>选择返工批次合并
+        <table id="gridList2"></table>
+        <div id="gridPager2"></div>
+    </div>
+</div>

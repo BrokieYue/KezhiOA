@@ -1,0 +1,168 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="renderer" content="webkit" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title></title>
+    <link href="~/Content/css/framework-font.css" rel="stylesheet" />
+    <link href="~/Content/css/framework-ui.css" rel="stylesheet" />
+    <script src="~/Content/js/jquery/jquery-2.1.1.min.js"></script>
+    <script src="~/Content/js/framework-ui.js"></script>
+    <link href="~/Content/css/framework-theme.css" rel="stylesheet" />
+    <link href="~/Content/js/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/css/framework-theme.css" rel="stylesheet" />
+    <script src="~/Content/js/charts/Chart.js"></script>
+    <link href="~/Content/css/framework-font.css" rel="stylesheet" />
+    <link href="~/Content/css/framework-theme.css" rel="stylesheet" />
+    <script src="~/Content/js/jquery/jquery-2.1.1.min.js"></script>
+    <script src="~/Content/js/bootstrap/bootstrap.js"></script>
+    <link href="~/Content/js/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <script src="~/Content/js/wdtree/tree.js"></script>
+    <link href="~/Content/js/wdtree/tree.css" rel="stylesheet" />
+    <link href="~/Content/js/select2/select2.min.css" rel="stylesheet" />
+    <script src="~/Content/js/select2/select2.min.js"></script>
+    <link href="~/Content/js/wizard/wizard.css" rel="stylesheet" />
+    <script src="~/Content/js/wizard/wizard.js"></script>
+    <script src="~/Content/js/validate/jquery.validate.min.js"></script>
+    <script src="~/Content/js/datepicker/WdatePicker.js"></script>
+    <link href="~/Content/css/framework-ui.css" rel="stylesheet" />
+    <script src="~/Content/js/framework-ui.js"></script>
+    <script>
+        $(function () {
+            $.ajax({
+                url: "/SystemManage/User/GetBirthday",
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    console.log(data.F_Gender)
+                    console.log(typeof (data.F_Gender))
+                    var gender = data.F_Gender == true ? "先生" : "女士";
+                    if (data.message != "F") {
+                        $.modalAlert(data.F_RealName + gender + "：公司全体同事祝您生日快乐!","success")
+                    }
+                    console.log("Y"+ data.message);
+                }, error: function (data) {
+                    console.log(data.message)
+                }
+            });
+        });
+       
+    </script>
+</head>
+<body>
+    <div id="areascontent">
+        <div id="title-content">
+            <img src="../../Content/img/kezhiLogo.jpg" id="title-content-img" alt="科致电气" >
+            <div id="title-content-text">
+                <div>科致电气是国内最早接触工业4.0和智能工厂的公司之一，公司提供基于电气和机械集成的MES解决方案, 与国际先进MES软件巨头GE，SIEMENS，ORDINAL及TXT等深度合作，为中国制造业转型升级提供智能工厂交钥匙服务。</div>
+                <div>公司专业从事智能制造系统集成及MES软件开发和销售, 提供工业4.0一站式服务，并荣获上海高新技术企业称号。公司于2015年初上市新三板(代码: 831595)，2015年销售额预计突破1亿人民币。目前，在重庆设立分公司，在西安及武汉设有办事处，现有员工109名。科致电气自动化行政总部及制造工厂均位于上海浦东。</div>
+                <div>公司的主要业务是为汽车，冶金，地铁，水处理及石化等多个行业提供自动化产品和系统工程服务解决方案。</div>
+                <div>公司2014年获得柯马交钥匙工程最佳供应商，2013年ABB最佳供应商，蒂森最大电气供应商，KUKA发动机最大供应商，同时也是宝钢，大众及SGM的供应商。公司与国际MES软件巨头均有深度合作，如：公司是GE, SIEMENS授权金牌系统集成商，法国ORDINAL(MES)中国区独家总代理及德国TXT GROUP(MES)公司中国唯一合作伙伴。</div>
+                <div>目前公司工程师占比超过50%，均为大学学历，有超过50名资深电气集成工程师，上千个项目的集成与设计经验。10名具有多年MES经验的IT工程师，具有GE软件认证资格。公司还具有全球前20大汽车厂的多年项目总包及分包经验，10余项应用在汽车，冶金，水处理领域的软著及专利发明。同时提供从机械设计，电气集成到MES的工业4.0一站式解决方案，并且符合ISO9001认证。</div>
+            </div>
+         </div>
+        <div id="center-content">
+            <div id="conter-content-left">
+                <div style="font-weight:bold">公司在智能制造上的优势：</div>
+
+                <div>
+                    <span>●</span>覆盖整个智能制造的系统集成商
+                </div>
+                <div>
+                    <span>●</span>在汽车，冶金和市政项目上有超过执行上千个项目的丰富经验
+                </div>
+                <div>
+                    <span>●</span>提供设计、制造、施工、编程、调试的一整套交钥匙工程解决方案
+                </div>
+                <div>
+                    <span>●</span>具有海外项目运作经验
+                </div>
+            </div>
+            <div id="conter-content-right">
+                <div style="font-weight:bold">公司在智能工厂上的优势：</div>
+                <div><span>●</span>国内最早接触MES和透明化工厂的公司之一</div>
+                <div><span>●</span>与GE和SIEMENS深度合作，提供智能工厂交钥匙方案</div>
+                <div><span>●</span>提供基于电气和机械集成的MES解决方案</div>
+                <div><span>●</span>与国际先进MES软件巨头 (ORDINAL, TXT) 合作，提供食品，保健品，服装，汽车零部件及电子行业多领域解决方案</div>
+            </div>
+        </div>
+        <div id="bottom-content">
+            <div style="font-weight:bold">公司在定制化产品上的优势：</div>
+            <div style="text-indent: 2em;">上海科致电气自动化股份有限公司成立开始就承接了众多国产化项目，由此产生一系列的科致自主产权定制化产品，主要有油漆喷涂系统、喷粉系统、清洗机、水切割系统、水泵控制系统(一拖一，一拖二，一拖三，一拖四，一拖五）及机器人单站。同时科致还与FANUC、XYLEM、WAGNER、英格索兰及GE签订长期战略协议，作为他们长期分包客户和盘柜制作工厂。</div>
+        </div>
+       
+        
+        <div id="last-content"><span style="font-size:30px;">科致愿与您携手共同开创中国智能工厂的未来！</span></div>
+                            
+    </div>
+    <style>
+        #areascontent {
+            width: 100%;
+            height: 100%;
+            margin: 50px 20px 0 50px;
+        }
+            #areascontent div {
+                font-size: 18px;
+                
+            }
+        span {
+            font-size: 20px;
+            font-weight: bolder;
+            
+        }
+        #title-content {
+            width: 100%;
+            height: 100%;
+            margin: 50px 20px 0 50px;
+            overflow: auto;
+        } 
+        #title-content-img {
+            width:400px;
+            height:260px;
+            float:left;
+            margin-top:30px;
+        }
+        #title-content-text {
+            width: 65%;
+            float: left;
+            text-indent: 2em;
+            margin-left: 30px;
+            line-height: 28px;
+        }
+        #center-content {
+            width: 100%;
+            height: 100%;
+            padding: 50px 20px 0 50px;
+            overflow: auto;
+        }
+        #conter-content-left {
+            width: 40%;
+            height: 100%;
+            float: left;
+        }
+        #conter-content-right {
+            float: left;
+            width: 40%;
+            height: 100%;
+            margin-left: 200px;
+        }
+        #bottom-content {
+            width: 90%;
+            height: 100%;
+            margin: 30px 20px 0 50px;
+            overflow: auto;
+            line-height: 28px;
+        }
+        #last-content {
+            width: 90%;
+            height: 100%;
+            text-align: center;
+            margin-top: 30px;
+            color: #f00;
+            /*font-style: italic;*/
+            font-family:kaiti;
+        }
+    </style>
+</body>
+</html>

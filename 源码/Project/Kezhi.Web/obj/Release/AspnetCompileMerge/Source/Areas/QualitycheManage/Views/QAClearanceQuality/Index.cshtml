@@ -1,0 +1,247 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+        gridList2();
+    })
+
+
+    $(window).resize(function () {
+        $("#gridList").setGridWidth($(window).width());
+    })
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/QualitycheManage/QAClearanceQuality/GetQAClearanceQualityJson",
+            height: $(window).height() / 2 - 90,
+            autowidth: true,
+            shrinkToFit: true,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "VIN码", name: "VINNo", width: 90, align: 'left' },
+                {
+                    label: '合格', name: 'ABSstatus', width: 90, align: 'left', formatter: function (cellvalue, options, rowObject) {
+
+                        if (rowObject.ABSstatus == 1) {
+                            return '<span >合格</span>';
+                        }
+                        if (rowObject.ABSstatus == 0) {
+                            return '<span >不合格</span>';
+                        }
+                       
+                    }
+                },
+                {
+                    label: '第一工位合格', name: 'ABSstatus1', width: 90, align: 'left', formatter: function (cellvalue, options, rowObject) {
+
+                        if (rowObject.ABSstatus1 == 1) {
+                            return '<span >合格</span>';
+                        }
+                        if (rowObject.ABSstatus1 == 0) {
+                            return '<span >不合格</span>';
+                        }
+
+                    }
+                },
+                {
+                    label: '复检工位合格', name: 'ABSstatus2', width: 90, align: 'left', formatter: function (cellvalue, options, rowObject) {
+
+                        if (rowObject.ABSstatus2 == 1) {
+                            return '<span >合格</span>';
+                        }
+                        if (rowObject.ABSstatus2 == 0) {
+                            return '<span >不合格</span>';
+                        }
+
+                    }
+                },
+
+                {
+                    label: '检测时间', name: 'CDatetime', width: 90, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "") {
+                            return '<span >' + cellvalue.substr(0, 10) + '</span>';
+                        }
+                    }
+                },
+                { label: '文件名', name: 'FileName', width: 80, align: 'left' },
+                { label: '次数', name: 'num', width: 80, align: 'left' },
+                { label: '创建人', name: 'F_CreatorUserId', align: 'left', hidden: true },
+                { label: '创建人', name: 'F_CreatorUserName', width: 90, align: 'left' },
+                {
+                    label: '创建时间', name: 'F_CreatorTime', width: 180, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "") {
+                            return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                        }
+                    }
+
+                },
+                { label: '备注', name: 'F_Description', width: 200, align: 'left' }
+
+            ],
+
+            pager: "#gridPager",
+            sortname: 'CDatetime asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 50],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { VINNo: $("#VINNo").val(), ABSstatus: $("#ABSstatus").val(), starttime: $("#Deadline_start").val(), endtime: $("#Deadline_end").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+
+    }
+    function gridList2() {
+        var $gridList = $("#gridList2");
+        $gridList.dataGrid({
+            url: "/QualitycheManage/QAClearanceQuality/GetQAClearanceQualityDJson",
+            height: $(window).height() / 2 - 90,
+            autowidth: true,
+            shrinkToFit: true,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "VIN码", name: "VINNo", width: 90, align: 'left' },
+                {
+                    label: '合格', name: 'ABSstatus', width: 90, align: 'left', formatter: function (cellvalue, options, rowObject) {
+
+                        if (rowObject.ABSstatus == 1) {
+                            return '<span >合格</span>';
+                        }
+                        if (rowObject.ABSstatus == 0) {
+                            return '<span >不合格</span>';
+                        }
+
+                    }
+                },
+                {
+                    label: '检测站点', name: 'Xdatal', width: 90, align: 'left', formatter: function (cellvalue, options, rowObject) {
+
+                        if (rowObject.Xdatal == 1) {
+                            return '<span >第一检测位</span>';
+                        }
+                        if (rowObject.Xdatal == 2) {
+                            return '<span >复检位</span>';
+                        }
+
+                    }
+                },
+                {
+                    label: '间隙\面差', name: 'Source', width: 90, align: 'left', formatter: function (cellvalue, options, rowObject) {
+
+                        if (rowObject.Source == 'Gap') {
+                            return '<span >面差</span>';
+                        }
+                        if (rowObject.Source == 'Flush') {
+                            return '<span >间隙</span>';
+                        }
+
+                    }
+                },
+                { label: "测试值", name: "Value", width: 90, align: 'left' },
+                { label: "下限", name: "MinSpeclimit", width: 90, align: 'left' },
+                { label: "上限", name: "MaxSpeclimit", width: 90, align: 'left' },
+                { label: "合理值", name: "Nominal", width: 90, align: 'left' },
+                {
+                    label: '检测时间', name: 'CDatetime', width: 90, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "") {
+                            return '<span >' + cellvalue.substr(0, 10) + '</span>';
+                        }
+                    }
+                },
+                { label: '次数', name: 'num', width: 80, align: 'left' },
+                {
+                    label: '创建时间', name: 'F_CreatorTime', width: 180, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "") {
+                            return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                        }
+                    }
+
+                },
+                { label: '备注', name: 'F_Description', width: 200, align: 'left' }
+
+            ],
+            
+            pager: "#gridPager",
+            sortname: 'F_CreatorTime asc',
+            viewrecords: true,
+            postData: { keyValue: "~" },
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 50],
+            viewrecords: true
+        });
+     
+        $('#gridList').on('click', function (e) {
+
+            var VINNo = $("#gridList").jqGridRowValue().VINNo;
+            $gridList.jqGrid('setGridParam', {
+                postData: { VINno: VINNo },
+            }).trigger('reloadGrid');
+
+        });
+    }
+
+    //清空文本框--bichen
+    function clean() {
+        $("#VINNo").val("");
+        $("#ABSstatus").val("");
+        $("#PlanTime_start").val("");
+        $("#PlanTime_end").val("");
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="VINNo" type="text" class="form-control" placeholder="VIN码号" style="width: 120px; margin-right:5px">
+                        <select id="ABSstatus" name="ABSstatus" class="form-control required" style="width:120px; margin-right:5px">
+                            <option value="-1">是否合格</option>
+                            <option value="1">合格</option>
+                            <option value="0">不合格</option>
+                        </select>
+
+                        <input id="Deadline_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'Deadline_end\')}' })" placeholder="检测时间（开始）" style="width: 120px; margin-right: 5px">
+                        <input id="Deadline_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'Deadline_start\')}' })" placeholder="检测时间（结束）" style="width: 120px;">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+                @*修改下拉按钮位置--bichen*@
+                @*<td>
+                    <div class="input-group">
+                        <button id="btn_more" type="button" class="btn  btn-primary" style="margin-left: 5px"><i id="icoMore" class="fa fa-angle-double-down"></i></button>
+                    </div>
+                </td>*@
+                @* 清空文本框--bichen*@
+                <td>
+                    <div class="input-group">
+                        <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class=" fa fa-link"></i></button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList2"></table>
+    <div id="gridPager2"></div>
+</div>
+
+

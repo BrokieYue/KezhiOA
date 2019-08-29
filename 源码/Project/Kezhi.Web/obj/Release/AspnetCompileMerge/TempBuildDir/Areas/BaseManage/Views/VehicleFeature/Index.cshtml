@@ -1,0 +1,298 @@
+﻿@{
+    ViewBag.Title = "特征码绑定";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    //var productId = $.request("productId");
+    var pDate;
+     
+    var lastrow;
+    var lastcell;
+    $(function () {
+       
+       
+        gridListL();
+        gridListR();
+
+
+    })
+    $(window).resize(function () {
+        $("#gridList").setGridWidth($(window).width());
+    })
+    function gridListL() {
+        var $gridListL = $("#gridListL");
+        $gridListL.dataGrid({
+            url: "/BaseManage/VehicleCode/GetVehicleJson",
+            height: $(window).height() - 142,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                
+                { label: "整车编码", name: "Vcode", align: 'left', width: 150 },
+                
+                { label: '整车描述', name: 'ItemName', width: 150, align: 'left' },
+           
+            ],
+            pager: "#gridPagerL",
+            sortname: 'Vcode asc',
+            viewrecords: true,
+            multiselect: true,//复选框
+           
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyword: $("#keywords").val() }, page: 1
+            }).trigger('reloadGrid');
+
+        });
+    }
+
+
+    function gridListR() {
+        var $gridListR = $("#gridListR");
+        $gridListR.dataGrid({
+            url: "/BaseManage/VehicleFeature/GetPlanJson",
+            height: $(window).height() - 142,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "特征码ID", name: "FeID", align: 'left', hidden: true },
+                { label: "特征值编码", name: "FeatCodec", width: 100, align: 'left' },
+                { label: "特征值名称", name: "FeatNamec", width: 100, align: 'left' },
+                { label: "特征码编码", name: "FeatCode", width: 100, align: 'left' },
+                { label: "特征码名称", name: "FeatName", width: 100, align: 'left' },
+                
+           
+                { label: "特征值描述", name: "F_Description", width: 250, align: 'left' },
+               
+            ],
+            pager: "#gridPagerR",
+            sortname: 'FeatCode asc ',
+            viewrecords: true,
+            fitColumns: true,
+            postData: { vid: "$$!!~" },
+            multiselect: false,//复选框
+            rowNum: 10,
+            rowList: [20, 50, 50],
+            viewrecords: true,
+            unwritten: false,  //设置无数据时提示文字不显示
+
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { FeatCode: $("#FeatCode").val(), FeatName: $("#FeatName").val()}, page: 1
+            }).trigger('reloadGrid');
+        });
+        $('#gridListL').on('click', function (e) {
+            var keyValue = $('#gridListL').jqGrid('getGridParam', 'selrow');
+          
+            $gridListR.jqGrid('setGridParam', {
+                postData: { vid: keyValue },
+            }).trigger('reloadGrid');
+
+        });
+    }
+
+
+ 
+ 
+    function btn_binding() {
+        var id = $("#gridListL").jqGrid('getGridParam', 'selrow');
+        if (id) {
+            var sterow = $("#gridListL").jqGridRowValue();
+            sessionStorage.setItem('zcbm', JSON.stringify(sterow));
+            $.modalOpen({
+                id: "Form",
+                title: "绑定特征码",
+                url: "/BaseManage/VehicleFeature/FeaturesForm",
+                width: "1300px",
+                height: "850px",
+                callBack: function (iframeId) {
+                    top.frames[iframeId].submitForm();
+                }
+            });
+        } else {
+            $.modalAlert("请选择一条有效数据！", "warning")
+            return false;
+        }
+
+    };
+
+    function btn_edit() {
+        var key = $("#gridListR").jqGridRowValue().F_Id;
+        var FeID = $("#gridListR").jqGridRowValue().FeID;
+        if (!key) {
+            $.modalAlert("请选中一行特征码", "warning");
+            return false;
+        } else {
+            $.modalOpen({
+                id: "Form",
+                title: "修改特征值",
+                url: "/BaseManage/VehicleFeature/Form?keyValue=" + key + "&FeID=" + FeID + "",
+                width: "350px",
+                height: "220px",
+                callBack: function (iframeId) {
+                    top.frames[iframeId].submitForm();
+                }
+            });
+        }
+    }
+    function btn_delete() {
+        var key = $("#gridListR").jqGridRowValue().F_Id;
+        if (!key) {
+            $.modalAlert("请选中一行特征码", "warning");
+            return false;
+        } else {
+            $.deleteForm({
+                url: "/BaseManage/VehicleFeature/DeleteForm",
+                param: { keyValue: key },
+                success: function () {
+                    $("#gridListR").resetSelection();
+                    $("#gridListR").trigger("reloadGrid");
+                }
+            })
+        }
+    }
+    //    function gridListF() {
+    //        var $gridListF = $("#gridListF");
+    //        $gridListF.dataGrid({
+    //        url: "/BaseManage/Features/GetDetailJson",
+    //        height: $(window).height()/ 2-128,
+    //        colModel: [
+    //            { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+    //            { label: "特征码主表ID", name: "ParentID", width: 90, align: 'left', hidden: true },
+    //            { label: "车型特征值编码", name: "FeatCode", width: 250, align: 'left' },
+    //            { label: "车型特征值名称", name: "FeatName", width: 250, align: 'left' },
+    //            { label: "特征值描述", name: "F_Description", width: 250, align: 'left' },
+
+    //        ],
+    //        pager: "#gridPagerF",
+    //        sortname: 'FeatCode asc',
+    //        viewrecords: true,
+    //        postData: { keyValue: "~" },
+    //        multiselect: true,//复选框
+    //        rowNum: 20,
+    //        rowList: [20, 50, 100],
+    //        viewrecords: true
+    //    });
+    //    $("#btn_search").click(function () {
+    //        $gridList.jqGrid('setGridParam', {
+    //            postData: { keyValue: "~" },
+    //        }).trigger('reloadGrid');
+    //    });
+    //    $('#gridListR').on('click',  function (e) {
+    //        var keyValue = $("#gridListR").jqGridRowValue().F_Id;
+    //        $gridListF.jqGrid('setGridParam', {
+    //            postData: { keyValue: keyValue },
+    //        }).trigger('reloadGrid');
+
+    //    });
+    //}
+    //+
+    //function addRowToAnotherTable() {
+    //    var rowIndex = $("#gridListR").jqGrid("getGridParam", "selrow");
+
+
+    //    var c_ids = $("#gridListR").jqGrid('getGridParam', 'selrow');//数据表中的选中行的行号；
+    //    var old_ids = $('#gridListF').getDataIDs();//目标表中所有数据的行号
+
+    //    var j = old_ids.indexOf(c_ids)
+    //    if (j == -1) {
+    //        var rowData = $("#gridListR").jqGrid('getRowData', c_ids);
+    //        $('#gridListF').jqGrid("addRowData", c_ids, rowData);
+    //    }
+
+    //}
+    //-
+    //function removeRowToAnotherTable() {
+    //    var c_ids = $("#gridListR").jqGrid('getGridParam', 'selarrrow');//数据表中的选中行的行号；
+    //    var lst = c_ids.length;
+    //    for (var i = 0; i < lst; i++) {
+    //        $("#gridListR").jqGrid("delRowData", c_ids[0]);
+    //    }
+    //}
+
+ 
+</script>
+<form id="form1">
+ 
+    <div style="padding-top: 5px;  " class="topPanel">
+        <div class="toolbar">
+            <div class="btn-group">
+                <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+            </div>
+            <div class="btn-group">
+                <a id="NF-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_binding()"><i class="fa fa-plus"></i>绑定特征码</a>
+            </div>
+
+            <div class="btn-group">
+                <a id="NF-edit" authorize="yes" class="btn btn-primary " onclick="btn_edit()"><i class="fa fa-edit"></i>修改特征值</a>
+            </div>
+            <div class="btn-group">
+                <a id="NF-delete" authorize="yes" class="btn btn-primary " onclick="btn_delete()"><i class="fa fa-trash-o "></i>删除特征关系</a>
+            </div>
+        </div>
+        <div class="search">
+            <table>
+                <tr>
+                    <td>
+                        <div class="input-group">
+                            <input id="Vcode" type="text" class="form-control" placeholder="整车编码" style="width: 260px; margin-right:10px">
+                            @*<input id="AssemblyName" type="text" class="form-control" placeholder="装配厂" style="width: 100px; margin-right:10px">*@
+
+
+                            <span class="input-group-btn">
+                                <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                            </span>
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            </table>
+
+        </div>
+    </div>
+   
+   
+    <div class="gridPanel" style="width:50%;float:left;">
+        <table>
+            <tr>
+                <th class="formTitle">整车编码列表</th>
+            </tr>
+        </table>
+        <table id="gridListL"></table>
+        <div id="gridPagerL"></div>
+    </div>
+    
+    <div class="gridPanel" style="width: 49.5%; float: right; ">
+        <table>
+            <tr>
+                <th class="formTitle">特征码</th>
+            </tr>
+        </table>
+        <table id="gridListR"></table>
+        <div id="gridPagerR"></div>
+    </div>
+    @*<div style="float: left; padding-left: 20px; padding-right: 8px; width: 5%;height:320px;text-align:center;">
+        <a id="NF-right" style="margin-top:120px;" class="btn btn-primary " onclick="addRowToAnotherTable()"><i class="fa fa-angle-double-right"></i></a>
+        
+    </div>*@ 
+   
+    @*<div class="gridPanel" style="width: 49.5%; float: right; ">
+        <table>
+            <tr>
+                <th class="formTitle">特征码明细</th>
+            </tr>
+        </table>
+        <table id="gridListF"></table>
+        <div id="gridPagerF"></div>
+    </div>*@
+</form>
+
+
+
+

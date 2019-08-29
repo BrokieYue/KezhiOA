@@ -1,0 +1,349 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script>
+    $(function () {
+        initControl();
+        gridList();
+        gridList2();
+
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/QualitycheManage/QACheckItem/GetPlanJson",
+            height: $(window).height() / 2 - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "项目编号", name: "ItemCode", width: 90, align: 'left' },
+                { label: "项目名称", name: "ItemName", width: 90, align: 'left' },
+                { label: "质检区域ID", name: "AreaID", width: 90, align: 'left', hidden: true, },
+                { label: "质检区域", name: "AreaName", width: 90, align: 'left' },
+                {
+                    label: '是否有缺陷', name: 'DefectsMK', width: 90, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (rowObject.DefectsMK == 1) {
+                            return '有缺陷';
+                        }
+                        if (rowObject.DefectsMK == 0) {
+                            return '无缺陷';
+                        }
+
+                    }
+                },
+
+                { label: "责任部门", name: "DutyBranch", width: 90, align: 'left' },
+                { label: "问题等级", name: "Level", width: 90, align: 'left' },
+                { label: "设备IP", name: "IPAddress", width: 90, align: 'left' },
+                { label: "顺序", name: "SeqNo", width: 90, align: 'left' },
+                 { label: "备注", name: "F_Description", width: 90, align: 'left' },
+                   { label: "创建人", name: "F_CreatorUserName", width: 90, align: 'left' },
+
+               {
+                   label: '创建时间', name: 'F_CreatorTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                       if (cellvalue != "") {
+                           return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                       }
+                   }
+
+               },
+                { label: "修改人", name: "F_LastModifyUserName", width: 90, align: 'left' },
+                {
+                    label: '修改时间', name: 'F_LastModifyTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "") {
+                            return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                        }
+                    }
+
+                },
+
+            ],
+            pager: "#gridPager",
+            sortname: 'SeqNo asc',
+            viewrecords: true,
+            fitColumns: true,
+            postData: { ItemCode: "`" },
+            multiselect: false,//复选框
+            rowNum: 10,
+            rowList: [20, 50, 50],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { ItemCode: $("#ItemCode").val(), ItemName: $("#ItemName").val(), CategoryType: $("#CategoryType").val(), AreaName: $("#AreaName").val(), CategoryName: $("#CategoryName").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+    }
+    function gridList2() {
+        var $gridList = $("#gridList2");
+        $gridList.dataGrid({
+            url: "/QualitycheManage/QACheckItem/GetPlanJsonThe",
+            height: $(window).height() / 2 - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+
+                { label: "缺陷编号", name: "DefectsCode", width: 90, align: 'left' },
+                { label: "缺陷名称", name: "DefectsName", width: 90, align: 'left' },
+                { label: "责任部门", name: "DutyBranch", width: 90, align: 'left' },
+                { label: "问题等级", name: "Level", width: 90, align: 'left' },
+                 { label: "设备IP", name: "IPAddress", width: 90, align: 'left' },
+                { label: "顺序", name: "SeqNo", width: 90, align: 'left' },
+                 { label: "备注", name: "F_Description", width: 90, align: 'left' },
+
+
+                { label: "创建人", name: "F_CreatorUserName", width: 90, align: 'left' },
+
+               {
+                   label: '创建时间', name: 'F_CreatorTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                       if (cellvalue != "") {
+                           return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                       }
+                   }
+
+               },
+                { label: "修改人", name: "F_LastModifyUserName", width: 90, align: 'left' },
+                {
+                    label: '修改时间', name: 'F_LastModifyTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "") {
+                            return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                        }
+                    }
+
+                },
+
+            ],
+            pager: "#gridPager2",
+            sortname: 'SeqNo asc',
+            viewrecords: true,
+            postData: { keyValue: "`" },
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyValue: "~" },
+            }).trigger('reloadGrid');
+        });
+        $('#gridList').on('click', function (e) {
+            var keyValue = $("#gridList").jqGridRowValue().F_Id;
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyValue: keyValue },
+            }).trigger('reloadGrid');
+
+        });
+    }
+
+
+    //项目新增-yangxin
+    function btn_add() {
+        $.modalOpen({
+            id: "Form",
+            title: "新建",
+            url: "/QualitycheManage/QACheckItem/Form?planState=1",
+            width: "600px",
+            height: "400px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    //项目修改-yangxin
+    function btn_edit() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        if (keyValue) {
+            $.modalOpen({
+                id: "Form",
+                title: "修改",
+                url: "/QualitycheManage/QACheckItem/Form?keyValue=" + keyValue + "",
+                width: "600px",
+                height: "400px",
+                callBack: function (iframeId) {
+                    top.frames[iframeId].submitForm();
+                }
+            });
+        } else {
+            $.modalAlert("请选择一条有效数据！", "warning")
+            return false;
+        }
+    }
+
+    //项目删除-yangxin
+    function btn_delete() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        if (keyValue == null) {
+            $.modalAlert("请选择一条有效数据！", "warning");
+        } else {
+            $.deleteForm({
+                url: "/QualitycheManage/QACheckItem/DeleteForm",
+                param: { keyValue: keyValue },
+                success: function () {
+                    $("#gridList").resetSelection();
+                    $("#gridList").trigger("reloadGrid");
+                }
+            })
+        }
+    }
+    //缺陷新增-yangxin
+    function btn_addzd() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        var DefectsMK = $("#gridList").jqGridRowValue().DefectsMK
+        if (keyValue) {
+            if (DefectsMK == "有缺陷") {
+                $.modalOpen({
+                    id: "Index",
+                    title: "缺陷新增",
+                    url: "/QualitycheManage/QACheckItem/DefectForm?ParentalID=" + keyValue + "",
+                    width: "600px",
+                    height: "400px",
+                    callBack: function (iframeId) {
+                        top.frames[iframeId].submitForm();
+                    }
+                });
+            } else {
+                $.modalAlert("选择的项目没有缺陷！", "warning")
+                return false;
+            }
+        } else {
+
+            $.modalAlert("请选择一条项目数据！", "warning")
+            return false;
+        }
+
+    }
+
+    //缺陷修改-yangxin
+    function btn_editzd() {
+        var keyValue = $("#gridList2").jqGridRowValue().F_Id;
+        if (keyValue) {
+            $.modalOpen({
+                id: "Form",
+                title: "修改",
+                url: "/QualitycheManage/QACheckItem/DefectForm?keyValue=" + keyValue + "",
+                width: "600px",
+                height: "400px",
+                callBack: function (iframeId) {
+                    top.frames[iframeId].submitForm();
+                }
+            });
+        } else {
+            $.modalAlert("请选择一条有效数据！", "warning")
+            return false;
+        }
+    }
+    //缺陷删除-yangxin
+    function btn_deletezd() {
+        var keyValue = $("#gridList2").jqGridRowValue().F_Id;
+        if (keyValue == null) {
+            $.modalAlert("请选择一条有效数据！", "warning")
+        } else {
+            $.deleteForm({
+                url: "/QualitycheManage/QACheckItem/DeleteDefect",
+                param: { keyValue: keyValue },
+                success: function () {
+                    $("#gridList2").resetSelection();
+                    $("#gridList2").trigger("reloadGrid");
+                }
+            })
+        }
+    }
+    function initControl() {
+        $("#CategoryName").bindSelect({
+            url: "/QualitycheManage/QACheckItem/GetCategoryType",
+            param: { anCode: 0 }
+        });
+    }
+    //清空文本框--bichen
+    function clean() {
+        $("#ItemCode").val("");
+        $("#ItemName").val("");
+        $("#AreaName").val("");
+        $("#CategoryType").val("-1");
+        $("#CategoryName").val("");
+    }
+</script>
+
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建项目</a>
+        </div>
+
+        <div class="btn-group">
+            <a id="NF-edit" authorize="yes" class="btn btn-primary " onclick="btn_edit()"><i class="fa fa-edit"></i>修改项目</a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-delete" authorize="yes" class="btn btn-primary " onclick="btn_delete()"><i class="fa fa-trash-o "></i>删除项目</a>
+        </div>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <th class="formTitle">质检项目表　</th>
+                <td>
+                    <div class="input-group">
+                        <input id="ItemCode" type="text" class="form-control" placeholder="项目编码" style="width: 100px; margin-right:10px">
+                        <input id="ItemName" type="text" class="form-control" placeholder="项目名称" style="width: 100px; margin-right:10px">
+                        <input id="AreaName" type="text" class="form-control" placeholder="区域名称" style="width: 100px; margin-right:10px">
+                        <select id="CategoryType" name="CategoryType" class="form-control " style="width: 130px; margin-right:10px">
+                            <option value="-1">==请选择类型==</option>
+                            <option value="1">过程检验</option>
+                            <option value="2">整车检验</option>
+                            <option value="3">冲压检验</option>
+                            <option value="4">AUDIT检验</option>
+                        </select>
+                        <select id="CategoryName" name="CategoryName" class="form-control" style="width: 150px;">
+                            <option value="">==请选择质检类型==</option>
+                        </select>
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+                @* 清空文本框--bichen*@
+                <td>
+                    <div class="input-group">
+                        <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class=" fa fa-link"></i></button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a id="NF-add" authorize="yes" class="btn btn-primary " onclick="btn_addzd()"><i class="fa fa-plus"></i>添加缺陷</a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-editzd" authorize="yes" class="btn btn-primary " onclick="btn_editzd()"><i class="fa fa-edit "></i>修改缺陷</a>@*修改图标--bichen*@
+        </div>
+        <div class="btn-group">
+            <a id="NF-delete" authorize="yes" class="btn btn-primary " onclick="btn_deletezd()"><i class="fa fa-trash-o "></i>删除缺陷</a>
+        </div>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <th class="formTitle">质检项目缺陷表　</th>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList2"></table>
+    <div id="gridPager2"></div>
+</div>
+
+

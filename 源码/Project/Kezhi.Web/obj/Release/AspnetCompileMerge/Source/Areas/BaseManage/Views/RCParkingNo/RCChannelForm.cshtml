@@ -1,0 +1,187 @@
+﻿@{
+    ViewBag.Title = "路由车道列表";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+  
+    $(function () {
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/BaseManage/SysRCChannel/GetRCChannelJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+
+                { label: "车道编号", name: "Channel", width: 100, align: 'left' },
+
+                  {
+                      label: '区域', name: 'Area', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                          if (rowObject.Area == 1) {
+                              return 'WBS';
+                          }
+                          if (rowObject.Area == 2) {
+                              return 'PBS';
+                          }
+
+                      }
+                  },
+                       {
+                           label: '排区', name: 'Zone', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                               if (rowObject.Zone == 1) {
+                                   return '粗排';
+                               }
+                               if (rowObject.Zone == 2) {
+                                   return '精排';
+                               }
+
+                           }
+                       },
+                     {
+                         label: '方向', name: 'Direction', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                             if (rowObject.Direction == 1) {
+                                 return '正向';
+                             }
+                             if (rowObject.Direction == 2) {
+                                 return '反向';
+                             }
+                             if (rowObject.Direction == 3) {
+                                 return '双向';
+                             }
+                         }
+                     },
+                    { label: "车位长度", name: "Length", width: 120, align: 'left' },
+                    {
+                        label: '特殊通道标记', name: 'VIPFlag', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                            if (rowObject.VIPFlag == 0) {
+                                return '否';
+                            }
+                            if (rowObject.VIPFlag == 1) {
+                                return '是';
+                            }
+
+                        }
+                    },
+                    {
+                        label: '专属车道', name: 'PrivateFor', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                            if (rowObject.PrivateFor == 1) {
+                                return 'SUV ';
+                            }
+                            if (rowObject.PrivateFor == 2) {
+                                return '皮卡';
+                            }
+                            if (rowObject.PrivateFor == 3) {
+                                return '轻卡';
+                            }
+                            if (rowObject.PrivateFor == 4) {
+                                return '小众车';
+                            }
+                        }
+                    },
+
+                { label: "线体商车道编号", name: "IFChannel", width: 160, align: 'left' },
+                { label: "车道顺序", name: "ChannelSeq", width: 100, align: 'left' },
+                    {
+                        label: '锁止状态', name: 'LockState', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                            if (rowObject.LockState == 0) {
+                                return '开放';
+                            }
+                            if (rowObject.LockState == 1) {
+                                return '锁止';
+                            }
+
+                        }
+                    },
+                { label: "备注", name: "F_Description", width: 160, align: 'left' },
+      
+
+            ],
+            pager: "#gridPager",
+            sortname: 'Channel asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true,
+            ondblClickRow: function (rowId) {  //双击表格中的某一行，触发事件，获得数据
+                var rowData = jQuery(this).getRowData(rowId);
+                var fid = rowData['F_Id'];
+                var ChannelName = rowData['Channel'];
+                var Leng = rowData['Length'];
+
+                window.opener.document.getElementById("ChannelID").value = fid;
+                window.opener.document.getElementById("Channel").value = ChannelName;
+                window.opener.document.getElementById("Length").value = Leng;
+                
+                window.close();
+            }
+
+
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { Channel: $("#Channel").val(), Area1: $("#Area").val(), Zone: $("#Zone").val(), Direction: $("#Direction").val(), LockState: $("#LockState").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+    }
+</script>
+
+<div class="topPanel">
+    <div class="toolbar">
+
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+
+                <td>
+                    <div class="input-group">
+                        <input id="Channel" type="text" class="form-control" placeholder="车道编号" style="width: 100px; margin-right:10px">
+                        <select id="Area" name="Area" class="form-control required" style="width: 150px; margin-right:10px">
+                            <option value="-1">==选择区域==</option>
+                            <option value="1">WBS</option>
+                            <option value="2">PBS</option>
+                        </select>
+                        <select id="Zone" name="Zone" class="form-control required" style="width: 150px; margin-right:10px">
+                            <option value="-1">==选择排区==</option>
+                            <option value="1">粗排</option>
+                            <option value="2">精排</option>
+                        </select>
+                        <select id="Direction" name="Direction" class="form-control required" style="width: 150px; margin-right:10px">
+                            <option value="-1">==选择方向==</option>
+                            <option value="1">正向</option>
+                            <option value="2">反向</option>
+                            <option value="3">双向</option>
+                        </select>
+                        @*<select id="VIPFlag" name="VIPFlag" class="form-control required" style="width: 150px; margin-right:10px">
+                                <option value="-1">==选择是否特殊通道==</option>
+                                <option value="false">否</option>
+                                <option value="true">是</option>
+                            </select>*@
+                        <select id="LockState" name="LockState" class="form-control required" style="width: 150px; margin-right:10px">
+                            <option value="-1">==选择锁止状态==</option>
+                            <option value="0">开放</option>
+                            <option value="1">锁止</option>
+                        </select>
+
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+
+                </td>
+            </tr>
+
+        </table>
+
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+

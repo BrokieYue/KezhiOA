@@ -1,0 +1,64 @@
+﻿@{
+    ViewBag.Title = "EditForm";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    var keyValue = $.request("keyValue");
+    $(function () {
+        if (!!keyValue) {
+            $.ajax({
+                url: "/LogisticManage/Material/GetEditFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                }
+            });
+        }
+    });
+  
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        $.submitForm({
+            url: "/LogisticManage/Material/SubmitEditForm?keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+
+<form id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+           <tr>
+                <th class="formTitle">物料编码</th>
+                <td class="formValue">
+                     <input id="MaterialCode" name="MaterialCode" type="text" class="form-control required" readonly="true"/>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">工位编码</th>
+                <td class="formValue">
+                      <input id="StationCode" name="StationCode" type="text" class="form-control required" readonly="true"/>
+                </td>
+            </tr>
+             <tr>
+                <th class="formTitle">安全库存</th>
+                <td class="formValue">
+                    <input id="SafeStock" name="SafeStock" type="text" class="form-control required"  placeholder="输入安全库存" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">实际库存</th>
+                <td class="formValue">
+                    <input id="MaterialStock" name="MaterialStock" type="text" class="form-control required" readonly="true"/>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>

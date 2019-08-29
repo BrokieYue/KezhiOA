@@ -1,0 +1,79 @@
+﻿@{
+    ViewBag.Title = "AddForm";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    var keyValue = $.request("keyValue");
+    $(function () {
+        initControl();
+        if (!!keyValue) {
+            $.ajax({
+                url: "/LogisticManage/Material/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                }
+            });
+        }
+    });
+    function initControl() {
+        $("#MaterialCode").bindSelect({
+            url: "/LogisticManage/MaterialBase/GetMaterialBaseList",
+            id: "MaterailCode",
+            text: "MaterailCNName"
+        });
+        $("#StationCode").bindSelect({
+            url: "/StationManage/StationInfo/GetStationList",
+            id: "StationCode",
+            text: "StationName"
+        });
+    }
+
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        $.submitForm({
+            url: "/LogisticManage/Material/SubmitAddForm?keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+
+<form id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+           <tr>
+                <th class="formTitle">物料名称</th>
+                <td class="formValue">
+                    <select id="MaterialCode" name="MaterialCode" class="form-control required" aria-readonly="True">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">工位名称</th>
+                <td class="formValue">
+                    <select id="StationCode" name="StationCode" class="form-control required" aria-readonly="True">
+                    </select>
+                </td>
+            </tr>
+             <tr>
+                <th class="formTitle">安全库存</th>
+                <td class="formValue">
+                    <input id="SafeStock" name="SafeStock" type="text" class="form-control required"  placeholder="输入安全库存" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">实际库存</th>
+                <td class="formValue">
+                    <input id="MaterialStock" name="MaterialStock" type="text" class="form-control required"  placeholder="输入实际库存" />
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>

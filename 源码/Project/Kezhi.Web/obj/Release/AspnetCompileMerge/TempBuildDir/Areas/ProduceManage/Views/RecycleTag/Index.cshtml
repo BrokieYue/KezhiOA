@@ -1,0 +1,129 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+        document.getElementById("VINCode").focus();
+    })
+
+    $(window).resize(function () {
+        $("#gridList").setGridWidth($(window).width());
+    })
+
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/ProduceManage/RecycleTag/GetReleaseTagJson",
+            height: $(window).height() - 450,
+            colModel: [
+               { label: '编号', name: 'F_Id', align: 'left', key: true, hidden: true },
+               { label: 'VIN号', name: 'VINNo', width: 250, align: 'left' },
+               { label: '整车编号', name: 'VCode', width: 250, align: 'left' },
+               { label: '整车描述', name: 'VDesc', width: 250, align: 'left' },
+               { label: '操作员', name: 'F_CreatorUserName', width: 140, align: 'left' },
+               {
+                   label: '操作时间', name: 'F_CreatorTime', width: 180, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                       if (cellvalue != "") {
+                           return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                       }
+                   }
+
+               },
+            ],
+            pager: "#gridPager",
+            sortname: 'F_CreatorTime desc',
+            viewrecords: false,
+            multiselect: false,//复选框
+            rowNum: 10,
+            rowList: [10],
+            unwritten: false,  //设置无数据时提示文字不显示
+            caption: "吸附式载码体回收列表(最近10条)",
+        });
+    }
+
+    function btn_submitInfo() {
+        var VIN = $("#VINCode").val();
+        if (!VIN) {
+            clearInit();
+            return false;
+        }
+        if (VIN.length == 17) {
+            $.ajax({
+                url: "/ProduceManage/KeyParts/ExistsVINJson?keyword=" + VIN,
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    if (data.VINID.length > 0) {
+                        bord = true;
+                    }
+
+                }
+            });
+            if (bord) {
+                $.submitForm({
+                    url: "/ProduceManage/RecycleTag/SubmitForm",
+                    param: { VIN: VIN, },
+                    success: function () {
+                        $.currentWindow().$("#gridList").trigger("reloadGrid");
+                    }
+                })
+                clearInit();
+            } else {
+                document.getElementById("tipTxt").innerText = "VIN码不存在！";
+                clearInit();
+                return false;
+            }
+        } else {
+
+            document.getElementById("tipTxt").innerText = "输入有误，请重新输入";
+            clearInit();
+            return false;
+
+        }
+
+    }
+    function clearInit() {
+        $('#VINCode').val("").focus();
+ 
+    }
+</script>
+<div id="areascontent">
+    <div class="rows" style="margin-bottom: 1%; border: 1px solid #e6e6e6; overflow: hidden; padding-left: 1px;">
+        <div style="border: none; border-radius: 0px; margin-bottom: 0px; box-shadow: none; -webkit-box-shadow: none;">
+            <table style="border-collapse: separate; border-spacing: 0px 2px; width: 100%; height: 300px; padding-left: 10px;margin-top:5px;">
+                <tr>
+                    <td width="70%">
+                        <input id="VINCode" type="text" style="width:90%; height: 80px; font-size: 60px; float: left;background-color:yellow;">
+                    </td>
+                    <td width="30%">
+                        <span class="input-group-btn">
+                            <a id="btn_write" class="btn btn-primary " style="width: 55%; height: 75px; font-size: 45px; text-align: center" onclick="btn()">读取载码体</a>
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span id="tipTxt" style="font-size: 40px; float: left; color: red;"></span>
+                    </td>
+                    <td>
+                        <span class="input-group-btn">
+                            <a id="btn_read" class="btn btn-primary " style="width: 55%; height: 75px; font-size: 45px; text-align: center" onclick="btn_submitInfo()">回收载码体</a>
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td height="50px;" colspan="2">
+                        <span id="tipTxt" style="font-size: 40px; float: left; color: red;"></span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="gridPanel" style="font-size:16px;">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>

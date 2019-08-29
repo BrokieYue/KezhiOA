@@ -1,0 +1,283 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    
+    $(function () {
+        initControl();
+        clearInit();
+    });
+    
+   
+
+
+    //动态加载质检项目-wangqiang
+    function checkboxOnclick(AreaId, AreaName) {
+        var tableId = "table" + AreaId;
+        if ($("#"+AreaId+"").is(":checked") == true) {
+            $.ajax({
+                //根据区域id查询质检项目
+                url: "/QualitycheManage/QACheckItem/GetCheckItem",
+                data: { AreaId: AreaId },
+                dataType: "json",
+                async: false,
+                //修改样式--bichen
+                success: function (data) {
+                    if (data.length > 0) {
+                        var s = "";
+                        for (var i = 0; i < data.length; i++) {
+                            s = s + "<tr><td style=float:left;margin-left:18px;><input id = " + data[i].F_Id + " type=" + "checkbox " + " value=" + data[i].F_Id + ">" + data[i].ItemName + "</div></td></tr>";
+                        }
+                        var str = "<table id=" + tableId + " class=" + "table table-bordered" + " style= text-align:center;background-color:#DDDDDD;font-size:18px;width:200px;float:left;margin-left:5px;" + " ><tr  style= background-color:#888888;><td>" + AreaName + "</td>" + s + "</tr></table>";
+                        $("#CItem").append(str);
+                    }
+
+                }
+            })
+        } else {
+            $("#" + tableId + "").remove();//取消选中删除table元素
+          
+        }
+
+      
+    }
+   
+   
+    function initControl() {
+        //下拉框查询质检类型-wangqiang
+        $("#Category").bindSelect({
+            url: "/QualitycheManage/QACategory/GetType",
+            param: { anCode: 2 } //2为质检类型的type（整车质检）
+        });
+
+            //根据质检类型id查询区域-wangqiang
+        $("#Category").bind("change", function () {
+            $("#Area").empty();//每次触发事件后，先清空区域div内容
+            $("#CItem").empty();//每次触发事件后，先清空项目div内容
+                var CategoryId = $("#Category").val();
+                if (CategoryId == 0) {
+                    return false;
+                };
+                $.ajax({
+                    url: "/QualitycheManage/QAArea/GetAreaByCategoryID",
+                    data: { CategoryId: CategoryId },
+                    dataType: "json",
+                    async: false,
+                    success: function (data) {
+                        if (data.length > 0) {
+                            for (var i = 0; i < data.length; i++) {
+
+                                $("#Area").append("<div id =" + "lab" + data[i].F_Id + " class=" + "checkbox-inline" + " style= 'padding-left:20px;weight:150px; position: relative;margin-left:50px' > " +
+                                    "<input id=" + data[i].F_Id + "  type=" + "checkbox " + " onclick = checkboxOnclick('" + data[i].F_Id + "','" + data[i].AreaName + "')  value=" + data[i].F_Id + "style = zoom:80%; >" + data[i].AreaName + "</div>");
+
+                            }
+                        }
+                    }
+                })
+            });
+    }   
+
+    function clearInit() {
+        document.getElementById("VinCode").innerText = "";
+        document.getElementById("VCode").innerText = "";
+        document.getElementById("CarModel_Name").innerText = "";
+        document.getElementById("Outlook_Name").innerText = "";
+        document.getElementById("Inside_Name").innerText = "";
+        document.getElementById("VDesc").innerText = "";
+        document.getElementById("OrderNo").innerText = "";
+        document.getElementById("VINNo").value = "";
+        document.getElementById("VINNo").focus();
+     
+    }
+    //提交质检-wangqiang
+    function submit() {
+        
+        var VINNo = document.getElementById("VinCode").innerText;
+        if (document.getElementById("Category").value == 0) {
+            $.modalAlert("请选择质检类型！", "warning");
+            return false;
+        }
+        if (VINNo == "") {
+            $.modalAlert("请扫描批次号！", "warning");
+            return false;
+        }
+       
+        //var CheckIdArray = [];//选中的id数组
+        //var NoCheckIdArray = [];//未选中的id数组
+        var allArrayID = {};
+        var j = 0;
+        for (var i = 1; i < $("table input").length ; i++) { //所有table中所有input元素
+            
+            var inputId = $("table input")[i].value;
+            if ($("#" + inputId + "").is(":checked") == true) {
+                allArrayID["selectedIDs[" + j + "].ItemID"] = $("table input")[i].value + "Y"; //所有选中input的ID,Y表示选中标志位
+                allArrayID["selectedIDs[" + j + "].CategoryID"] = $("#Category").val(); //类型id
+                j++;
+            } else {
+                allArrayID["selectedIDs[" + j + "].ItemID"] = $("table input")[i].value; //所有选中input的ID,Y表示选中标志位
+                allArrayID["selectedIDs[" + j + "].CategoryID"] = $("#Category").val();
+                j++;
+            }
+           
+        }
+        $.submitForm({
+            url: "/QualitycheManage/VehicleQuality/Submitquality?VINNo=" + VINNo,
+            param: allArrayID,
+            success: function () {
+                document.location.reload();//重新加载当前页面 
+                clearInit();
+            }
+        })
+    
+    }
+    //enter事件-wangqiang
+    document.onkeydown = function (e) {
+        if (!e) e = window.event;
+        if ((e.keyCode || e.which) == 13) {
+            var vin = $("#VINNo").val();
+            document.getElementById("tipTxt").innerText = "";
+            if (vin == "") {
+                clearInit();
+                document.getElementById("tipTxt").innerText = "请扫描VIN码...";
+                return false;
+            }
+            if (vin.length != 17) {
+                document.getElementById("tipTxt").innerText = "VIN码不存在...";
+                clearInit();
+                return false;
+            }
+            $.ajax({
+                url: "/ProduceManage/AVIStationLabor/ExistsVINJson?keyword=" + vin,
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    if (data.rows.length > 0) {
+                        var state = data.rows[0].VINState;
+
+                        if (state == "2") {
+                            document.getElementById("tipTxt").innerText = vin + "已被报废...";
+                            clearInit();
+                            return false;
+                        }
+                        if (state == "3") {
+                            document.getElementById("tipTxt").innerText = vin + "切出中...";
+                            clearInit();
+                            return false;
+                        }
+                        if (state == "4") {
+                            document.getElementById("tipTxt").innerText = vin + "正在返修中...";
+                            clearInit();
+                            return false;
+                        }
+                        if (state == "1") {   //VIN已开始
+                            var fg;
+                            $.ajax({
+                                url: "/ProduceManage/AVIStationLabor/GetVINJsonByVinno?vinNO=" + vin,
+                                dataType: "json",
+                                async: false,
+                                success: function (data) {
+                                    if (data.rows.length > 0) {
+                                        for (var i = 0; i < data.rows.length; i++) {
+                                            document.getElementById("VinCode").innerHTML = vin;
+                                            document.getElementById("VCode").innerHTML = data.rows[i].VCode;
+                                            document.getElementById("CarModel_Name").innerHTML = data.rows[i].CarModel_Name;
+                                            document.getElementById("Drive_Name").innerHTML = data.rows[i].Drive_Name;
+                                            document.getElementById("Outlook_Name").innerHTML = data.rows[i].Outlook_Name;
+                                            document.getElementById("Inside_Name").innerHTML = data.rows[i].Inside_Name;
+                                            document.getElementById("VDesc").innerHTML = data.rows[i].VDesc;
+                                            document.getElementById("OrderNo").innerHTML = data.rows[i].OrderNo;
+                                        }
+                                        document.getElementById("VINNo").value = "";
+                                        document.getElementById("VINNo").focus();
+                                        //document.getElementById("tipTxt").innerText = "" + vin;
+
+                                    }
+                                }
+                            });
+
+                        }
+                        else {
+                            document.getElementById("tipTxt").innerText = vin + "不存在或已上线...";
+                            clearInit();
+                            return false;
+                        }
+                    }
+                    else {
+                        document.getElementById("tipTxt").innerText = vin + "码系统不存在...";
+                        clearInit();
+                        return false;
+                    }
+                }
+            });
+        }
+    }
+
+</script>
+    <div style="width:100%" class="container">
+        <div style="width:200px;padding-bottom:1px;">
+            <select class="selectpicker" id="Category" style="width:500px;height:35px;font-size:20px;">
+                <option value="0">==请选择质检类型==</option>
+            </select>
+        </div>
+        <div style="padding-top:2px;">
+            @*<input id="batchNo" type="text" placeholder="VIN码扫描或输入" style="width:90%; height: 80px; font-size: 60px; float: left;background-color:yellow;">*@
+            <table style="width: 95%;  padding-left: 10px;margin-top:5px;">
+                <tr>
+                    <td>
+                        <input id="VINNo" type="text" placeholder="扫描VIN码" style="width:100%; height: 50px; font-size: 30px; float: left;background-color:yellow;">
+                    </td>
+                </tr>
+                <tr>
+                    <td height="10px;">
+                        <span id="tipTxt" style="font-size: 25px; float: left; color: red;"></span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style="width:95%;margin-top:1px;">
+            <table class="table table-bordered" style="font-size:18px;table-layout: fixed;">
+                <tr style="width:auto">
+                    <td colspan="1">VIN码号:</td>
+                    <td colspan="3" id="VinCode"></td>
+                    <td colspan="1" >整车编码:</td>
+                    <td colspan="3" id="VCode"></td>
+                </tr>
+                <tr>
+                    <td colspan="1">工单号:</td>
+                    <td colspan="3" id="OrderNo"></td>
+                    <td colspan="1">整车描述:</td>
+                    <td colspan="3" id="VDesc"></td>
+                </tr>
+                <tr>
+                    <td >车型:</td>
+                    <td id="CarModel_Name"></td>
+                    <td >驱动形式:</td>
+                    <td id="Drive_Name"></td>
+                    <td >内饰颜色:</td>
+                    <td id="Inside_Name"></td>
+                    <td > 外饰颜色：</td>
+                    <td id="Outlook_Name" ></td>
+                </tr>
+                @*<tr>
+                    <td>配置：</td>
+                    <td id="Config_Name"></td>
+                    <td>整车描述：</td>
+                    <td id="VDesc"></td>
+                    <td>工单号：</td>
+                    <td id="OrderNo"></td>
+                    <td>当前站点：</td>
+                    <td id="CurrStation"></td>
+                </tr>*@
+            </table>
+        </div>
+        <div style="border:1px solid #ddd; width:95%;margin-top:2px;" >
+                <!--动态加载区域-->
+                <div id="Area" style="font-size:18px;width:100%;height:100px"></div>
+                <!--动态加载项目-->
+                <div id="CItem" style="font-size:15px;width:100%;height:340px;overflow:auto;overflow-x:hidden;"></div>
+                <div >
+                    <a id="btn_send" class="btn btn-primary " style="width: 40px; height: 20px; font-size: 20px; text-align: center;float:right " onclick="submit()">确认</a>
+                </div>
+        </div>
+</div>

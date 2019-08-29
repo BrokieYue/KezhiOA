@@ -1,0 +1,162 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script>
+    $(function () {
+        gridList();
+    });
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/QualitycheManage/ReworkBatch/GetLaborJson",
+            height: $(window).height() - 120,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "批次号", name: "BatchNo", width: 150, align: 'left' },
+                {
+                    label: '状态', name: 'BatchStateStr', width: 90, align: 'left', formatter: function (cellvalue, options, rowObject) {
+
+                        if (rowObject.BatchState == 1) {
+                            return '<span>未入库</span>';
+                        }
+                        if (rowObject.BatchState == 2) {
+                            return '<span>已入库</span>';
+                        }
+                        if (rowObject.BatchState == 3) {
+                            return '<span>返工库</span>';
+                        }
+                        if (rowObject.BatchState == 4) {
+                            return '<span>AUDIT</span>';
+                        }
+                        if (rowObject.BatchState == 5) {
+                            return '<span>报废</span>';
+                        }
+                    }
+                },
+                {
+                    label: '质检状态', name: 'BatchQAFlagStr', width: 70, align: 'left', formatter: function (cellvalue, options, rowObject) {
+
+                        if (rowObject.BatchQAFlag == 1) {
+                            return '<span>未质检</span>';
+                        }
+                        if (rowObject.BatchQAFlag == 2) {
+                            return '<span>已质检</span>';
+                        }
+                    }
+                },
+                  {
+                      label: '批次号来源', name: 'BatchSource', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                          if ($.trim(rowObject.BatchSource) == 1) {
+                              return '<span >生产报工</span>';
+                          }
+                          if ($.trim(rowObject.BatchSource) == 2) {
+                              return '<span >质检拆单</span>';
+                          }
+                          if ($.trim(rowObject.BatchSource) == 3) {
+                              return '<span >挑件拆单</span>';
+                          }
+                          if ($.trim(rowObject.BatchSource) == 4) {
+                              return '<span >合单</span>';
+                          }
+                      }
+                  },
+                { label: '物料编号', name: 'Vcode', width: 150, align: 'left' },
+                { label: '特性值', name: 'LOT_Code', width: 90, align: 'left' },
+                { label: '计划号', name: 'JobNo', width: 130, align: 'left' },
+                { label: '计划类型', name: 'Type_Name', width: 100, align: 'left' },
+                { label: '批次总数量', name: 'ProdPassQty', width: 50, align: 'left' },
+                { label: '当前数量', name: 'CurrentQty', width: 50, align: 'left' },
+
+                { label: '操作员', name: 'F_CreatorUserName', width: 80, align: 'left' },
+                {
+                    label: '操作时间', name: 'F_CreatorTime', width: 130, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "" && cellvalue != null && cellvalue != undefined)
+                            return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                        else
+                            return '<span ></span>';
+                    }
+                },
+            ],
+            pager: "#gridPager",//定义翻页用的导航栏，必须是有效的html元素。翻页工具栏可以放置在html页面任意位置
+            sortname: 'BatchNo asc',//排序的列
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 20,//在grid上显示记录条数，这个参数是要被传递到后台
+            rowList: [20, 50, 100],//  一个下拉选择框，用来改变显示记录数，当选择时会覆盖rowNum参数传递到后台
+            viewrecords: true,//是否要显示总记录数
+            postData: { bState: "3", BatchQAFlag: "1" },//查询的批次状态号要为返工
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyword: $("#keywords").val(), typeCode: $("#Type_Code").val(),bSource: $("#BatchSource").val(), starttime: $("#DeliveryTime_start").val(), endtime: $("#DeliveryTime_end").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+    }
+    //清空文本框--bichen
+    function clean() {
+        $("#keywords").val("");
+        $("#Type_Code").val("");
+        $("#BatchSource").val("");
+        $("#DeliveryTime_start").val("");
+        $("#DeliveryTime_end").val("");
+    }
+
+    $(window).resize(function () {
+        $("#gridList").setGridWidth($(window).width());
+    })
+
+
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="keywords" type="text" class="form-control" placeholder="批次号" style="width: 200px; margin-right:10px">
+                        <select id="Type_Code" name="Type_Code" class="form-control" style="width: 120px; margin-right: 5px">
+                            <option value="">==计划类型==</option>
+                            <option value="CA">冲压A计划</option>
+                            <option value="CB">冲压B计划</option>
+                            <option value="CL">落料计划</option>
+                            <option value="CT">凸焊计划</option>
+                        </select>
+                        <select id="BatchSource" name="BatchSource" class="form-control" style="width:120px; margin-right:5px">
+                            <option value="">==批次号来源==</option>
+                            <option value="1">生产报工</option>
+                            <option value="2">质检拆单</option>
+                            <option value="3">挑件拆单</option>
+                            <option value="4">合单</option>
+                        </select>
+                        <input id="DeliveryTime_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'DeliveryTime_end\')}' })" placeholder="返工时间（开始）" style="width: 120px; margin-right: 10px">
+                        <input id="DeliveryTime_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'DeliveryTime_start\')}' })" placeholder="返工时间（结束）" style="width: 120px;">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+
+                    </div>
+                </td>
+                @* 清空文本框--bichen*@
+                <td>
+                    <div class="input-group">
+                        <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class=" fa fa-link"></i></button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+
+    <div id="gridPager"></div>
+</div>
+

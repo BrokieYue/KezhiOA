@@ -1,0 +1,215 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+
+}
+<script>
+
+    var keyValue = $.request("keyValue");
+    var Plantde = "";
+    var OpNo = "";
+    var planState = 0;
+    $(function () {
+        $.ajax({
+            url: "/BaseManage/ProcesSmanagement/GetFormJson",
+            data: { keyValue: keyValue },
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                Plantde = data.Plant
+                OpNo = data.OpNo
+
+            }
+        });
+        $("#Plant").val(Plantde);
+        gridList();
+
+    });
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/BaseManage/AVIStation/GetPlanJsonOpstation",
+            height: $(window).height() - 128,
+            postData: { Plant: $("#Plant").val(), StationName: $("#StationName").val(), StationType: $("#StationType").val() },
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                       {
+                           label: '车间', name: 'Plant', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                               if ($.trim(rowObject.Plant) == $.trim("StampingShop")) {
+                                   return '<span >冲压车间</span>';
+                               }
+                               if ($.trim(rowObject.Plant) == $.trim("AssemblyShop")) {
+                                   return '<span >总装车间</span>';
+                               }
+                               if ($.trim(rowObject.Plant) == $.trim("PaintShop")) {
+                                   return '<span >涂装车间</span>';
+                               }
+                               if ($.trim(rowObject.Plant) == $.trim("WeldingShop")) {
+                                   return '<span >焊装车间</span>';
+                               }
+                               if ($.trim(rowObject.Plant) == $.trim("InspectionShop")) {
+                                   return '<span >交检车间</span>';
+                               }
+                           }
+                       },
+                { label: "站点编号", name: "StationCode", width: 90, align: 'left' },
+                { label: "站点名称", name: "StationName", width: 90, align: 'left' },
+
+                {
+                    label: '站点类型', name: 'StationType', width: 90, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (rowObject.StationType == 1) {
+                            return '<span >RFID站点</span>';
+                        }
+                        if (rowObject.StationType == 2) {
+                            return '<span >人工站点</span>';
+                        }
+                        if (rowObject.StationType == 3) {
+                            return '<span >机器人站点</span>';
+                        }
+                        if (rowObject.StationType == 4) {
+                            return '<span >质检点</span>';
+                        }
+                        if (rowObject.StationType == 5) {
+                            return '<span >换撬点</span>';
+                        }
+                        if (rowObject.StationType == 6) {
+                            return '<span >离线换撬点</span>';
+                        }
+                        else {
+                            return '<span >切入切出点</span>';
+                        }
+                    }
+                },
+                { label: "站点IP", name: "StationIP", width: 90, align: 'left' },
+                { label: "站点设备", name: "StationDevice", width: 90, align: 'left' },
+
+            ],
+            pager: "#gridPager",
+            sortname: 'Plant asc',
+            viewrecords: true,
+            multiselect: true,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+           
+            $gridList.jqGrid('setGridParam', {
+                postData: { Plant: $("#Plant").val(), StationName: $("#StationName").val(), StationType: $("#StationType").val() }, page: 1
+
+            }).trigger('reloadGrid');
+        });
+    }
+
+    function submitForm() {
+        var _list = {};
+
+        var sterow = $("#gridList").jqGridRowValue();
+        for (var i = 0; i < sterow.length; i++) {
+            _list[i] = sterow[i].F_Id + "|" + sterow[i].StationCode;
+        }
+        $.submitForm({
+            url: "/BaseManage/ProcesSmanagement/SubmitFormOpStation",
+            param: { F_Id: _list, keyValue: keyValue, Plant: Plantde, OpNo: OpNo },
+            success: function () {
+                $.currentWindow().$("#gridList2").trigger("reloadGrid");
+            }
+        })
+    }
+
+    //function initControl() {
+    //    $("#Plant").bindSelect({
+    //        url: "/PlanManage/PlanInfoStamping/GetItemList",
+    //        param: { anCode: "PLANT" }
+    //    });
+    //}
+
+
+
+
+</script>
+@*<form id="form1">
+        <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+
+            <div style="padding-top: 20px; margin-right: 30px;">
+                <table class="form">
+
+                    <tr>
+                        <th class="formTitle">车间：</th>
+                        <td class="formValue">
+                            <select id="Plant" name="Plant" class="form-control required"> <option value="" selected>==请选择== </option></select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="formTitle"> 工序编号：</th>
+                        <td class="formValue">
+                            <input id="OpNo" name="OpNo" type="text" class="form-control required" placeholder="工序编号" />
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th class="formTitle"> 选择站点：</th>
+                        <td class="formValue">
+                            <table id="gridList"></table>
+                            <div id="gridPager"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="formTitle"> 顺序：</th>
+                        <td class="formValue">
+                            <input id="SeqNo" name="SeqNo" type="text" class="form-control required" placeholder="顺序" />
+
+                        </td>
+                    </tr>
+
+
+    </table>
+
+            </div>
+        </div>
+    </form>*@
+<div class="topPanel">
+
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="StationName" type="text" class="form-control" placeholder="站点名称" style="width: 100px; margin-right:5px">
+                        <select id="Plant" name="Plant" class="form-control required" style="width:120px; margin-right:5px">
+                                <option value="">==请选择车间==</option>
+                                <option value="StampingShop">冲压车间</option>
+                                <option value="WeldingShop">焊装车间</option>
+                                <option value="PaintShop">涂装车间</option>
+                                <option value="AssemblyShop">总装车间</option>
+                                <option value="InspectionShop">交检车间</option>
+
+                        </select>
+                        <select id="StationType" name="StationType" class="form-control required" style="width: 120px; margin-right: 5px">
+                            <option value="">==站点类型==</option>
+                            <option value="1">RFID站点</option>
+                            <option value="2">人工站点</option>
+                            <option value="3">机器人站点</option>
+                            <option value="4">质检点</option>
+                            <option value="5">换撬点</option>
+                            <option value="6">离线换撬点</option>
+                            <option value="7">切入切出点</option>
+
+                        </select>
+
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>

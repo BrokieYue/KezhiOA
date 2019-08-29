@@ -1,0 +1,101 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    var keyValue = $.request("keyValue");
+    $(function () {
+        initControl();
+        if (!!keyValue) {
+            $.ajax({
+                url: "/LogisticManage/Stocks/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                }
+            });
+        }
+    });
+    function initControl() {
+        $("#MaterialCode").bindSelect();
+        $("#EditType").bindSelect();
+        $("#AddType").bindSelect();
+        $("#Station").bindSelect({
+            url: "/LogisticManage/Stocks/GetStationJson",
+            id: "ID",
+            text: "StationName"
+        });
+    }
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        $.submitForm({
+            url: "/LogisticManage/Stocks/SubmitForm?keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").resetSelection();
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+
+<form id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">工位</th>
+                <td class="formValue">
+                    <select id="Station" name="Station" class="form-control required" aria-readonly="True">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">零件编号</th>
+                <td class="formValue">
+                    <select id="MaterialCode" name="MaterialCode" class="form-control required" aria-readonly="True">
+                        <option value="0">零件编号</option>
+                        <option value="1" selected>5302100-BN01</option>
+                        <option value="2">5402100-AZ05</option>
+                        <option value="3">5502100-BB02</option>
+                        <option value="4">5302100-BN01</option>
+                        <option value="5">5402100-AZ05</option>
+                        <option value="6">5502100-BB02</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">调整类型</th>
+                <td class="formValue">
+                    <select id="EditType" name="EditType" class="form-control required">
+                        <option value="0">入库</option>
+                        <option value="1">工费</option>
+                        <option value="2">料费</option>
+                        <option value="3">库存转移</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">调整数量</th>
+                <td class="formValue" style="width:40px">
+                    <select id="AddType" name="AddType" class="form-control required" style="width: 80px">
+                        <option value="0">增加</option>
+                        <option value="1">扣减</option>
+                    </select>
+                </td>
+                <td>
+                    <input id="EditCount" name="EditCount" type="text" class="form-control required" style="width: 100px" placeholder="输入调整数量" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle" valign="top" style="padding-top: 5px;">调整说明</th>
+                <td class="formValue">
+                    <textarea id="F_Description" name="F_Description" class="form-control" style="height: 60px;"></textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>

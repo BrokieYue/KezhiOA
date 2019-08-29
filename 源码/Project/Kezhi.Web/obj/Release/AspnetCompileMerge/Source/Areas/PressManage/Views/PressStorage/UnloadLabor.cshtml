@@ -1,0 +1,255 @@
+﻿@{
+    ViewBag.Title = "生产入库";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        initControl();
+       
+        gridList();
+        $('#keywords').val("").focus();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/PressManage/PressStorage/GetLaborListJson",
+            height: 400,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "批次号", name: "BatchNo", width: 130, align: 'left' },
+                { label: '物料编号', name: 'Vcode', width: 120, align: 'left' },
+                { label: '物料名称', name: 'ItemName', width: 150, align: 'left' },
+                { label: '特性值', name: 'LOT_Code', width: 100, align: 'left' },
+                { label: '批次数量', name: 'ProdPassQty', width: 80, align: 'left' },
+                { label: '计划类型', name: 'Type_Name', width: 100, align: 'left' },
+                { label: "生产人员", name: "F_CreatorUserName", width: 90, align: 'left' },
+                {
+                    label: '完工时间', name: 'F_CreatorTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "" && cellvalue != null && cellvalue != undefined)
+                            return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                    }
+                }
+            ],
+            pager: "#gridPager",
+            sortname: 'BatchNo asc',
+            viewrecords: true,
+            rowNum: 20,
+            postData: { keyword:"^&*(&&" },
+            rowList: [10, 20, 50],
+            multiselect: true ,//复选框
+            unwritten: false,  //设置无数据时提示文字不显示
+    
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyword: $("#keywords").val(), typeCode: $("#Type_Code").val(), starttime: $("#DeliveryTime_start").val(), endtime: $("#DeliveryTime_end").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+    }
+
+    function initControl() {
+        //仓库
+        $("#StorageID").bindSelect({
+            url: "/PressManage/PressStorage/GetStorageList?pID=9f8c65c8-67fd-4d76-a7ba-33b079547893",
+            id: "F_Id",
+            text: "F_ItemName"
+        })
+    }
+
+    function btn_ImportWareHouse() {
+        var arryid = [];
+        var selrow = $("#gridList").jqGridRowValue();
+        for (var i = 0; i < selrow.length; i++) {
+            arryid.push(selrow[i].F_Id);
+        }
+        if (arryid.length == 0) {
+            $.modalAlert("请选择一条有效数据！")
+            return false;
+        }
+        var wareHouse = $("#StorageID").val();
+
+        if (wareHouse == "")
+        {
+            $.modalAlert("请选择入库仓库！")
+            return false;
+        }
+
+        $.submitForm({
+            url: "/PressManage/PressStorage/ImportWareHouse",
+            param: { keyValue: arryid.join(","), house: wareHouse, remark: $("#F_Description").val() },
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+                document.getElementById("F_Description").value = "";
+            }
+        })
+    }
+    function ImportWare(selrow) {
+        var arryid = [];
+         
+        arryid[0] = selrow;
+        if (arryid.length == 0) {
+            $.modalAlert("请选择一条有效数据！")
+            return false;
+        }
+        var wareHouse = $("#StorageID").val();
+
+        if (wareHouse == "") {
+            $.modalAlert("请选择入库仓库！")
+            return false;
+        }
+
+        //$.submitForm({
+        //    url: "/PressManage/PressStorage/ImportWareHouse",
+        //    param: { keyValue: arryid.join(","), house: wareHouse, remark: $("#F_Description").val() },
+        //    success: function () {
+        //        $.currentWindow().$("#gridList").trigger("reloadGrid");
+                
+        //    }
+        //})
+        $.ajax({
+            url: "/PressManage/PressStorage/ImportWareHouse",
+            data: { keyValue: arryid.join(","), house: wareHouse, remark: $("#F_Description").val() },
+            //type: "post",
+            async: false,
+            dataType: "json",
+            success: function (data) {
+                $.modalMsg("入库成功！", "success");
+                $('#keywords').val("").focus();
+                $("#gridList").jqGrid("clearGridData");
+            }
+        })
+    }
+    document.onkeydown = function (e) {
+
+        if (!e) e = window.event;
+        if ((e.keyCode || e.which) == 13) {
+            var key = $("#keywords").val()
+            if (!!key) {
+                //$("#gridList").jqGrid('setGridParam', {
+                //    url: "/PressManage/PressStorage/GetLaborListJson",
+                //    postData: { keyword: key }, page: 1
+                //}).trigger('reloadGrid');
+                //$("#gridList").jqGrid("clearGridData");
+                ////判断表是否有值
+                //var allCountID = $("#gridList").jqGrid('getDataIDs');
+                //if (allCountID.length > 0) {
+                //    ImportWare(allCountID);
+                //    //for (var i = 0; i < allCountID.length; i++) {
+                //    //    $("#gridList").jqGrid('setSelection', allCountID[i], false);
+                //    //}
+                     
+                //} else {
+                   
+                //    $('#keywords').val("").focus();
+                   
+                //}
+                $.ajax({
+                    url: "/PressManage/PressStorage/GetUloakeyword",
+                    data: { BatchNO: key },
+                    dataType: "json",
+                    async: false,
+                    success: function (data) {
+                        if (data.length > 0) {
+                            $("#gridList").jqGrid("clearGridData");
+                            var dataRow = { "BatchNo": data[0].BatchNo, "Vcode": data[0].Vcode, "ItemName": data[0].ItemName, "LOT_Code": data[0].LOT_Code, "ProdPassQty": data[0].ProdPassQty, "Type_Name": data[0].Type_Name, "F_CreatorUserName": data[0].F_CreatorUserName, "F_CreatorTime": data[0].F_CreatorTime };
+                            $('#gridList').jqGrid("addRowData", 1, dataRow);
+                            ImportWare(data[0].F_Id);
+                        } else {
+                            $('#keywords').val("").focus();
+                            $("#gridList").jqGrid("clearGridData");
+                            $.modalMsg("错误数据！", "error");
+                        }
+                        //判断表是否有值
+                        //var allCountID = $("#gridList").jqGrid('getDataIDs');
+                        //if (allCountID.length > 0) {
+                        //    OutWare(allCountID);
+                        //} else {
+                        //    $('#keywords').val("").focus();
+                        //    alert("2")
+                        //}
+
+                    }
+
+                });
+                 
+            }
+             
+        }
+    }
+
+
+</script>
+
+<div class="topPanel">
+    <div class="toolbar">
+
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="keywords" type="text" class="form-control" placeholder="请扫描或输入批次号/物料编号" style="width: 400px; margin-right: 10px; background-color: yellow; ">
+                      
+                        <select id="Type_Code" name="Type_Code" class="form-control" style="width:120px; margin-right:5px">
+                            <option value="">==计划类型==</option>
+                            <option value="2ce6ba01-b35d-4be3-a526-23162cfe8e5f">冲压A线生产</option>
+                            <option value="5806ef54-ea89-4aa5-bc28-ef30368e7842">冲压B线生产</option>
+                            <option value="ac156945-8543-4038-8416-9e5cdda5aaa2">落料线</option>
+                            <option value="2c62469d-deb8-4117-8956-439a697be6ed">凸焊线</option>
+                        </select>
+                        <input id="DeliveryTime_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'DeliveryTime_end\')}' })" placeholder="完工时间（开始）" style="width: 120px; margin-right: 10px">
+                        <input id="DeliveryTime_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'DeliveryTime_start\')}' })" placeholder="完工时间（结束）" style="width: 120px;">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <div style="width:80%;float:left">
+        <table id="gridList"></table>
+        <div id="gridPager"></div>
+    </div>
+    <div style="width:20%;float:left">
+        <table style="margin-left: 10px; border-collapse: separate; border-spacing: 0px 10px;" >
+            <tr>
+                <td>
+                    <select id="StorageID" name="StorageID" class="form-control required" style="width:200px; margin-right:5px"> <option value="">==入库库房==</option> </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="formValue">
+                    入库说明：<textarea id="F_Description" name="F_Description" class="form-control" style="height: 300px;width:200px;"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:center;">
+                    <a class="btn btn-primary " style="width: 150px; height: 40px; font-size: 24px;text-align:center" onclick="btn_ImportWareHouse()">生产入库</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+ </div>
+
+@*<div>
+    <table>
+        <tr>
+            <td width="20%">
+                入库仓库：<select id="StorageID" name="StorageID" class="form-control" style="width:100px; margin-right:5px"> <option value="">==选择库房==</option> </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="formValue">
+                入库说明：<textarea id="F_Description" name="F_Description" class="form-control" style="height: 300px;width:100px;"></textarea>
+            </td>
+        </tr>
+    </table>
+</div>*@
+
+
+
+

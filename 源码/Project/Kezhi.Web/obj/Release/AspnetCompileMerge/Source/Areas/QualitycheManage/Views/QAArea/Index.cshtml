@@ -1,0 +1,197 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script>
+    $(function () {
+        initControlto();
+        gridList();
+   
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "质检类型名称", name: "CategoryName", width: 100, align: 'left' },
+                      {
+                          label: '类型', name: 'CategoryType', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                              if ($.trim(rowObject.CategoryType) == $.trim("1")) {
+                                  return '<span >过程检验</span>';
+                              }
+                              if ($.trim(rowObject.CategoryType) == $.trim("2")) {
+                                  return '<span >整车检验</span>';
+                              }
+                              if ($.trim(rowObject.CategoryType) == $.trim("3")) {
+                                  return '<span >冲压检验</span>';
+                              }
+                              if ($.trim(rowObject.CategoryType) == $.trim("4")) {
+                                  return '<span >AUDIT检验</span>';
+                              }
+
+                          }
+                      },
+                { label: "区域编号", name: "AreaCode", width: 100, align: 'left' },
+                { label: "区域名称", name: "AreaName", width: 100, align: 'left' },
+                { label: "顺序", name: "SeqNo", width: 100, align: 'left' },
+                { label: "备注", name: "F_Description", width: 100, align: 'left' },
+                 { label: "创建人", name: "F_CreatorUserName", width: 100, align: 'left' },
+
+               {
+                   label: '创建时间', name: 'F_CreatorTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                       if (cellvalue != "") {
+                           return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                       }
+                   }
+
+               },
+                { label: "修改人", name: "F_LastModifyUserName", width: 100, align: 'left' },
+                {
+                    label: '修改时间', name: 'F_LastModifyTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "") {
+                            return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                        }
+                    }
+
+                },
+               
+            ],
+            pager: "#gridPager",
+            sortname: 'SeqNo asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                url: "/QualitycheManage/QAArea/GetPlanJson",
+                postData: { AreaCode: $("#AreaCode").val(), AreaName: $("#AreaName").val(), CategoryName: $("#CategoryName").val(), CategoryType: $("#CategoryType").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+    }
+
+    function btn_add() {
+        $.modalOpen({
+            id: "Form",
+            title: "新建",
+            url: "/QualitycheManage/QAArea/Form?planState=1",
+            width: "400px",
+            height: "390px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_edit() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        //修改 进行修改操作确定后没有选中行却一样可以操作--bichen
+        if (keyValue == null) {
+            $.modalAlert("请选中一行", "warning")
+        } else {
+            $.modalOpen({
+                id: "Form",
+                title: "修改",
+                url: "/QualitycheManage/QAArea/Form?keyValue=" + keyValue + "",
+                width: "400px",
+                height: "390px",
+                callBack: function (iframeId) {
+                    top.frames[iframeId].submitForm();
+                }
+            });
+        }
+    }
+
+ 
+    function btn_delete() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        //修改 进行修改操作确定后没有选中行却一样可以操作--bichen
+        if (keyValue == null) {
+            $.modalAlert("请选中一行", "warning")
+        } else {
+            $.deleteForm({
+                url: "/QualitycheManage/QAArea/DeleteForm",
+                param: { keyValue:keyValue},
+                success: function () {
+                    $("#gridList").resetSelection();
+                    $("#gridList").trigger("reloadGrid");
+                }
+            })
+        }
+    }
+    function initControlto() {
+        $("#CategoryName").bindSelect({
+            url: "/QualitycheManage/QAArea/GetType",
+            param: { anCode: 0 }
+        });
+    }
+    //清空文本框--bichen
+    function clean() {
+        $("#AreaCode").val("");
+        $("#AreaName").val("");
+        $("#CategoryType").val("-1");
+        $("#CategoryName").val("");
+    }
+</script>
+<div class="topPanel">
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="AreaName" type="text" class="form-control" placeholder="区域名称" style="width: 100px; margin-right:10px">
+                        <input id="AreaCode" type="text" class="form-control" placeholder="区域编号" style="width: 100px; margin-right:10px">
+                        <select id="CategoryType" name="CategoryType" class="form-control " style="width: 130px; margin-right:10px">
+                            <option value="-1">==请选择类型==</option>
+                            <option value="1">过程检验</option>
+                            <option value="2">整车检验</option>
+                            <option value="3">冲压检验</option>
+                            <option value="4">AUDIT检验</option>
+                        </select>
+                        <select id="CategoryName" name="CategoryName" class="form-control" style="width: 150px;">
+                            <option value="">==请选择质检类型==</option>
+                        </select>
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div> 
+                </td>
+                @* 清空文本框--bichen*@
+                <td>
+                    <div class="input-group">
+                        <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class=" fa fa-link"></i></button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+        <div class="toolbar">
+            <div class="btn-group">
+                <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+            </div>
+            <div class="btn-group">
+                <a id="NF-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建</a>
+            </div>
+            <div class="operate">
+                <ul class="nav nav-pills">
+                    <li class="first">已选中<span>1</span>项</li>
+                    <li><a id="NF-edit" authorize="yes" onclick="btn_edit()"><i class="fa fa-pencil-square-o"></i>修改</a></li>
+                    <li><a id="NF-delete" authorize="yes" onclick="btn_delete()"><i class="fa fa-trash-o"></i>删除</a></li>
+                </ul>
+                <a href="javascript:;" class="close"></a>
+            </div>
+            <script>$('.toolbar').authorizeButton()</script>
+        </div>
+
+    </div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+

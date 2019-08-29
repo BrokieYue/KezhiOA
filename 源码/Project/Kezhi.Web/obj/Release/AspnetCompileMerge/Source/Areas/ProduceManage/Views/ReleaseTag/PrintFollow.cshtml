@@ -1,0 +1,135 @@
+﻿@{
+    ViewBag.Title = "PrintFollow";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script src="~/Content/js/jqprint/jquery.jqprint-0.3.js"></script>
+<script src="~/Content/js/qrcode/jquery.qrcode.js"></script>
+<script src="~/Content/js/qrcode/qrcode.js"></script>
+<link media="print" href="~/Content/js/jqprint/jquery.jqprint.css" rel="stylesheet" />
+
+@model Kezhi.Domain.Entity.PlanManage.OrderVINEntity
+
+<script>
+
+    var LineName;
+    var VINNo =@Html.Raw(Json.Encode(@Model.VINNo))
+
+    $(function () {
+        top.$(".content-iframe").css("background-color", "#f9f9f9");
+        $(document).ready(function () {
+            $('#code').qrcode({
+                render: "table",
+                text: VINNo,
+                width: "200",
+                height: "200"
+            });
+
+        })
+
+
+
+    });
+    //打印按钮-yangxin
+    function btn_print() {
+        $("#print").jqprint();
+    }
+
+
+
+</script>
+
+<div style="position: absolute; top: 20px; right: 8px;">
+    <a class="btn btn-default " onclick="btn_print()"><i class="fa fa-print" style="margin-right: 5px; font-size: 20px;"></i>打印</a>
+</div>
+<div class="price-box"  >
+    <form id="form1">
+        <div id="print">
+            @*<div class="price-title">
+                   大成汽车·冲压车间
+                </div>
+                <div class="price-subtitle">
+
+                </div>*@
+             
+            <div class="price-info" style="border: 1px solid #000;  ">
+                @*<div class="price-title" id="LineName">
+                    
+                </div>*@
+                <table class="form"  >
+                    <tr>
+                        <td class="formTitle" style=" font-size: 20px; ">VIN码：</td>
+                        <td class="formValue" style="padding-right: 20px;   font-size: 25px; " height="50px">
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@Model.VINNo
+                        </td>
+                        <th class="formTitle"> </th>
+                        <td style="padding-left: 70px " rowspan="3" colspan="1" height="220px">
+                            <span id="code" style="width: 200px; height:200px">
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th class="formTitle" style=" font-size: 20px">工单号：</th>
+                        <td class="formValue" style="padding-right: 20px; font-size: 25px; " height="50px">
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@Model.OrderNo
+                        </td>
+                        <th class="formTitle"></th>
+
+                    </tr>
+                    <tr>
+                        <th class="formTitle" style=" font-size: 20px">整车编码：</th>
+                        <td class="formValue" style="padding-right: 20px; font-size: 25px; " height="50px">
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@Model.VCode
+                        </td>
+                        <th class="formTitle"></th>
+
+                    </tr>
+                    @*<tr>
+                        <th class="formTitle">报工数量：</th>
+                        <td class="formValue" style="padding-right: 20px;" height="50px">
+                            <input value="@Model.ProdPassQty" type="text" class="form-control " />
+                        </td>
+                        <th class="formTitle">日&nbsp;&nbsp;&nbsp;&nbsp;期：</th>
+                        <td class="formValue" height="50px">
+                            <input type="text" class="form-control " value="@Kezhi.Code.Ext.ToMillisecondString(DateTime.Now)" />
+                        </td>
+                    </tr>*@
+                    <tr>
+
+                        <td  colspan="4" height="80px ;" style="padding-top: 50px; font-size: 60px;   ">
+                            <div style="border-top: 1px solid #000; width: 100%; ">
+                                @Model.VDesc
+
+                            </div>
+                         
+
+                        </td>
+ 
+                    </tr>
+                    <tr>
+                        <td colspan="4">
+                            <div style="border-top: 1px solid #000; width: 100%; ">
+                                <table class="form">
+                                    <tr>
+                                        
+                                        <td class="formValue" style=" font-size: 19px; " height="50px">
+                                             上线时间：@Kezhi.Code.Ext.ToChineseDateTimeString(@Model.StartTime)
+                                        </td>
+                                         
+                                        <td class="formValue" style=" text-align: right; font-size: 19px; " height="50px">
+                                            打印时间：@Kezhi.Code.Ext.ToChineseDateTimeString(DateTime.Now)
+                                        </td>
+                                    </tr>
+                                </table>
+
+                               </div>
+                        </td>
+
+                    </tr>
+                </table>
+   
+            </div>
+            <div style="height:500px"></div>
+        </div>
+    </form>
+</div>

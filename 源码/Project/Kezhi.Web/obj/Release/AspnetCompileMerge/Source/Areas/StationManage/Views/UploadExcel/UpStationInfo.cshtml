@@ -1,0 +1,119 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+    })
+
+    function gridList(filepath) {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            //url: "/ProductionManage/OrderManage/GetUploadGridJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: '区域编码', name: '区域', width: 120, align: 'left' },
+                { label: '区域名称', name: '区域名称', width: 120, align: 'left' },
+                { label: '工位代码', name: '工位代码', width: 120, align: 'left' },
+                { label: '工位名称', name: '工位名称', width: 120, align: 'left' },
+                { label: "工位描述", name: "工位描述", width: 160, align: 'left' },
+                { label: '工位类型', name: '工位类型', width: 90, align: 'left' },
+                { label: '工位序号', name: '工位序号', width: 80, align: 'left' },
+                { label: "上件看板", name: "上件看板", width: 80, align: 'left' },
+                { label: "机器人数量", name: "机器人数量", width: 100, align: 'left' },
+                { label: "PLC编码", name: "PLC编码", width: 100, align: 'left' },
+                { label: "备注", name: "备注", width: 100, align: 'left' }
+            ]
+        });
+    }
+
+    function uploadFile() {
+        upload(function (data) {
+
+            console.log(data);
+            showList(data.fileName);
+            $("#hidFileName").val(data.fileName);
+        });
+    }
+
+    function upload(afterUploadFunc) {
+        var xlsFile = $("#fileInput")[0];
+
+        var result = {};
+        var formData = new FormData();
+        if (xlsFile.files.length > 0) {
+            $("#lblFileName").html(xlsFile.files[0].name);
+            formData.append('file', xlsFile.files[0]);
+        } else {
+            return;
+        }
+
+        $.ajax({
+            url: '../../Attachment/Attachment.aspx?action=upload',
+            type: 'POST',
+            data: formData,
+            dataType: 'JSON',
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+
+                if (data.result == "ok") {
+                    if (afterUploadFunc) {
+                        afterUploadFunc(data);
+                    }
+                }
+            }
+        });
+    }
+
+    function showList(fileName) {
+
+
+        var $gridList = $("#gridList");
+        $gridList.jqGrid('setGridParam', {
+            url: "/StationManage/UploadExcel/GetUploadGridJson",
+            postData: { fileName: fileName },
+            success: function (data) {
+
+                alert(11);
+            }
+        }).trigger('reloadGrid');
+    }
+
+    function submitForm(callbackFunc) {
+        $.submitForm({
+            url: "/StationManage/UploadExcel/UploadExcelStationInfoData?fileName=" + $("#hidFileName").val(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+                if (callbackFunc) {
+                    callbackFunc();
+                }
+            }
+        })
+    }
+
+</script>
+
+<div class="topPanel">
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <span id="lblFileName" style="height: 25px; width: 200px; display: inline-block; float: left; border: 1px solid #000; padding-left: 5px;"></span>
+                        <label for="fileInput" style="float: left; cursor: pointer; display: inline-block;">&nbsp;&nbsp;<i class="fa fa-cloud-upload fa-1x"></i>选择文件</label>
+                        <input type="file" id="fileInput" accept="application/vnd.ms-excel" style="display: none" onchange="uploadFile()" />
+                        <input type="hidden" id="hidFileName" />
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+</div>
+

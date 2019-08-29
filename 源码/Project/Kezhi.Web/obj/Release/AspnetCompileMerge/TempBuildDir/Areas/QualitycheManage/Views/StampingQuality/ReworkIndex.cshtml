@@ -1,0 +1,248 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script>
+    $(function () {
+        $("#BatchQAFlag").val(1)
+        gridList();
+
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/QualitycheManage/StampingQuality/GetPlanJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "批次号", name: "BatchNo", width: 130, align: 'left' },
+                { label: "物料编码‘", name: "Vcode", width: 150, align: 'left' },
+                { label: "物料特性值", name: "LOT_Code", width: 80, align: 'left' },
+                { label: "批次总数量", name: "ProdPassQty", width: 60, align: 'right ' },
+                { label: "批次当前数量", name: "CurrentQty", width: 60, align: 'right ' },
+                { label: "质检不合格数量", name: "QAFailQty", width: 60, align: 'right ' },
+                { label: "返修数量", name: "RepairQty", width: 60, align: 'right ' },
+                { label: "报废数量", name: "ScrapQty", width: 60, align: 'right ' },
+                          {
+                              label: '质检状态', name: 'BatchQAFlag', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                                  if ($.trim(rowObject.BatchQAFlag) == 1) {
+                                      return '未质检';
+                                  }
+                                  if ($.trim(rowObject.BatchQAFlag) == 2) {
+                                      return '已质检';
+                                  }
+
+                              }
+                          },
+              {
+                  label: '批次号状态', name: 'BatchState', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                      if ($.trim(rowObject.BatchState) == 1) {
+                          return '<span >未入库</span>';
+                      }
+                      if ($.trim(rowObject.BatchState) == 2) {
+                          return '<span >已入库</span>';
+                      }
+                      if ($.trim(rowObject.BatchState) == 3) {
+                          return '<span >返工库</span>';
+                      }
+                      if ($.trim(rowObject.BatchState) == 4) {
+                          return '<span >AUDIT</span>';
+                      }
+
+                  }
+              },
+
+                     {
+                         label: '批次号来源', name: 'BatchSource', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                             if ($.trim(rowObject.BatchSource) == 1) {
+                                 return '<span >生产报工</span>';
+                             }
+                             if ($.trim(rowObject.BatchSource) == 2) {
+                                 return '<span >质检拆单</span>';
+                             }
+                             if ($.trim(rowObject.BatchSource) == 3) {
+                                 return '<span >挑件拆单</span>';
+                             }
+                             if ($.trim(rowObject.BatchSource) == 4) {
+                                 return '<span >合单</span>';
+                             }
+
+                         }
+                     },
+
+                { label: "报工说明", name: "F_Description", width: 100, align: 'left' },
+                 { label: "报工人", name: "F_CreatorUserName", width: 100, align: 'left' },
+
+               {
+                   label: '报工时间', name: 'F_CreatorTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                       if (cellvalue != "") {
+                           return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                       }
+                   }
+
+               },
+
+
+            ],
+            pager: "#gridPager",
+            sortname: 'BatchNo asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+    
+            postData: {  BatchState: "3", BatchQAFlag: $("#BatchQAFlag").val() },
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { BatchNo: $("#BatchNo").val(), Vcode: $("#Vcode").val(), LOT_Code: $("#LOT_Code").val(), BatchQAFlag: $("#BatchQAFlag").val() },
+            }).trigger('reloadGrid');
+        });
+    }
+
+    function btn_add() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        var qaflag = $("#gridList").jqGridRowValue().BatchQAFlag;
+        var BatchSourceType = 2;
+        var type = 1;
+        if (keyValue) {
+            if (qaflag == "未质检") {
+                $.modalOpen({
+                    id: "Index",
+                    title: "冲压质检",
+                    url: "/QualitycheManage/StampingQuality/Form?keyValue=" + keyValue + "&BatchSourceType=" + BatchSourceType + "",
+                    width: "700px",
+                    height: "1000px",
+                    callBack: function (iframeId) {
+                        top.frames[iframeId].submitForm();
+                    }
+                });
+            } else {
+                $.modalAlert("批次已质检！", "warning")
+                return false;
+            }
+        } else {
+            $.modalAlert("请选择一条有效数据！", "warning")
+            return false;
+        }
+    }
+    function btn_selete() {
+        var BatchNo = $("#gridList").jqGridRowValue().BatchNo;
+        var qaflag = $("#gridList").jqGridRowValue().BatchQAFlag;
+        if (BatchNo) {
+            if (qaflag == "已质检") {
+                $.modalOpen({
+                    id: "Index",
+                    title: "质检明细",
+                    url: "/QualitycheManage/StampingQuality/DetailListIndex?BatchNo=" + BatchNo + "",
+                    width: "1300px",
+                    height: "500px",
+                    btn: null,
+
+                });
+            }
+            else {
+                $.modalAlert("选择的批次未质检！", "warning")
+                return false;
+            }
+        } else {
+            $.modalAlert("请选择一条有效数据！", "warning")
+            return false;
+        }
+
+    }
+    //function btn_edit() {
+    //    var keyValue = $("#gridList").jqGridRowValue().F_Id;
+    //    var qaflag = $("#gridList").jqGridRowValue().BatchQAFlag;
+    //    var type = 2;
+    //    if (keyValue) {
+    //    if (qaflag == "已质检") {
+    //        $.modalOpen({
+    //            id: "Form",
+    //            title: "修改",
+    //            url: "/QualitycheManage/StampingQuality/Form?keyValue=" + keyValue + "&type=" + type + "",
+    //            width: "830px",
+    //            height: "1100px",
+    //            callBack: function (iframeId) {
+    //                top.frames[iframeId].submitForm();
+    //            }
+    //        });
+    //    }
+    //else {
+    //            $.modalAlert("请先质检！", "warning")
+    //    return false;
+    //}
+    //} else {
+    //    $.modalAlert("请选择一条有效数据！", "warning")
+    //    return false;
+    //}
+
+    //}
+
+
+    function btn_delete() {
+        $.deleteForm({
+            url: "/QualitycheManage/StampingQuality/DeleteForm",
+            param: { keyValue: $("#gridList").jqGridRowValue().F_Id },
+            success: function () {
+                $("#gridList").resetSelection();
+                $("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+    //function initControlto() {
+    //    $("#CategoryName").bindSelect({
+    //        url: "/QualitycheManage/QAArea/GetType",
+    //        param: { anCode: 0 }
+    //    });
+    //}
+
+</script>
+
+<div class="topPanel">
+
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+
+                        <select id="BatchQAFlag" name="BatchQAFlag" class="form-control" style="width: 120px; margin-right: 5px">
+                            <option value="">==质检状态==</option>
+                            <option value="1">未质检</option>
+                            <option value="2">已质检</option>
+                        </select>
+                        <input id="BatchNo" type="text" class="form-control" placeholder="批次号" style="width: 100px; margin-right:10px">
+                        <input id="Vcode" type="text" class="form-control" placeholder="物料编码" style="width: 100px; margin-right:10px">
+                        <input id="LOT_Code" type="text" class="form-control" placeholder="特性值" style="width: 100px; margin-right:10px">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="toolbar">
+        <div class="btn-group">
+            <a id="NF-add" authorize="yes" class="btn btn-primary " onclick="btn_add()"><i class="fa fa-plus"></i>冲压质检</a>
+        </div>
+        @*<div class="btn-group">
+                <a id="NF-edit" authorize="yes" class="btn btn-primary " onclick="btn_edit()"><i class="fa fa-edit"></i>修改质检结果</a>
+            </div>*@
+
+        <div class="btn-group">
+            <a id="NF-selete" authorize="yes" class="btn btn-primary " onclick="btn_selete()"><i class="fa fa-search"></i>质检结果明细</a>
+        </div>
+
+    </div>
+
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+

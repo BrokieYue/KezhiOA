@@ -1,0 +1,67 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script>
+    var BatchNo = $.request("BatchNo");
+    $(function () {
+       
+        gridList();
+
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/QualitycheManage/StampingQuality/GetDetailListJson",
+            height: $(window).height() - 75,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "质检单号", name: "ChecklistNo", width: 130, align: 'left' },
+                { label: "批次号", name: "Code", width: 130, align: 'left' },
+                { label: "物料编码‘", name: "Vcode", width: 150, align: 'left' },
+                { label: "物料特性值", name: "LOT_Code", width: 100, align: 'left' },
+                { label: "区域名称", name: "AreaName", width: 100, align: 'left' },
+                { label: "项目名称", name: "ItemName", width: 100, align: 'left' },
+                { label: "物料特性值", name: "LOT_Code", width: 100, align: 'left' },
+                { label: "质检不合格数量", name: "UnqualifiedQty", width: 100, align: 'left' },
+                 { label: "质检人", name: "F_CreatorUserName", width: 100, align: 'left' },
+               {
+                   label: '质检时间', name: 'F_CreatorTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                       if (cellvalue != "") {
+                           return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                       }
+                   }
+
+               },
+
+
+            ],
+            pager: "#gridPager",
+            sortname: 'ChecklistNo asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true,
+            postData: { BatchNo: BatchNo },
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { BatchNo: BatchNo },
+            }).trigger('reloadGrid');
+        });
+    }
+
+ 
+ 
+
+</script>
+
+ 
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+

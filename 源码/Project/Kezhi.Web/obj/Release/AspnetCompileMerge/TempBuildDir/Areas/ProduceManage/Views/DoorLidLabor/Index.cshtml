@@ -1,0 +1,348 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script language="javascript" src="~/Content/js/lodop/LodopFuncs.js"></script>
+<object id="LODOP_OB" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width=0 height=0>
+    <embed id="LODOP_EM" type="application/x-print-lodop" width=0 height=0 pluginspage="~/Content/js/lodop/install_lodop64.exe"></embed>
+</object>
+<script>
+    var LODOP;  //打印控件
+    var lastrow;
+    var lastcell;
+    //var line = "87ad7db7-89c9-49a7-96cd-76fb8e4cea63";
+    $(function () {
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/PressManage/PressLabor/GetLaborList",
+            height: $(window).height() - 260,
+            //url: "../../PressManage/PressLabor/FeedList?keyValue=87ad7db7-89c9-49a7-96cd-76fb8e4cea63",
+            colModel: [
+             { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "批次号", name: "BatchNo", width: 220, align: 'left' },
+                { label: "物料名称", name: "LOT_Code", width: 150, align: 'left' },
+                { label: '物料编码', name: 'Vcode', width: 150, align: 'left' },
+                { label: '报工数量', name: 'ProdPassQty', width: 85, align: 'left' },
+                { label: '报工人', name: 'F_CreatorUserName', width: 150, align: 'left' },
+                { label: '报工时间', name: 'F_CreatorTime', width: 150, align: 'left' },
+            ],
+            pager: "#gridPager",
+            // sortname: 'ItemBagBatch asc',
+            postData: { keyValue: "4" }, //查询类型为四门两盖 冲压批次表
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 10,
+            rowList: [10, 15, 20],
+            cellEdit: true,
+            //cellsubmit: 'clientArray',
+            onselectrow: true,
+            //sortname: 'F_CreatorTime desc',
+            unwritten: true,  //设置无数据时提示文字不显示
+        });
+          
+       
+    }
+
+    function btn_delete(rowKey) {
+        $("#gridList").jqGrid("delRowData", rowKey);
+        edit_sum();
+    }
+
+    //数据有效验证
+    function ValidateTvalue(value, name) {
+        var regu = "^[0-9]+(.[0-9]{2})?$";
+        var re = new RegExp(regu);
+        if (re.test(value)) {
+            return [true, ""];
+        }
+        else {
+            return [false, "请输入数值型!"];
+        }
+    }
+
+    //合计报工数量
+    function edit_sum() {
+        var selrow = $("#gridList").jqGrid('getRowData');
+        var allCountID = $("#gridList").jqGrid('getDataIDs');
+        selrow.push($("#gridList").jqGrid('getRowData', allCountID[allCountID.length - 1])); //解决 jqGrid('getRowData') 获取 少最后一行 bug
+        var sum = 0;
+        for (var i = 0; i < selrow.length; i++) {
+            try {
+                if (selrow[i].F_PassQty != undefined) {
+                    sum += Number(selrow[i].F_PassQty);
+                }
+            }
+            catch (e) { continue; }
+        }
+        document.getElementById("totalQty").value = sum.toString();
+
+    }
+
+    //报工
+    function btn_comptSend() {
+        //$("#gridList").jqGrid("saveCell", lastrow, lastcell);
+        //var selrow = $("#gridList").jqGrid('getRowData');
+        //var allCountID = $("#gridList").jqGrid('getDataIDs');
+        //if (allCountID.length == 0) {
+        //    $.modalAlert("无在线料包！", "warning")
+        //    return false;
+        //}
+        //selrow.push($("#gridList").jqGrid('getRowData', allCountID[allCountID.length - 1])); //解决 jqGrid('getRowData') 获取 少最后一行 bug
+
+        var pFID = $("#fid").val(); //计划FID
+        var sumQty = $("#totalQty").val(); //合计报工
+        var arryid = [];
+        if (pFID.length == 0) {
+            $.modalAlert("请先选择产出物料！", "warning")//弹窗选择物料--bichen
+            return false;
+        }
+        if (sumQty.length == 0 || sumQty == "0") {
+            $.modalAlert("报工数量无效！", "warning")
+            return false;
+        }
+
+        //for (var i = 0; i < selrow.length; i++) {
+        //    var pQty;
+        //    var fQty;
+        //    if (selrow[i].F_PassQty.length == 0 && selrow[i].F_ScarpQty.length == 0) {
+        //        // selrow.splice(i);
+        //        continue;
+        //    } else {
+        //        if (selrow[i].F_PassQty.length == 0) {
+        //            pQty = 0;
+        //        }
+        //        else {
+        //            pQty = selrow[i].F_PassQty;
+        //        }
+        //        if (selrow[i].F_ScarpQty.length == 0) {
+        //            fQty = 0;
+        //        }
+        //        else {
+        //            fQty = selrow[i].F_ScarpQty;
+        //        }
+                //if (pQty == 0 && fQty == 0) {
+                //    $.modalAlert("第" + (i + 1).toString() + "行，请输入报工/报废数量！", "warning");
+                //    return false;
+                //}
+        //        arryid.push(selrow[i].F_Id + "," + pQty + "," + fQty);
+        //        var L = Number(selrow[i].LeftQty);
+        //        var T = Number(pQty) + Number(fQty);
+        //        if (L < T) {
+        //            $.modalAlert("第" + (i + 1).toString() + "行数据有误，" + "合格数量 + 报废数量不能大于剩余数量！", "warning");
+        //            return false;
+        //        }
+        //    }
+        //}
+        //if (arryid.length == 0) {
+        //    $.modalAlert("请选择一条有效在线料包！", "warning")
+        //    return false;
+        //}
+        //$.submitForm({
+        //    url: "../../PressManage/PressLabor/ComptDoorLidSendJson",
+        //    param: { keyValue: arryid.join("|"), tQty: sumQty},
+        //    success: function () {
+        //        document.getElementById("totalQty").value = "0";
+        //        $.currentWindow().$("#gridList").trigger("reloadGrid");
+        //    }
+        //})
+        var ItemName = $("#Line").val(); //物料名称
+        var Vcode = $("#jobNo").val();  //产出物料编号
+        //CreateVINPrintPage(ItemName, Vcode, sumQty);
+        ////调用直接打印方法 -yangxin
+        //LODOP.PRINT();
+        //修改为 ajax 提交并返回批次号 yangxin  2018-9-10
+        $.ajax({
+            url: "../../PressManage/PressLabor/ComptDoorLidSendJson",
+            data: { tQty: sumQty, itemName: ItemName, vCode: Vcode },
+            type: "post",
+            async: false,
+            dataType: "json",
+            success: function (data) {
+                $.modalMsg("操作成功！", "success");
+                var batchNo = data.batchNo;
+                //调用打印模板 -yangxin
+                CreateVINPrintPage(batchNo,ItemName, Vcode, sumQty);
+                //调用直接打印方法 -yangxin
+                LODOP.PRINT();
+                document.getElementById("totalQty").value = "0";
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+
+    function btn_refresh() {
+        $("#gridList").trigger("reloadGrid");
+    }
+
+    function CreateVINPrintPage(batchNo,ItemName, Vcode, tQty) {
+        var date = getNowFormatDate();
+        LODOP = getLodop();
+
+        LODOP.PRINT_INITA(3, 13, 790, 1125, "四门两盖报工批次打印");
+        LODOP.SET_PRINT_MODE("PRINT_NOCOLLATE", 1);
+        LODOP.ADD_PRINT_RECT(579, 27, 719, 384, 0, 1);
+        LODOP.ADD_PRINT_SHAPE(4, 644, 27, 719, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(670, 53, 132, 35, "批次号：");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 20);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 3);
+        LODOP.SET_PRINT_STYLEA(0, "SpacePatch", 1);
+        LODOP.ADD_PRINT_SHAPE(4, 895, 27, 719, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(928, 453, 104, 25, "打印时间：");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_TEXT(928, 539, 200, 25, getNowFormatDate());
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.ADD_PRINT_BARCODE(657, 510, 275, 231, "QRCode", batchNo);//批次二维码
+        LODOP.ADD_PRINT_TEXT(674, 193, 302, 31, batchNo);//批次号
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 20);
+        LODOP.ADD_PRINT_TEXT(593, 247, 311, 40, "【四门两盖批次单】");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 25);
+        LODOP.ADD_PRINT_TEXT(738, 193, 302, 31, ItemName);//物料名称
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 20);
+        LODOP.ADD_PRINT_TEXT(734, 34, 152, 35, "物料名称：");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 20);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 3);
+        LODOP.SET_PRINT_STYLEA(0, "SpacePatch", 1);
+        LODOP.ADD_PRINT_TEXT(798, 34, 152, 35, "物料编码：");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 20);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 3);
+        LODOP.SET_PRINT_STYLEA(0, "SpacePatch", 1);
+        LODOP.ADD_PRINT_TEXT(802, 193, 302, 31, Vcode);//物料编码
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 20);
+        LODOP.ADD_PRINT_SHAPE(4, 706, 27, 465, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 770, 27, 465, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_SHAPE(4, 834, 27, 465, 1, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(863, 34, 152, 35, "批次数量：");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 20);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 3);
+        LODOP.ADD_PRINT_TEXT(865, 193, 302, 31, tQty);//报工数量
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 20);
+
+
+        // LODOP.SET_PRINT_MODE("WINDOW_DEFPAGESIZE:打印机名称或序号", 纸张名称);
+        //设置默认打印机  LODOP.SET_PRINT_MODE("WINDOW_DEFPRINTER", 打印机名称或序号);
+        LODOP.SET_PRINT_PAGESIZE(1, 0, 0, "A4");//设置纸型
+    }
+    //返回当前时间    -yangxin
+    function getNowFormatDate() {
+        var now = new Date();
+
+        var year = now.getFullYear();       //年
+        var month = now.getMonth() + 1;     //月
+        var day = now.getDate();            //日
+
+        var hh = now.getHours();            //时
+        var mm = now.getMinutes();          //分
+        var ss = now.getSeconds();           //秒
+
+        var clock = year + "-";
+
+        if (month < 10)
+            clock += "0";
+
+        clock += month + "-";
+
+        if (day < 10)
+            clock += "0";
+
+        clock += day + " ";
+
+        if (hh < 10)
+            clock += "0";
+
+        clock += hh + ":";
+        if (mm < 10) clock += '0';
+        clock += mm + ":";
+
+        if (ss < 10) clock += '0';
+        clock += ss;
+        return (clock);
+    }
+
+    ////获取料包列表
+    //function btn_GetFeedList() {
+    //    var jobcode = $("#jobNo").val(); //计划号
+    //    $.modalOpen({
+    //        id: "FeedList",
+    //        title: "料包上料列表",
+    //        url: "../../PressManage/PressLabor/FeedList?keyValue=87ad7db7-89c9-49a7-96cd-76fb8e4cea63",
+    //        width: "1050px",
+    //        height: "500px",
+    //        btn: null
+    //        //callBack: function (iframeId) {
+    //        //    top.frames[iframeId].submitForm();
+    //        //}
+    //    });
+    //}
+    //产出物料选择--bichen
+    function btn_Materiel() {
+        //var win = window.showModalDialog("../../BaseManage/SysItem/Index.cshtml", "物料基础数据", "dialogWidth=1050;dialogHeight=450");
+        var win = window.open("../../BaseManage/SysItem/Index ", "物料基础数据", " height=450,width=1050,Left=300px,Top=100px, menubar=no,titlebar=no,scrollbar=no,toolbar=no,status=no,location=no,directories=no");
+    }
+</script>
+
+<div id="areascontent">
+    <div class="rows" style="margin-bottom: 0%; border: 0px solid #e6e6e6; overflow: hidden; padding-left: 1px;">
+        <div style="border: none; border-radius: 0px; margin-bottom: 0px; box-shadow: none; -webkit-box-shadow: none; padding-right: 10px; ">
+            <input id="fid" type="text" hidden="hidden">
+            <input id="fcode" type="text" hidden="hidden">
+            <table style="border-collapse: separate; border-spacing: 0px 10px; border: 0px solid #e6e6e6; width: 100%; font-size:18px; ">
+                <tr>
+                    <td width="12%" style="text-align: center; color: #fff; background-color: #337ab7; border-color: #2e6da4">产出物料名称:</td>
+                    <td width="30%" style="text-align:left;">
+                        <input id="Line" type="text" disabled style="width: 100%; height: 40px; text-align:center">
+                    </td>
+                    <td width="12%" style=" text-align: center; color: #fff; background-color: #337ab7; border-color: #2e6da4;">产出物料编号:</td>
+                    <td width="20%" style="text-align:left">
+                        <input id="jobNo" type="text" disabled style="width: 100%; height: 40px; font-size:18px;text-align:center">
+                    </td>
+                    <td width="26%" style="text-align:right">
+                        <a id="btn_Choice" class="btn btn-primary " style="width: 50%; height: 30px; font-size: 18px; text-align: center" onclick="btn_Materiel()">产出物料选择</a>
+                    </td>
+                </tr>
+
+                @*<tr style="border: 1px solid #e6e6e6">
+                        <td colspan="3" style="width: 40%; font-size: 24px; text-align: left; padding-left: 5px; ">
+                            报工数量：&nbsp;&nbsp;<input id="totalQty" type="text" style="width: 60%; height: 30; font-size: 24px;">
+                        </td>
+                        <td colspan="2" style="font-size: 24px; text-align: left; padding-left: 5px; ">
+                            <select id="bgType" name="Line" style="width: 200px; height: 42px; line-height: 1.42857143; color: blue; background-color: #fff; background-image: none; border: 1px solid #ddd; border-radius: 4px; -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075); box-shadow: inset 0 1px 1px rgba(0,0,0,.075); -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s; -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s; transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s">
+                                <option value="1" selected>合格件</option>
+                                <option value="2">返工件</option>
+                            </select>
+                        </td>
+                        <td colspan="3" style="font-size: 24px; text-align: right; padding-right: 5px; ">
+                            <a id="btn_Outline" class="btn btn-primary " style="width: 100px; height: 30px; font-size: 24px; text-align: center" onclick="btn_planlist()">选择计划</a>
+                            <a id="btn_send" class="btn btn-primary " style="width: 100px; height: 30px; font-size: 24px; text-align: center" onclick="btn_comptSend()">报&nbsp;&nbsp;工</a>
+                            <a id="btn_send" class="btn btn-primary " style="width: 100px; height: 30px; font-size: 24px; text-align: center" onclick="historyback()">返回上层</a>
+                       </td
+                    </tr>*@
+
+            </table> 
+        </div>
+    </div>
+    <div class="rows" style="margin-bottom: 1%; border: 1px solid #e6e6e6; overflow: hidden; padding-left: 1px;">
+        <div style="border: none; border-radius: 0px; margin-bottom: 0px; box-shadow: none; -webkit-box-shadow: none;">
+            <table style="border-collapse: separate; border-spacing: 0px 10px; border: 1px solid #e6e6e6; width: 100%; ">
+                <tr style="border: 1px solid #e6e6e6">
+                    <td colspan="5" style="font-size: 24px;text-align:right;float:left;padding-left:10px" >
+                        报工数量：<input id="totalQty" type="text" style="width: 200px; height: 40px; font-size: 24px;">
+                    </td>
+
+                    <td   style="text-align: right; width: 330px; padding-right: 10px;">
+                        <a id="btn_send" class="btn btn-primary " style="width: 50%; height: 30px;  font-size: 18px; text-align: center" onclick="btn_comptSend()">报 工</a>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+<div class="gridPanel">
+    <h4 style="padding-left:10px"><span style="font-size: larger;">报工在线列表：</span></h4>
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>

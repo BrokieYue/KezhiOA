@@ -1,0 +1,381 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+
+    $(function () {
+        gridList();
+        initControl();
+        document.getElementById("VIN").focus();
+    })
+
+    $(window).resize(function () {
+        $("#gridList").setGridWidth($(window).width());
+    })
+
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/ProduceManage/KeyPartsNew/GetPlanJson",
+            height: $(window).height() - 400,
+            colModel: [
+                 { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+               {
+
+                   label: '车间', name: 'Plant', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                       if ($.trim(rowObject.Plant) == $.trim("StampingShop")) {
+                           return '<span >冲压车间</span>';
+                       }
+                       if ($.trim(rowObject.Plant) == $.trim("AssemblyShop")) {
+                           return '<span >总装车间</span>';
+                       }
+                       if ($.trim(rowObject.Plant) == $.trim("PaintShop")) {
+                           return '<span >涂装车间</span>';
+                       }
+                       if ($.trim(rowObject.Plant) == $.trim("WeldingShop")) {
+                           return '<span >焊装车间</span>';
+                       }
+                       if ($.trim(rowObject.Plant) == $.trim("InspectionShop")) {
+                           return '<span >交检车间</span>';
+                       }
+                   }
+               },
+                { label: '物料编码', name: 'ItemCode', width: 250, align: 'left' },
+                { label: '工序名称', name: 'OpName', width: 250, align: 'left' },
+                 { label: '站点名称', name: 'StationName', width: 250, align: 'left' },
+                { label: '数量', name: 'Qty', width: 100, align: 'left' },
+        
+        
+            ],
+            pager: "#gridPager",
+            sortname: 'ItemCode desc',
+            multiselect: false,//复选框
+            rowNum: 20,
+            postData: { vin: "" },
+            rowList: [20, 50, 100],
+            viewrecords: true,
+            unwritten: false,  //设置无数据时提示文字不显示
+            caption: "扫码上线列表",
+        });
+    }
+
+    document.onkeydown = function (e) {
+
+        if (!e) e = window.event;
+        if ((e.keyCode || e.which) == 13) {
+
+            var Plant = $("#Plant").val();
+            var Process = $("#Process").val();
+            var Station = $("#Station").val();
+            if (Plant == 0 || Process == 0 || Station == 0) {
+                document.getElementById("tipTxt").innerText = "请选择正确的车间、工序、站点";
+                return false;
+            }
+            var vin = $("#VIN").val();
+            var BatchNo = $("#BarCode").val();
+            var barcode;
+            var Supplier;
+            var proddate;
+            var Flownum;
+            var str = $("#BarCode").val();
+            var c = "#"; // 要计算的字符
+            var regex = new RegExp(c, 'g'); // 使用g表示整个字符串都要匹配
+            var result = str.match(regex);
+            var count = !result ? 0 : result.length;
+            var result = str.split("#");
+            if (Number(count) == 2) {
+                barcode = result[0];
+                Supplier = result[1];
+                proddate = result[2];
+
+
+            } else if (Number(count) == 3) {
+                barcode = result[0];
+                Supplier = result[1];
+                proddate = result[2];
+                Flownum = result[3];
+            }
+
+
+          
+            if (!!vin && !!barcode) {
+                if (!!$("#VIN").val() && !!vin) {
+                    $.ajax({
+                        url: "/ProduceManage/KeyPartsNew/ExistsItemJson?keyword=" + barcode,
+                        dataType: "json",
+                        async: false,
+                        success: function (data) {
+                            if (data.F_Id.length > 0) {
+                                $.ajax({
+                                    url: "/ProduceManage/KeyPartsNew/ExistsVinKeyPart?BatchNo=" + BatchNo + "",
+                                    data: { ItemCode: barcode, vin: vin },
+                                    dataType: "json",
+                                    async: false,
+                                    success: function (data) {
+                                        if (!data.ItemCode.length > 0) {
+                                            var _list = {};
+                                            _list["selectedIDs[0].Plant"] = $("#Plant").val();
+                                            _list["selectedIDs[0].OpID"] = $("#Process").val();
+                                            _list["selectedIDs[0].StationID"] = $("#Station").val();
+                                            _list["selectedIDs[0].VINID"] = $("#VINID").val()
+                                            _list["selectedIDs[0].VINCode"] = vin;
+                                            _list["selectedIDs[0].ItemCode"] = barcode;
+                                            _list["selectedIDs[0].BatchNo"] = BatchNo;
+                                            _list["selectedIDs[0].Qty"] = 1;
+                                            _list["selectedIDs[0].SupplyCode"] = Supplier;
+                                            _list["selectedIDs[0].BatchDate"] = proddate;
+                                            _list["selectedIDs[0].BatchFollow"] = Flownum;
+                         
+                                            $.submitForm({
+                                                url: "/ProduceManage/KeyPartsNew/SubmitForm",
+                                                param: _list,
+                                                success: function () {
+                                                    $.currentWindow().$("#gridList").trigger("reloadGrid");
+                                                }
+
+                                            });
+                                            clearInit();
+                                        } else {
+                                            document.getElementById("tipTxt").innerText = "物料已被绑定,请重新输入！";
+                                            clearInit();
+                                            return false;
+                                        }
+                                   
+
+                                    }
+
+                                });
+                            } else {
+                                document.getElementById("tipTxt").innerText = "物料不存在！";
+                                clearInit();
+                                return false;
+                            }
+
+                        }
+
+                    });
+                     
+                } else {
+                    document.getElementById("tipTxt").innerText = "请先扫描VIN码！";
+                    $('#VIN').val("").focus();
+                    return false;
+                }
+            } else if (!!vin&&vin.length == 17) {
+               $.ajax({
+                    url: "/ProduceManage/KeyPartsNew/ExistsVINJson",
+                    dataType: "json",
+                    data: { keyword: vin },
+                    async: false,
+                    success: function (data) {
+                        if (!isEmptyObject(data)) {
+                            $("#VCode").val(data.VCode)
+                            $("#VINNo").val(data.VINNo)
+                            $("#OrderNo").val(data.OrderNo)
+                            $("#VDesc").val(data.VDesc)
+                            $("#gridList").jqGrid('setGridParam', {
+                                url: "/ProduceManage/KeyPartsNew/GetPlanJson",
+                                postData: { vin: vin },
+                            }).trigger('reloadGrid');
+                            document.getElementById("tipTxt").innerText = "";
+                            $("#BarCode").focus();
+                        } else {
+                            document.getElementById("tipTxt").innerText = "VIN码不存在！";
+                            $('#VIN').val("").focus();
+                            $('#VCode').val("")
+                            $('#VINNo').val("")
+                            $('#OrderNo').val("")
+                            $('#VDesc').val("")
+                            $("#gridList").jqGrid('setGridParam', {
+                                url: "/ProduceManage/KeyPartsNew/GetPlanJson",
+                                postData: { vin: vin },
+                            }).trigger('reloadGrid');
+                            return false;
+                        }
+
+                    }
+
+                });
+
+
+
+            } else {
+                document.getElementById("tipTxt").innerText = "错误数据！";
+                return false;
+            }
+
+
+
+        }
+    }
+
+ 
+
+
+    function isEmptyObject(obj) {
+        for (var key in obj) {
+            return false;
+        }
+        return true;
+    }
+
+
+
+
+             function clearInit() {
+                  
+                 $('#BarCode').val("").focus();
+             }
+             function getNowFormatDate() {
+                 var now = new Date();
+
+                 var year = now.getFullYear();       //年
+                 var month = now.getMonth() + 1;     //月
+                 var day = now.getDate();            //日
+
+                 var hh = now.getHours();            //时
+                 var mm = now.getMinutes();          //分
+                 var ss = now.getSeconds();           //秒
+
+                 var clock = year + "-";
+
+                 if (month < 10)
+                     clock += "0";
+
+                 clock += month + "-";
+
+                 if (day < 10)
+                     clock += "0";
+
+                 clock += day + " ";
+
+                 if (hh < 10)
+                     clock += "0";
+
+                 clock += hh + ":";
+                 if (mm < 10) clock += '0';
+                 clock += mm + ":";
+
+                 if (ss < 10) clock += '0';
+                 clock += ss;
+                 return (clock);
+             }
+             function initControl() {
+
+                 //$("#Plant").bindSelect({
+                 //    url: "/ProduceManage/KeyParts/GetGroupPlant",
+                 //    id: "F_Id",
+                 //    text: "F_ItemName"
+                 //});
+                 $("#Process").bindSelect({
+                     url: "/SystemManage/User/GetProcessListJson",
+                     id: "F_Id",
+                     text: "OpName"
+                 });
+
+                 $("#Station").bindSelect({
+                     url: "/ProduceManage/KeyParts/GetGroupStation",
+                     id: "F_Id",
+                     text: "StationName"
+                 });
+             }
+             function btn_delete(rowKey) {
+                 
+                 $("#gridList").jqGrid("delRowData", rowKey);
+                 
+             }
+</script>
+ 
+<div id="areascontent">
+    <div class="rows" style="margin-bottom: 1%; border: 1px solid #e6e6e6; overflow: hidden; padding-left: 1px;">
+        <div style="border: none; border-radius: 0px; margin-bottom: 0px; box-shadow: none; -webkit-box-shadow: none; font-size: 20px">
+            <table style="border-collapse: separate; border-spacing: 0px 2px; width: 100%;  padding-left: 10px;margin-top:5px;">
+                <tr>
+                    <td>
+                        当前车间：<select id="Plant" name="Plant" style="width: 180px; height: 30px; padding: 6px 12px; line-height: 1.42857143; color: blue; background-color: #fff; background-image: none; border: 1px solid #ddd; border-radius: 4px; -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075); box-shadow: inset 0 1px 1px rgba(0,0,0,.075); -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s; -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s; transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s">
+                                     <option value="">==请选择==</option>
+                                     <option value="StampingShop">冲压车间</option>
+                                     <option value="WeldingShop">焊装车间</option>
+                                     <option value="PaintShop">涂装车间</option>
+                                     <option value="AssemblyShop">总装车间</option>
+                                     @*<option value="InspectionShop">交检车间</option>*@
+                                 </select>
+                       
+                    </td>
+                    <td>
+                        当前工序：<select id="Process" name="Process" style="width: 180px; height: 30px; padding: 6px 12px; line-height: 1.42857143; color: blue; background-color: #fff; background-image: none; border: 1px solid #ddd; border-radius: 4px; -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075); box-shadow: inset 0 1px 1px rgba(0,0,0,.075); -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s; -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s; transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s; ">
+                            <option value="0">==工序选择==</option>
+                        </select>
+                    </td>
+
+                    <td>
+                        当前站点：<select id="Station" name="Station" style="width: 180px; height: 30px; padding: 6px 12px; line-height: 1.42857143; color: blue; background-color: #fff; background-image: none; border: 1px solid #ddd; border-radius: 4px; -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075); box-shadow: inset 0 1px 1px rgba(0,0,0,.075); -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s; -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s; transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s; ">
+                            <option value="0">==站点选择==</option>
+                        </select>
+                    </td>
+                </tr>
+    
+              
+            </table>
+            <table style="border-collapse: separate; border-spacing: 0px 2px; width: 95%; padding-left: 20px;margin-top:10px;">
+       
+                <tr>
+                    <td colspan="2">
+                        <input id="VIN" type="text" placeholder="扫描VIN码" style="width: 100%; height: 60px; font-size: 40px; float: left; background-color: yellow;  ">
+                    </td>
+                    <td width="5%">
+
+                     
+                    </td>
+                    <td colspan="2">
+                        <input id="BarCode" type="text" placeholder="扫描条码" style="width: 100%; height: 60px; font-size: 40px; float: left; background-color: yellow;">
+                    </td>
+                </tr>
+              
+                <tr>
+                    <th class="formTitle">整车编码:</th>
+                    <td class="formValue" >
+                        <input id="VCode" name="VCode" type="text" style="background-color: WhiteSmoke; width: 100%;" readonly="readonly" />
+                    </td>
+                    <td></td>
+                    <th class="formTitle">VIN码:</th>
+                    <td class="formValue">
+                        <input id="VINNo" name="VINNo" type="text" style="background-color: WhiteSmoke; width: 100%;" readonly="readonly" />
+                    </td>
+            
+                </tr>
+                <tr>
+                   
+                    <th class="formTitle">工单号:</th>
+                    <td class="formValue">
+                        <input id="OrderNo" name="OrderNo" type="text" style="background-color: WhiteSmoke; width: 100%;" readonly="readonly" />
+                    </td>
+                    <td></td>
+                    <th class="formTitle">整车描述:</th>
+                    <td class="formValue">
+                        <input id="VDesc" name="VDesc" type="text" style="background-color: WhiteSmoke; width: 100% " readonly="readonly" />
+                        <input id="VINID" type="text" class="form-control" style="display:none ">
+
+                    </td>
+                </tr>
+            </table>
+            <div style="border: none; border-radius: 0px; margin-bottom: 0px; box-shadow: none; -webkit-box-shadow: none; font-size: 20px; height:40px">
+                <table style="border-collapse: separate; border-spacing: 0px 2px; width: 100%;  padding-left: 10px;margin-top:5px;">
+                    <tr>
+
+                        <td >
+                            <span id="tipTxt" style="font-size: 25px; float: left; color: red; padding-left: 20px;"></span>
+                        </td>
+
+                    </tr>
+
+                </table>
+            </div>
+            </div>
+    </div>
+</div>
+<div class="gridPanel" style="font-size:18px;">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>

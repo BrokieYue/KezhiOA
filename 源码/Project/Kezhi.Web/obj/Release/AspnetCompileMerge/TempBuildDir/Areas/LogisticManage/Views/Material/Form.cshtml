@@ -1,0 +1,99 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    var keyValue = $.request("keyValue");
+    $(function () {
+        initControl();
+        if (!!keyValue) {
+            $.ajax({
+                url: "/LogisticManage/Material/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                }
+            });
+        }
+    });
+    function initControl() {
+        $("#EditType").bindSelect();
+        $("#ManualType").bindSelect();
+        $("#ChangeType").bindSelect();
+        $("#MaterailCode").bindSelect({
+            url: "/LogisticManage/MaterialBase/GetMaterialBaseList",
+            id: "MaterailCode",
+            text: "MaterailCNName"
+        });
+        $("#StationCode").bindSelect({
+            url: "/StationManage/StationInfo/GetStationList",
+            id: "StationCode",
+            text: "StationName"
+        });
+    }
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        $.submitForm({
+            url: "/LogisticManage/Material/SubmitForm",
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+
+<form id="form1">
+    <div style="padding-top: 20px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">物料名称</th>
+                <td class="formValue">
+                    <select id="MaterailCode" name="MaterailCode" class="form-control required" aria-readonly="True">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">工位名称</th>
+                <td class="formValue">
+                    <select id="StationCode" name="StationCode" class="form-control required" aria-readonly="True">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">调整原因</th>
+                <td class="formValue">
+                    <select id="ManualType" name="ManualType" class="form-control required">
+                        <option value="-1">=请选择=</option>
+                        <option value="0">普通调整</option>
+                        <option value="1">库存转移</option>
+                        <option value="2">工废</option>
+                        <option value="3">料费</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">调整数量</th>
+                <td class="formValue" style="width: 40px">
+                    <select id="ChangeType" name="ChangeType" class="form-control required" style="width: 80px">
+                        <option value="+">增加</option>
+                        <option value="-">扣减</option>
+                    </select>
+                </td>
+                <td>
+                    <input id="EditCount" name="EditCount" type="text" class="form-control required" style="width: 100px" placeholder="输入调整数量" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle" valign="top" style="padding-top: 5px;">调整说明</th>
+                <td class="formValue">
+                    <textarea id="F_Description" name="F_Description" class="form-control" style="height: 60px;"></textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>

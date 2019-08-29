@@ -1,0 +1,156 @@
+﻿<!DOCTYPE html>
+@{
+    ViewBag.Title = "ProductionQuality";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>车间主任日报图形数据</title>
+    <link href="~/Content/css/framework-theme.css" rel="stylesheet" />
+    <script src="~/Content/js/jquery/jquery-2.1.1.min.js"></script>
+    <script src="~/Content/js/highcharts/highcharts.js"></script>
+    <script>
+        var series = [], xname = [], series1=[],series2 = [];
+        function ProductionQualityCount()
+        {
+            series = [], xname = [], series1 = [], series2 = [];
+            $.ajax({
+                url: "/ReportManage/ProductionQuality/GetProductionQuality?startTime=" + $("#DeliveryTime_start").val() + "&endTime=" + $("#DeliveryTime_end").val(),
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    if (data.rows.length > 0) {
+                        for (var j = 0; j < data.rows.length; j++) {
+                            if (data.rows[j].Status == 2) {//报废
+                                series.push([data.rows[j].counts]);
+                            }
+                            else { series.push([0]); }
+                            xname.push(//横坐标
+                               data.rows[j].Name
+                            );
+                            if (data.rows[j].Status == 1)//不合格
+                            {
+                                series1.push([data.rows[j].counts]);
+                            }
+                            else {
+                                series1.push([0]);
+                            }
+                            if (data.rows[j].Status == 0)//合格
+                            {
+                                series2.push([data.rows[j].counts]);
+                            }
+                            else {
+                                series2.push([0]);
+                            }
+                        }
+                        getchart();
+                    }
+                    else {
+                        getchart();
+                    }
+                    return series;
+                }
+            });
+        };
+
+        function getchart() {
+            var title = "";
+            if (series.length > 0 || series1.length > 0 || series2.length > 0) {
+                title = "各工序质量报表";
+            }
+            else {
+                title = "各工序质量报表没有数据！";
+            }
+            $('#container_Histogram').highcharts({
+                chart: {
+                    zoomType: 'x'
+                },
+                title: {
+                    text: title,
+                },
+                xAxis: {
+                    categories: xname
+                },
+                yAxis: {
+                    title: {
+                        text: '个数 (个)'
+                    },
+                    plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#808080'
+                    }]
+                },
+                tooltip: {
+                    valueSuffix: '个'
+                },
+                plotOptions: {
+                    series: {
+                        cursor: 'pointer',
+                        point: {
+                            events: {
+                                click: function () {
+                                    alert(this.series.name + "," + this.x + "," + this.y)
+                                }
+                            }
+                        },
+                        marker: {
+                            lineWidth: 1
+                        }
+                    }
+                },
+                series: [{
+                    name: '报废',
+                    data: series
+                }, {
+                    name: '不合格',
+                    data: series1
+                }, {
+                    name: '合格',
+                    data: series2
+                }]
+            });
+        };
+
+        $(function () {
+            ProductionQualityCount();
+            //统计图
+            getchart();
+        });
+        $(function () {
+            $("#btn_search").click(function () {
+                ProductionQualityCount();
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="topPanel">
+        <div class="search">
+            <table>
+                <tr>
+                    <td>
+                        <div class="input-group">
+                            <input id="DeliveryTime_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'DeliveryTime_end\')}' })" placeholder="开始时间" style="width: 120px; margin-right: 10px">
+                            <input id="DeliveryTime_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'DeliveryTime_start\')}' })" placeholder="结束时间" style="width: 120px;">
+
+                            <span class="input-group-btn">
+                                <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <!---折线图-->
+    <div id="container_Histogram" style="min-width:400px;height:400px"></div>
+    <!---折线图-->
+
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,269 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script>
+    $(function () {
+        gridList();
+    })
+
+    $(window).resize(function () {
+        $("#gridList").setGridWidth($(window).width());
+    })
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/BaseManage/SysRCChannel/GetRCChannelJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                        
+                { label: "车道编号", name: "Channel", width: 100, align: 'left' },
+      
+                  {
+                      label: '区域', name: 'Area', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                          if (rowObject.Area == 1) {
+                              return 'WBS';
+                          }
+                          if (rowObject.Area == 2) {
+                              return 'PBS';
+                          }
+                    
+                      }
+                  },
+                       {
+                           label: '排区', name: 'Zone', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                               if (rowObject.Zone == 1) {
+                                   return '粗排';
+                               }
+                               if (rowObject.Zone == 2) {
+                                   return '精排';
+                               }
+
+                           }
+                       },
+                     {
+                         label: '方向', name: 'Direction', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                             if (rowObject.Direction == 1) {
+                                 return '正向';
+                             }
+                             if (rowObject.Direction == 2) {
+                                 return '反向';
+                             }
+                             if (rowObject.Direction == 3) {
+                                 return '双向';
+                             }
+                         }
+                     },
+                    { label: "车位长度", name: "Length", width: 120, align: 'left' },
+                    {
+                        label: '特殊通道标记', name: 'VIPFlag', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                            if (rowObject.VIPFlag == 0) {
+                                return '否';
+                            }
+                            if (rowObject.VIPFlag == 1) {
+                                return '是';
+                            }
+
+                        }
+                    },
+                    {
+                        label: '专属车道', name: 'PrivateFor', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                            if (rowObject.PrivateFor == 1) {
+                                return 'SUV ';
+                            }
+                            if (rowObject.PrivateFor == 2) {
+                                return '皮卡';
+                            }
+                            if (rowObject.PrivateFor == 3) {
+                                return '轻卡';
+                            }
+                            if (rowObject.PrivateFor == 4) {
+                                return '小众车';
+                            }
+                        }
+                    },
+              
+                { label: "线体商车道编号", name: "IFChannel", width: 160, align: 'left' },
+                { label: "车道顺序", name: "ChannelSeq", width: 100, align: 'left' },
+                    {
+                        label: '锁止状态', name: 'LockState', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                            if (rowObject.LockState == 0) {
+                                return '开放';
+                            }
+                            if (rowObject.LockState == 1) {
+                                return '锁止';
+                            }
+
+                        }
+                    },
+                { label: "备注", name: "F_Description", width: 160, align: 'left' },
+                { label: "创建人", name: "F_CreatorUserName", width: 100, align: 'left' },
+               {
+                   label: '创建时间', name: 'F_CreatorTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                       if (cellvalue != "") {
+                           return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                       }
+                   }
+
+               },
+                { label: "修改人", name: "F_LastModifyUserName", width: 100, align: 'left' },
+                {
+                    label: '修改时间', name: 'F_LastModifyTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "" && cellvalue != null && cellvalue != undefined) {
+                            return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                        }
+                    }
+
+                }
+               
+            ],
+            pager: "#gridPager",
+            sortname: 'F_CreatorTime asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { Channel: $("#Channel").val(), Area1: $("#Area").val(), Zone: $("#Zone").val(), Direction: $("#Direction").val(), LockState: $("#LockState").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+    }
+
+    function btn_add() {
+        $.modalOpen({
+            id: "Form",
+            title: "新建",
+            url: "/BaseManage/SysRCChannel/Form",
+            width: "800px",
+            height: "430px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_edit() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        //修改 进行修改操作确定后没有选中行却一样可以操作--bichen
+        if (keyValue == null) {
+            $.modalAlert("请选中一行", "warning");
+        } else {
+            $.modalOpen({
+                id: "Form",
+                title: "修改",
+                url: "/BaseManage/SysRCChannel/Form?keyValue=" + keyValue + "",
+                width: "900px",
+                height: "380px",
+                callBack: function (iframeId) {
+                    top.frames[iframeId].submitForm();
+                }
+            });
+        }
+    }
+
+ 
+    function btn_delete() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        //修改 进行修改操作确定后没有选中行却一样可以操作--bichen
+        if (keyValue == null) {
+            $.modalAlert("请选中一行", "warning");
+        } else {
+            $.deleteForm({
+                url: "/BaseManage/SysRCChannel/DeleteForm",
+                param: { keyValue:keyValue},
+                success: function () {
+                    $("#gridList").resetSelection();
+                    $("#gridList").trigger("reloadGrid");
+                }
+            })
+        }
+    }
+    //清空文本框--bichen
+    function clean() {
+        $("#Channel").val("");
+        $("#Area").val("-1");
+        $("#Zone").val("-1");
+        $("#Direction").val("-1");
+        $("#LockState").val("-1");
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建</a>
+        </div>
+        <div class="operate">
+            <ul class="nav nav-pills">
+                <li class="first">已选中<span>1</span>项</li>
+                <li><a id="NF-edit" authorize="yes" onclick="btn_edit()"><i class="fa fa-pencil-square-o"></i>修改</a></li>
+                <li><a id="NF-delete" authorize="yes" onclick="btn_delete()"><i class="fa fa-trash-o"></i>删除</a></li>
+            </ul>
+            <a href="javascript:;" class="close"></a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="Channel" type="text" class="form-control" placeholder="车道编号" style="width: 100px; margin-right:10px">
+                        <select id="Area" name="Area" class="form-control required" style="width: 150px; margin-right:10px">
+                            <option value="-1">==选择区域==</option>
+                            <option value="1">WBS</option>
+                            <option value="2">PBS</option>
+                        </select>
+                        <select id="Zone" name="Zone" class="form-control required" style="width: 150px; margin-right:10px">
+                            <option value="-1">==选择排区==</option>
+                            <option value="1">粗排</option>
+                            <option value="2">精排</option>
+                        </select>
+                        <select id="Direction" name="Direction" class="form-control required" style="width: 150px; margin-right:10px">
+                            <option value="-1">==选择方向==</option>
+                            <option value="1">正向</option>
+                            <option value="2">反向</option>
+                            <option value="3">双向</option>
+                        </select>
+                        @*<select id="VIPFlag" name="VIPFlag" class="form-control required" style="width: 150px; margin-right:10px">
+                            <option value="-1">==选择是否特殊通道==</option>
+                            <option value="false">否</option>
+                            <option value="true">是</option>
+                        </select>*@
+                        <select id="LockState" name="LockState" class="form-control required" style="width: 150px;">
+                            <option value="-1">==选择锁止状态==</option>
+                            <option value="0">开放</option>
+                            <option value="1">锁止</option>
+                        </select>
+                  
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+                @* 清空文本框--bichen*@
+                <td>
+                    <div class="input-group">
+                        <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class="fa fa-link"></i></button>
+                    </div>
+                </td>
+            </tr>
+
+        </table>
+
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+

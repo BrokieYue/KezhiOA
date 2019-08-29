@@ -1,0 +1,226 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+   
+}
+<script>
+
+    var keyValue = $.request("keyValue");
+    var update = $.request("update");
+  
+    var codeid;
+    $(function () {
+        $("#Vcode").attr("readOnly", "true");
+        initControl();
+        initCarModel();
+        $("#VINTitle").hide();
+        $("#VINtd").hide();
+        if (!!keyValue) {
+            $.ajax({
+                url: "/PlanManage/PlanInfo/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                   
+                    $("#form1").formSerialize(data);
+                }
+
+            });
+            if (update > 0) {
+            
+                $("#Type_Code").attr("disabled", "disabled");
+                $("#JobNo").attr("disabled", "disabled");
+                $("#Vcode").attr("disabled", "disabled");
+                $("#Qty").attr("disabled", "disabled");
+                $("#PlanDate").attr("disabled", "disabled");
+                $("#Deadline").attr("disabled", "disabled");
+                $("#RouteNo").attr("disabled", "disabled");
+                $("#VINCode").attr("disabled", "disabled");
+                $.modalAlert("已拆单计划只能修改备注信息！", "warning")
+            }
+            
+         
+        } else {
+            $("#Type_Code").change(function () {
+                  codeid = $("#Type_Code").val();
+                $.ajax({
+                    type: "post",
+                    url: "/PlanManage/PlanInfo/Stecondeid",
+                    data: { codeid: codeid },
+                    success: function (data) {
+                        $("#JobNo").val(data);
+                    }
+                });
+                TypeCodeVcode();
+            });
+        }
+        codeid = $("#Type_Code").val();
+        TypeCodeVcode();
+        $("#Vcode").dblclick(function () {
+            var Type_Code = $("#Type_Code").val();
+            if (Type_Code == "ZS" || Type_Code == "ZL" || Type_Code == "BB") {
+                var win = window.open("../../BaseManage/VehicleCode/VehicleList", "整车编码列表", " height=450,width=1050,Left=300px,Top=100px, menubar=no,titlebar=no,scrollbar=no,toolbar=no,status=no,location=no");
+            } else {
+             
+                $.modalAlert("请先选择计划类型！", "warning")
+                return false;
+            }
+           
+        });
+
+        $("#RouteNo").dblclick(function () {
+            var vCode = $("#Vcode").val();
+            if (vCode == '' || vCode == undefined || vCode == null) {
+                $.modalAlert("请先选择整车/物料编码！", "warning")
+                return false;
+            }
+            else {
+                if (fg == 1) {
+                    var win = window.open("../../BaseManage/SysOpRoute/RouteList", "工艺路线列表", " height=450,width=1050,Left=300px,Top=100px, menubar=no,titlebar=no,scrollbar=no,toolbar=no,status=no,location=no");
+                }
+                else {
+                    $.ajax({
+                        type: "post",
+                        url: "/PlanManage/PlanInfo/GetRouteNO",
+                        data: { vCode: vCode },
+                        success: function (data) {
+                            if (data == '' || data == undefined || data == null) {
+                                $.modalAlert("该车型平台未配置工艺路线!", "warning")
+                                return false;
+                            }
+                            else {
+                               
+                                $("#RouteNo").val(data);
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
+    });
+
+
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        $.submitForm({
+            url: "/PlanManage/PlanInfo/SubmitForm?keyValue=" + keyValue +"",
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+    
+    function initControl() {
+        $("#Type_Code").bindSelect({
+            url: "/PlanManage/PlanInfo/GetItemnew",
+            param: { anCode: "Sys_BJPlanTyp", bnCode: "Sys_ZCPlanTyp" }
+        });
+    }
+    function initCarModel() {
+        //$("#CarModel").bindSelect({
+        //    url: "/BaseManage/SysOpRoute/GetItemList",
+        //    param: { anCode: "PTDY" }
+        //});
+    }
+    var fg = 0;
+    function TypeCodeVcode() {
+        if (codeid == "BL") {
+            fg = 1;
+            $("#Vcode").attr("readOnly", false);
+            $("#Vcode").attr('placeholder', "请输入物料编码");
+            $("#Vcodeid").html("物料编码：")
+        } else {
+            fg = 0;
+            $("#Vcode").attr("readOnly", "true");
+            $("#Vcode").attr('placeholder', "双击选择整车编码");
+            $("#Vcodeid").html("整车编码：");
+        }
+
+        if (codeid == "BB") {
+
+            $("#VINTitle").show();
+            $("#VINtd").show();
+        } else {
+            $("#VINTitle").hide();
+            $("#VINtd").hide();
+            $("#VINCode").val("");
+            
+        }
+    }
+</script>
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+        @*<ul class="nav nav-tabs">
+                <li role="presentation" class="active">基本信息</li>
+            </ul>*@
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">计划类型：</th>
+                    <td class="formValue">
+                        <select id="Type_Code" name="Type_Code" class="form-control required"> <option value="" selected>==请选择== </option></select>
+                    </td>
+                    <th class="formTitle"> 计划号：</th>
+                    <td class="formValue">
+                        <input id="JobNo" name="JobNo" type="text" class="form-control required" style="background-color: LightGrey" readonly="readonly" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle" id="Vcodeid">整车编码：</th>
+                    <td class="formValue">
+                        <input id="Vcode" name="Vcode"  type="text" class="form-control required" placeholder="双击选择整车编码" />
+                    </td>
+                    <th class="formTitle">计划数量：</th>
+                    <td class="formValue">
+                        <input id="Qty" name="Qty" type="text" class="form-control required" onkeyup="value=value.replace(/[^\d]/g,'')" placeholder="请输入计划数量" />
+                    </td>
+                   
+                </tr>
+                <tr>
+                    <th class="formTitle">生产日期：</th>
+                    <td class="formValue">
+                        <input id="PlanDate" name="PlanDate" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ Date: '#F{$dp.$D(\'PlanDate\')}' })" placeholder="计划生产日期" readonly="readonly">
+                     
+                    </td>
+                    <th class="formTitle">完成日期：</th>
+                    <td class="formValue">
+                        <input id="Deadline" name="Deadline" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ Date: '#F{$dp.$D(\'Deadline\')}' })" placeholder="计划完成日期" readonly="readonly">
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle" id="RouteID">工艺路线：</th>
+                    <td class="formValue">
+                        <input id="RouteNo" name="RouteNo" type="text" readonly="readonly" class="form-control required" placeholder="双击选择工艺路线" />
+                    </td>  
+                    <th class="formTitle" id="VINTitle">VIN码编号：</th>
+                    <td class="formValue" id="VINtd">
+                        <input id="VINCode" name="VINCode" type="text" class="form-control required" placeholder="请输入VIN码编号" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle" style="display:none;">BOM：</th>
+                    <td class="formValue" style="display:none;">
+                        <input id="BOM" name="BOM" type="text" class="form-control " placeholder="请输入BOM" />
+                    </td>
+                    <td class="formValue">
+                        <input id="CarModel" name="CarModel" type="text" class="form-control required" style="display:none;" />
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th class="formTitle" style="padding-top: 5px;">
+                        备注：
+                    </th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="F_Description" name="F_Description" class="form-control" style="height: 60px;"></textarea>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>

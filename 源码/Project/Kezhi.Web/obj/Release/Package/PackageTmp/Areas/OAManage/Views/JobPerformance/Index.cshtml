@@ -1,0 +1,171 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        loadSelect();
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/OAManage/JobPerformance/GetGridJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: '主键', name: 'F_Id', hidden: true },
+                { label: '人员ID', name: 'F_WorkUserId', hidden: true },
+                { label: '部门', name: 'F_OrganizeName', width: 80, align: 'left' },
+                { label: '姓名', name: 'F_WorkUserName', width: 80, align: 'left' },
+                { label: '日期', name: 'F_WorkDate', width: 80, align: 'left', formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' } },
+                {
+                    label: '星期', name: 'F_WorkDate', width: 120, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        var weekArray = new Array("日", "一", "二", "三", "四", "五", "六");
+                        return "星期" + weekArray[new Date(cellvalue).getDay()];
+                    }
+                },
+                { label: '项目ID', name: 'F_ProjectId', hidden: true },
+                { label: '所在项目', name: 'F_ProjectCode', width: 80, align: 'left',hidden: true},
+                { label: '上班地点', name: 'F_WorkAddress', width: 180, align: 'left' },
+                { label: '外场说明', name: 'F_WorkAddressCode', width: 120, align: 'left' },
+                { label: "出勤时间(H)", name: "F_WorkedHours", width: 120, align: "left" },
+                { label: '已支付工时(H)', name: 'F_PayHours', width: 120, align: 'left' },
+                { label: '可调休工时(H)', name: 'F_RestHours', width: 120, align: 'left' },
+                { label: '考核扣除工时(H)', name: 'F_DeductHours', width: 120, align: 'left' },
+                { label: '餐贴', name: 'F_MealSubsidy', width: 100, align: 'left' },
+                { label: '津贴', name: 'F_WorkSubsidy', width: 100, align: 'left' }
+            ],
+            pager: "#gridPager",
+            sortname: 'F_WorkUserId asc,F_WorkDate asc',
+            viewrecords: true,
+            multiSort: false,
+            //multiSort: true,
+            sortable: false,
+            remoteSort: false,
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyword: $("#txt_WorkUser").val(), startTime: $("#startTime").val(), endTime: $("#endTime").val(), organize: $("#F_OrganizeId").val(), filiale: $("#F_FilialeId").val(), prevmonth: $("#F_MonthSelect").is(":checked") },
+            }).trigger('reloadGrid');
+        });
+    }
+    function loadSelect() {
+        //部门
+        $("#F_OrganizeId").bindSelect({
+            url: "/SystemManage/Organize/GetTreeSelectJson",
+            id: "text",
+            text: "text"
+        });
+        $("#F_FilialeId").bindSelect({
+            url: "/SystemManage/ItemsData/GetKezhiJson",
+            id: "F_Id",
+            text: "F_ItemName"
+        });
+        $("#F_MonthSelect").click(function () {
+            if ($("#startTime").is(":disabled")) {
+                $("#startTime").removeAttr("disabled");
+            } else {
+                $("#startTime").attr("disabled", "disabled").val("")
+            }
+            if ($("#endTime").is(":disabled")) {
+                $("#endTime").removeAttr("disabled")
+            } else {
+                $("#endTime").attr("disabled", "disabled").val("")
+            }
+        })
+    }
+    function btn_edit() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        $.modalOpen({
+            id: "Form",
+            title: "修改绩效",
+            url: "/OAManage/JobPerformance/Form?keyValue=" + keyValue,
+            width: "700px",
+            height: "510px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_delete() {
+        $.deleteForm({
+            url: "/OAManage/JobPerformance/DeleteForm",
+            param: { keyValue: $("#gridList").jqGridRowValue().F_Id },
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+    function btn_Export() {
+        var user = $("#txt_WorkUser").val();
+        var startTime = $("#startTime").val();
+        var endTime = $("#endTime").val();
+        var organize = $("#F_OrganizeId").val();
+        var filiale = $("#F_FilialeId").val();
+        var prevMonth = $("#F_MonthSelect").is(":checked");
+        //导出绩效
+        var form = $("<form>");   //定义一个form表单
+        form.attr('style', 'display:none');   //在form表单中添加查询参数
+        form.attr('target', '');
+        form.attr('id', 'formDownload');
+        form.attr('method', 'post');
+        var url = "/OAManage/JobPerformance/ExcelPerformance?keyword=" + user + "&startTime=" + startTime + "&endTime=" + endTime + "&organize=" + organize + "&filiale=" + filiale + "&prevmonth=" + prevMonth;
+        form.attr('action', url);
+        $('body').append(form);  //将表单放置在web中
+        form.submit();
+
+        $('#formDownload').remove();
+    }
+    
+</script>
+
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        @*<div class="btn-group">
+        <a id="NF-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建</a>
+    </div>*@
+        <div class="btn-group">
+            <a id="NF-Export"  class="btn btn-primary dropdown-text" onclick="btn_Export()"><i class="fa fa-upload"></i>导出</a>
+        </div>
+        <div class="operate">
+            <ul class="nav nav-pills">
+                <li class="first">已选中<span>1</span>项</li>
+                <li><a id="NF-edit"  onclick="btn_edit()"><i class="fa fa-pencil-square-o"></i>修改</a></li>
+                @*<li><a id="NF-delete"  onclick="btn_delete()"><i class="fa fa-trash-o"></i>删除</a></li>*@
+                <li class="split"></li>
+            </ul>
+            <a href="javascript:;" class="close"></a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <select id="F_OrganizeId" name="F_OrganizeId" class="form-control" style="width:120px; margin-right:10px">
+                            <option value="">==请选择部门==</option>
+                        </select>
+                        <select id="F_FilialeId" name="F_FilialeId" class="form-control" style="width:120px; margin-right:10px">
+                            <option value="">==请选择分公司==</option>
+                        </select>
+                        <input id="txt_WorkUser" name="txt_WorkUser" type="text" class="form-control" placeholder="人员" style="width: 200px;">
+                        <input id="startTime" name="startTime" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ skin: 'whyGreen', dateFmt: 'yyyy-MM-dd' })" placeholder="开始日期" style="width: 140px; margin-left: 30px">
+                        <input id="endTime" name="endTime" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ skin: 'whyGreen', dateFmt: 'yyyy-MM-dd' })" placeholder="结束日期" style="width: 140px;margin-left:20px;">
+                        <input type="checkbox" id="F_MonthSelect" class="form-control" style="width:26px;height:26px;margin-left:10px;margin-right:5px;" value="week" /><span style="margin-right: 30px;">上月</span>
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>

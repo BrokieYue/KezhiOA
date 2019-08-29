@@ -1,0 +1,99 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+
+}
+<script>
+
+    var keyValue = $.request("keyValue");
+    $(function () {
+
+        if (!!keyValue) {
+            $.ajax({
+                url: "/QualitycheManage/QAThreeCoordResult/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+
+                    $("#form1").formSerialize(data);
+                }
+
+            });
+
+        }
+       
+    });
+
+
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        $.submitForm({
+            url: "/QualitycheManage/QAThreeCoordResult/SubmitForm?keyValue=" + keyValue + "",
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+
+</script>
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form" >
+                <tr>
+                    <th class="formTitle">Vin码：</th>
+                    <td class="formValue">
+                        <input id="VinCode" name="VinCode" type="text" class="form-control required" placeholder="请输入Vin码"  />
+                    </td>
+
+                </tr>
+                <tr>
+                    <th class="formTitle">白车身总合格率：</th>
+                    <td class="formValue">
+                        <input id="VehiclePass" name="VehiclePass" type="text" class="form-control " placeholder="白车身总合格率" onkeyup="value=value.replace(/[^\d.]/g,'')"  />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">关键孔合格率：</th>
+                    <td class="formValue">
+                        <input id="KeyHolePass" name="KeyHolePass" type="text" class="form-control " placeholder="关键孔合格率" onkeyup="value=value.replace(/[^\d.]/g,'')"  />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">功能尺寸合格率：</th>
+                    <td class="formValue">
+                        <input id="FunctionSizePass" name="FunctionSizePass" type="text" class="form-control " placeholder="功能尺寸合格率" onkeyup="value=value.replace(/[^\d.]/g,'')" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle"> 不合格点数：</th>
+                    <td class="formValue">
+                        <input id="FailPoints" name="FailPoints" type="text" class="form-control required" placeholder="不合格点数" oninput="value=value.replace(/[^\d]/g,'')" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle"> 是否合格：</th>
+                    <td class="formValue">
+                        <select id="NoOrYes" name="NoOrYes" class="form-control required">
+                            <option value="">==请选择==</option>
+                            <option value="0">否</option>
+                            <option value="1">是</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle"> 备注：</th>
+                    <td class="formValue">
+                        <input id="F_Description" name="F_Description" type="text" class="form-control" placeholder="备注" />
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+    </div>
+</form>

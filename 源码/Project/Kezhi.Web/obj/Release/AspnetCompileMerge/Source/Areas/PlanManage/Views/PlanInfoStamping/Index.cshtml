@@ -1,0 +1,431 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+        loadSelect();
+        $("#btn_more").click(function () {
+            var obj = document.getElementById("icoMore").className;
+            if (obj == "fa fa-angle-double-down") {
+                document.getElementById("icoMore").setAttribute("class", "fa fa-angle-double-up");
+                document.getElementById("search_level").style.display = "block";
+                $("#gridList").setGridHeight($(window).height() - 168);
+
+            }
+            else {
+                document.getElementById("icoMore").setAttribute("class", "fa fa-angle-double-down");
+                document.getElementById("search_level").style.display = "none";
+                $("#gridList").setGridHeight($(window).height() - 128);
+            }
+        });
+    })
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/PlanManage/PlanInfoStamping/GetPlanJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "计划号", name: "JobNo", width: 130, align: 'left' },
+                { label: '物料编号', name: 'Vcode', width: 150, align: 'left' },
+                { label: '特性值', name: 'LOT_Code', width: 80, align: 'left' },
+                {
+                    label: '计划生产日期', name: 'PlanDate', width: 90, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "") {
+                            return '<span >' + cellvalue.substr(0, 10) + '</span>';
+                        }
+                    }
+
+                },
+                {
+                    label: '交期', name: 'Deadline', width: 90, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "") {
+                            return '<span >' + cellvalue.substr(0, 10) + '</span>';
+                        }
+                    }
+
+                },
+                { label: '计划数量', name: 'Qty', width: 80, align: 'left' },
+                //{ label: '已拆单数量', name: 'OriginQty', width: 80, align: 'left' },
+                { label: '完工数量', name: 'CompletedQty', width: 80, align: 'left' },
+                //{ label: 'BOM编号', name: 'BOM', width: 100, align: 'left' },
+                { label: '计划类型', name: 'Type_ID', align: 'left', hidden: true },
+                 { label: '计划类型', name: 'Type_Name', width: 80, align: 'left' },
+                { label: 'Source', name: 'Source', align: 'left', hidden: true },
+                {
+                    label: '计划来源', name: 'SourceStr', width: 80, align: 'left', formatter: function (cellvalue, options, rowObject) {
+
+                        if (rowObject.Source == 0) {
+                            return '<span >ERP接口</span>';
+                        }
+                        if (rowObject.Source == 1) {
+                            return '<span >手工导入</span>';
+                        }
+                        else {
+                            return '<span >手工创建</span>';
+                        }
+                    }
+                },
+                  { label: '完工标识', name: 'CompletedMark', align: 'left', hidden: true },
+                {
+                    label: '完工状态', name: 'CompletedMarkstr', width: 70, align: 'left', formatter: function (cellvalue, options, rowObject) {
+
+                        if (rowObject.CompletedMark == 0) {
+                            return '未开始';
+                        } else if (rowObject.CompletedMark == 1) {
+                            return '部分完成';
+                        } else if (rowObject.CompletedMark == 2) {
+                            return '完成生产';
+                        }
+                       
+                       
+                    }
+                },
+
+                { label: '创建人', name: 'F_CreatorUserId', align: 'left', hidden: true },
+                { label: '创建人', name: 'F_CreatorUserName', width: 90, align: 'left' },
+                {
+                    label: '创建时间', name: 'F_CreatorTime', width: 120, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "" && cellvalue != null && cellvalue != undefined) {
+                            var d =cellvalue;
+                            return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                        }
+                    }
+
+                },
+                { label: '备注', name: 'F_Description', width: 200, align: 'left' }
+
+            ],
+
+            pager: "#gridPager",
+            sortname: 'F_CreatorTime asc',
+            viewrecords: true,
+            multiselect: true,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { JobNo: $("#JobNo").val(), splitFlag: "", type: $("#Type_ID").val(), source: $("#Source").val(), starttime: $("#Deadline_start").val(), endtime: $("#Deadline_end").val(), vCode: $("#VCode").val(), bom: $("#BOM").val(), fCreatorUserId: $("#F_CreatorUserId").val(), creatorTimeStart: $("#CreatorTime_start").val(), creatorTimeEnd: $("#CreatorTime_end").val(), startPlantime: $("#PlanTime_start").val(), endPlantime: $("#PlanTime_end").val(),  CompletedMark:$("#CompletedMark").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+
+    }
+
+
+    $(window).resize(function () {
+        $("#gridList").setGridWidth($(window).width());
+    })
+
+    function loadSelect() {
+        //用户列表
+        $("#F_CreatorUserId").bindSelect({
+            url: "../../SystemManage/User/GetUserListJson",
+            id: "F_Id",
+            text: "F_RealName"
+        });
+
+    }
+
+    //计划接收-杨鑫
+    function btn_pause() {
+
+        //var keyValue = $("#gridList").jqGridRowValue()[0]
+        //  var planState = $("#gridList").jqGridRowValue()[0].PlanState;
+        // receiveID=" + receiveID + "&startTime=" + startTime + "&EndTime+" + EndTime + "
+        $.modalOpen({
+            id: "Form",
+            title: "计划接收",
+            url: "/PlanManage/PlanInfoStamping/FormReceiveStamping?",
+            width: "410px",
+            height: "220px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    //计划创建-杨鑫
+    function btn_add() {
+
+        $.modalOpen({
+            id: "Form",
+            title: "计划创建",
+            url: "/PlanManage/PlanInfoStamping/Form",
+            width: "900px",
+            height: "350px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    //计划修改-杨鑫
+    function btn_edit() {
+        var keyValue = $("#gridList").jqGridRowValue()[0].F_Id;
+        var arryid = [];
+        var selrow = $("#gridList").jqGridRowValue();
+        
+        for (var i = 0; i < selrow.length; i++) {
+            arryid.push(selrow[i].F_Id);
+        }
+        if (arryid.length > 1) {
+            $.modalAlert("请选择一条有效数据！", "warning")
+            return false;
+        }
+        //var splitflag = $("#gridList").jqGridRowValue()[0].SplitFlag;
+        if (keyValue) {
+            //if (splitflag != 0) {
+            //    $.modalAlert("计划已拆单不能修改！", "warning")
+            //    return false;
+            //}
+            $.modalOpen({
+                id: "Form",
+                title: "修改计划",
+                url: "/PlanManage/PlanInfoStamping/Form?keyValue=" + keyValue + "",
+                width: "900px",
+                height: "350px",
+                callBack: function (iframeId) {
+                    top.frames[iframeId].submitForm();
+                }
+            });
+        } else {
+            $.modalAlert("请选择一条有效数据！", "warning")
+            return false;
+        }
+    }
+
+    //下载模板 -Liko
+    function btn_downimport() {
+        var form = $("<form>");   //定义一个form表单
+        form.attr('style', 'display:none');   //在form表单中添加查询参数
+        form.attr('target', '');
+        form.attr('id', 'formDownload');
+        form.attr('method', 'post');
+        var url = "/PlanManage/PlanInfoStamping/PlanExcel";
+        form.attr('action', url);
+
+        $('body').append(form);  //将表单放置在web中
+        form.submit();
+
+        $('#formDownload').remove();
+    }
+
+    //导入 -Liko
+    function btn_import() {
+        //批量导入
+        $.modalOpen({
+            id: "Index",
+            title: "导入预览",
+            url: "/PlanManage/UploadExcel/UpPlanStamping",
+            width: "930px",
+            height: "810px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+                loadSelect();
+            }
+        });
+    }
+
+    //取消 -Liko
+    function btn_delete() {
+        var arryid = [];
+        var selrow = $("#gridList").jqGridRowValue();
+        var CoQty = [];
+        for (var i = 0; i < selrow.length; i++) {
+            arryid.push(selrow[i].F_Id);
+            if (selrow[i].CompletedMark > 0) {
+                CoQty.push(selrow[i].F_Id);
+            }
+        }
+        if (arryid.length == 0) {
+            $.modalAlert("请选择一条有效数据！", "warning")
+            return false;
+        }
+        if (CoQty.length >0) {
+            $.modalAlert("选择的计划已开始生产不能取消！", "warning")
+            return false;
+        }
+        $.modalConfirm("注：您确定取消已选计划？", function (r) {
+            if (r) {
+                $.submitForm({
+                    url: "/PlanManage/PlanInfoStamping/DeletePlan",
+                    param: { keyValue: arryid.join(",") },
+                    success: function () {
+                        $.currentWindow().$("#gridList").trigger("reloadGrid");
+                    }
+                })
+            }
+        });
+    }
+    //提前完工
+    function btn_finished() {
+        var arryid = [];
+        var selrow = $("#gridList").jqGridRowValue();
+        var _list = {};
+     
+        for (var i = 0; i < selrow.length; i++) {
+            arryid.push(selrow[i].F_Id);
+            if (selrow[i].CompletedMark > 0) {
+           
+            }
+        }
+        if (arryid.length == 0) {
+            $.modalAlert("请选择一条有效数据！", "warning")
+            return false;
+        }
+        for (var i = 0; i < selrow.length; i++) {
+            _list["selectedIDs[" + i + "]"] = selrow[i].F_Id;
+        }
+        $.modalConfirm("注：您确定提前完工已选计划？", function (r) {
+            if (r) {
+                $.submitForm({
+                    url: "/PlanManage/PlanInfoStamping/finishedPlan",
+                    param: _list,
+                    success: function () {
+                        $.currentWindow().$("#gridList").trigger("reloadGrid");
+                    }
+                })
+            }
+        });
+    }
+    //清空文本框--bichen
+    function clean() {
+
+        $("#JobNo").val("");
+        $("#Type_ID").val("");
+        $("#Source").val("-1");
+        $("#Deadline_start").val('');
+        $("#Deadline_end").val("");
+        $("#VCode").val("");
+        $("#BOM").val("");
+        $("#PlanTime_start").val("");
+        $("#PlanTime_end").val("");
+        $("#F_CreatorUserId").val("");
+        $("#CreatorTime_start").val("");
+        $("#CreatorTime_end").val("");
+    }
+    //导出
+    function btn_export() {
+        var form = $("<form>");   //定义一个form表单
+        form.attr('style', 'display:none');   //在form表单中添加查询参数
+        form.attr('target', '');
+        form.attr('id', 'formDownload');
+        form.attr('method', 'post');
+        var url = "/PlanManage/PlanInfoStamping/DownLoadOrderExcel?JobNo=" + $("#JobNo").val() + "&type=" + $("#Type_ID").val() + "&source=" + $("#Source").val() + "&starttime=" + $("#Deadline_start").val() + "&endtime=" + $("#Deadline_end").val() + "&vCode=" + $("#VCode").val() + "&fCreatorUserId=" + $("#F_CreatorUserId").val() + "&CompletedMark=" + $("#CompletedMark").val();
+        form.attr('action', url);
+        $('body').append(form);  //将表单放置在web中
+        form.submit();
+
+        $('#formDownload').remove();
+    };
+</script>
+<div class="topPanel">
+    @*  <a id="NF-pause" authorize="yes" class="btn btn-primary " onclick="test(this)"><i class="fa fa-pause "></i>条件查询</a>*@
+    <div class="toolbar">
+        <div class="btn-group">
+            <a id="NF-add" authorize="yes" class="btn btn-primary " onclick="btn_add()"><i class="fa fa-plus"></i>新建</a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-edit" authorize="yes" class="btn btn-primary " onclick="btn_edit()"><i class="fa fa-edit"></i>编辑</a>
+        </div>
+        @*<div class="btn-group">
+            <a id="NF-downimport" authorize="yes" class="btn btn-primary " onclick="btn_downimport()"><i class="fa fa-download"></i>模板下载</a>
+        </div>*@
+        <div class="btn-group">
+            <a id="NF-import" authorize="yes" class="btn btn-primary " onclick="btn_import()"><i class="fa fa-upload"></i>导入</a>
+        </div>
+
+        <div class="btn-group">
+            <a id="NF-pause" authorize="yes" class="btn btn-primary " onclick="btn_pause()"><i class="fa fa-pause "></i>接收</a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-delete" authorize="yes" class="btn btn-primary " onclick="btn_delete()"><i class="fa fa-trash-o "></i>取消</a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-finished" authorize="yes" class="btn btn-primary " onclick="btn_finished()"><i class="fa fa-stop "></i>提前完工</a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-export" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_export()">导出</a>
+        </div>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="JobNo" type="text" class="form-control" placeholder="计划号" style="width: 100px; margin-right:5px">
+                        <select id="Type_ID" name="Type_ID" class="form-control required" style="width: 120px; margin-right: 5px">
+                            <option value="">==计划类型==</option>
+                            <option value="2ce6ba01-b35d-4be3-a526-23162cfe8e5f">冲压A线</option>
+                            <option value="8dd4a3c2-c39f-4bab-9961-b34c5cac22fb">冲压B线</option>
+                            <option value="ac156945-8543-4038-8416-9e5cdda5aaa2">落料线</option>
+                            <option value="2c62469d-deb8-4117-8956-439a697be6ed">凸焊线</option>
+                            <option value="08e78e19-67c1-44bf-b4f9-59c126eba363">返工计划</option>
+                        </select>
+                        <select id="Source" name="Source" class="form-control required" style="width: 120px; margin-right: 5px">
+                            <option value="-1">==计划来源==</option>
+                            <option value="0">ERP接口</option>
+                            @*<option value="1">手工导入</option>*@
+                            <option value="2">手动创建</option>
+                        </select>
+                        <input id="Deadline_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'Deadline_end\')}' })" placeholder="交货时间（开始）" style="width: 120px; margin-right: 5px">
+                        <input id="Deadline_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'Deadline_start\')}' })" placeholder="交货时间（结束）" style="width: 120px; ">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+                @*修改下拉按钮位置--bichen*@
+                <td>
+                    <div class="input-group">
+                        <button id="btn_more" type="button" class="btn  btn-primary" style="margin-left: 5px"><i id="icoMore" class="fa fa-angle-double-down"></i></button>
+                    </div>
+                </td>
+                @* 清空文本框--bichen*@
+                <td>
+                    <div class="input-group">
+                        <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class=" fa fa-link"></i></button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+</div>
+<div id="search_level" style="display:none;">
+    <div class="topPanel" style="height:40px;">
+        <div class="search">
+            <table border="0" cellpadding="0" cellspacing="0" style="border-collapse:separate; border-spacing:0px 1px;">
+                <tr>
+                    <td style="height: 40px; line-height: 40px;">
+                        <span class="input-group" style="border: none; margin-bottom: 1px;">
+                            <input id="VCode" type="text" class="form-control" placeholder="物料编码" style="width: 140px; margin-right:10px">
+                            @*<input id="BOM" type="text" class="form-control" placeholder="BOM编号" style="width: 140px; margin-right:10px">*@
+                            <input id="PlanTime_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'PlanTime_start\')}' })" placeholder="计划生产时间（开始）" style="width: 140px; margin-right: 10px">
+                            <input id="PlanTime_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'PlanTime_end\')}' })" placeholder="计划生产时间（结束）" style="width: 140px; margin-right: 10px">
+                            <select id="CompletedMark" name="CompletedMark" class="form-control" style="width: 140px; margin-right: 10px">
+                                <option value="3">==完工状态==</option>
+                                <option value = "1"selected = "selected" >未完成</option>
+                                <option value="2">已完成</option>
+                            </select>
+                            <select id="F_CreatorUserId" name="F_CreatorUserId" class="form-control" style="width: 140px; margin-right: 10px">
+                                <option value="">==创建人==</option>
+                            </select>
+                            <input id="CreatorTime_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'CreatorTime_end\')}' })" placeholder="创建时间（开始）" style="width: 140px; margin-right: 10px">
+                            <input id="CreatorTime_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'CreatorTime_end\')}' })" placeholder="创建时间（结束）" style="width: 140px; margin-right: 10px">
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+

@@ -1,0 +1,105 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/BaseManage/VehicleCode/GetVehicleJson",
+            height: $(window).height() - 165,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "整车编码", name: "Vcode", align: 'left', width: 150 },
+                { label: "生产标识", name: "ProduceFlag_Name", width: 100, align: 'left' },
+                { label: '车型平台ID', name: 'CarModelID', align: 'left', hidden: true, },
+                { label: '车型平台Code', name: 'CarModelCode', align: 'left', hidden: true, },
+                { label: '车型平台', name: 'CarModel_Name', width: 100, align: 'left' },
+                { label: '发动机类型', name: 'EngineType_Name', width: 120, align: 'left' },
+                { label: '变速箱', name: 'Gearbox_Name', width: 120, align: 'left' },
+                { label: "驱动形式", name: "Drive_Name", align: 'left', width: 80 },
+                { label: "排放标准", name: "EmissionSTD_Name", align: 'left', width: 80 },
+                { label: '配置', name: 'Config_Name', width: 100, align: 'left' },
+                { label: '外饰风格', name: 'Outlook_Name', width: 100, align: 'left' },
+                { label: '内饰风格', name: 'Inside_Name', width: 100, align: 'left' },
+                { label: '整车描述', name: 'ItemName', width: 150, align: 'left' },
+                { label: '4-8位代码段', name: 'VinValue', width: 80, align: 'left' },
+                {
+                    label: '是否含天窗', name: 'SkylightMarkStr', width: 90, align: 'left', formatter: function (cellvalue, options, rowObject) {
+
+                        if (rowObject.SkylightMark) {
+                            return '<span >是</span>';
+                        }
+                        else {
+                            return '<span >否</span>';
+                        }
+                    }
+                },
+
+                { label: '创建人', name: 'F_CreatorName', width: 100, align: 'left' },
+                 {
+                     label: '创建时间', name: 'F_CreatorTime', width: 120, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                         if (cellvalue != "") {
+                             return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                         }
+                     }
+
+                 },
+                { label: '备注', name: 'F_Description', width: 150, align: 'left' }
+            ],
+            pager: "#gridPager",
+            sortname: 'F_CreatorTime asc',
+            viewrecords: true,
+            rowNum: 10,
+            rowList: [10, 20, 50],
+            viewrecords: true,
+            ondblClickRow: function (rowId) {  //双击表格中的某一行，触发事件，获得数据
+                var rowData = jQuery(this).getRowData(rowId);
+                var fid = rowData['F_Id'];
+                var vcode = rowData['Vcode'];
+                var carmodeID = rowData['CarModelID'];
+                var carmodeCode = rowData['CarModelCode'];
+             //   window.opener.document.getElementById("Vid").value = fid;
+                window.opener.document.getElementById("Vcode").value = vcode;
+                window.opener.document.getElementById("CarModel").value = carmodeID;
+             //   window.opener.document.getElementById("CarmodeCode").value = carmodeCode;
+                window.close();
+            },
+        });
+        $("#btn_search").click(function () {
+
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyword: $("#keywords").val() }, page: 1
+            }).trigger('reloadGrid');
+
+        });
+    }
+
+</script>
+<div class="topPanel">
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="keywords" type="text" class="form-control" placeholder="输入整车编码" style="width: 255px;" />
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+

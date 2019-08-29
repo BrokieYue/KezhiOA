@@ -1,0 +1,62 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+
+    var receiveID = $.request("receiveID");
+    var startTime = $.request("startTime");
+    var EndTime = $.request("EndTime");
+    //暂无接口
+    //function submitForm() {
+    //    if (!$('#form1').formValid()) {
+    //        return false;
+    //    }
+    //    $.submitForm({
+    //        url: "/PlanManage/PlanInfo/SubmitForm?receiveID=" + receiveID + "&startTime=" + startTime + "&EndTime+" + EndTime + "",
+    //        param: $("#form1").formSerialize(),
+    //        success: function () {
+    //            $.currentWindow().$("#gridList").trigger("reloadGrid");
+    //        }
+    //    })
+    //}
+</script>
+
+<form id="form1">
+    <div style="margin-top:10px; margin-left: 10px; margin-right: 10px; ">
+        <h5>请选择接收计划的范围或计划号：</h5>
+
+        <div style="padding-top: 5px; margin-right: 5px;">
+            <table class="form">
+
+
+                <tr>
+
+                    <th class="formTitle">
+                        <input type="radio" name="field＿name" checked value="'value">计划号　　　
+                    </th>
+
+                    <td class="formValue">
+                        <input id="Counts" name="Counts" type="text" class="form-control required" placeholder="请输计划号" style="width: 250px" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">
+                        <input type="radio" name="field＿name" checked value="'value">
+                        计划生产日期
+                    </th>
+                    <td class="formValue">
+                        <div class="input-group">
+                            <input id="DeliveryTime_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'DeliveryTime_end\')}' })" placeholder="计划时间（开始）" style="width: 120px; margin-right: 10px">
+                            <input id="DeliveryTime_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'DeliveryTime_start\')}' })" placeholder="计划时间（结束）" style="width: 120px;">
+                        </div>
+                    </td>
+
+                </tr>
+
+            </table>
+
+
+        </div>
+    </div>
+</form>

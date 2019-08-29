@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>车间主任日报图形数据</title>
+    <link href="~/Content/css/framework-theme.css" rel="stylesheet" />
+    <script src="~/Content/js/jquery/jquery-2.1.1.min.js"></script>
+    <script src="~/Content/js/highcharts/highcharts.js"></script>
+    <script>
+        function gettable()
+        {
+            $.ajax({
+                url: "/ReportManage/Stock/GetStock?ChartNo=" + $("#ChartNo").val() + "&startTime=" + $("#DeliveryTime_start").val() + "&endTime=" + $("#DeliveryTime_end").val(),
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    var html = "";
+                    $("#tb").html(html);
+                    for (var i = 0; i < data.rows.length; i++) {
+                        html += "<tr style=\"height:30px;\"><td style=\"text-align:center;border: 1px #000 solid;\">" + data.rows[i]["chartNo"] + "</td>"
+                        + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["OutWorkingcounts"] + "</td>"
+                        + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["SelfStockcounts"] + "</td>"
+                        + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["CastingProductioncounts"] + "</td>"
+                        + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["Outcounts"] + "</td>"
+                        + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["SelfMachiningcounts"] + "</td>"
+                        + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["Scrapcounts"] + "</td>"
+                        + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["HalfFinishedSelfStockcounts"] + "</td>"
+                        + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["HalfFinishedOutStockcounts"] + "</td>"
+                        + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["FinishedOutStockcounts"] + "</td>"
+                        + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["FinishedStockcounts"] + "</td></tr>";
+                    }
+                    if (data.rows.length <= 0) {
+                        $("#tb").html("<tr><td colspan=\"11\" style=\"text-align:center;height:30px;\">经查询没有数据！</td></tr>");
+                    }
+                    $("#tb").append(html);
+                }
+            });
+        };
+
+        $(function () {
+            gettable();
+        });
+
+        $(function () {
+            $("#btn_search").click(function () {
+                gettable();
+            });
+        });
+
+    </script>
+</head>
+<body>
+    <div class="topPanel">
+        <div class="search">
+            <table>
+                <tr>
+                    <th class="formTitle">图号：</th>
+                    <td class="formValue">
+                            <input id="ChartNo" name="ChartNo" type="text" class="form-control required" placeholder="请输入毛坯图号/成品图号" style="width:150px;height:18px; margin-right: 10px" />
+                    </td>
+                    <td>
+                        <div class="input-group">
+                            <input id="DeliveryTime_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'DeliveryTime_end\')}' })" placeholder="开始时间" style="width: 120px; margin-right: 10px">
+                            <input id="DeliveryTime_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'DeliveryTime_start\')}' })" placeholder="结束时间" style="width: 120px;">
+                            <span class="input-group-btn">
+                                <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+   
+    <!--报表详情开始-->
+    <div style="margin-top:40px;">
+        <h3 style="text-align:center;">库存报表</h3>
+        <table style="margin:auto;cellpadding:0 ;cellspacing:1; background-color:white;border:1px black solid;border-collapse:collapse;width:100%;">
+            <thead style="background-color:#1d89bf;height:40px;width:100%;color:white;">
+                <tr>
+                    <th width="100" style="text-align:center;">图号</th>
+                    <th width="130" style="text-align:center;">外加工库存（毛坯）</th>
+                    <th width="130" style="text-align:center;">自家库存（毛坯）</th>
+                    <th width="130" style="text-align:center;">铸造生产（毛坯）</th>
+                    <th width="130" style="text-align:center;">委外数量（毛坯）</th>
+                    <th width="150" style="text-align:center;">自家机加工（毛坯）</th>
+                    <th width="150" style="text-align:center;">报废数量（毛坯）</th>
+                    <th width="150" style="text-align:center;">自家库存（半成品）</th>
+                    <th width="150" style="text-align:center;">委外数量（半成品）</th>
+                    <th width="150" style="text-align:center;">发货量（成品）</th>
+                    <th width="150" style="text-align:center;">库存（成品）</th>
+                </tr>
+            </thead>
+            <tbody id="tb"></tbody>
+        </table>
+    </div>
+    <!--报表详情结束-->
+</body>
+</html>
+

@@ -1,0 +1,39 @@
+﻿@{
+    ViewBag.Title = "Index.cshtml";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("gridList");
+        $gridList.dataGrid({
+            url: "/SystemManage/User/GetGridJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { lable: '姓名' },
+                { lable: '日期' },
+                { lable: '日志类型' },
+                { lable: '项目编号' },
+                { lable: '项目名称' },
+                { lable: '工作内容' },
+                { lable: '工作地点' },
+                { lable: '开始时间' },
+                { lable: '结束时间' },
+                { lable: '差补金额' },
+                { lable: '备注说明' },
+            ],
+            pager: "#gridPager",
+            viewrecords: true
+        });
+    }
+</script>
+<div class="topPanel">
+    <div class="toolBar"></div>
+    <div class="search"></div>
+</div>
+<div class="gridPanel">
+    <table class="gridList"></table>
+    <div class="gridPag"></div>
+</div>

@@ -1,0 +1,130 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    var MaterialCode = $.request("MaterialCode");
+    var StationCode = $.request("StationCode");
+    $(function () {
+        $("#MaterialCode").val(MaterialCode);
+        $("#StationCode").val(StationCode);
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/LogisticManage/Material/GetDetailJson",
+            postData: {
+                MaterialCode: $('#MaterialCode').val(),
+                StationCode: $('#StationCode').val(),
+                DateStart: $('#DateStart').val(),
+                DateEnd: $('#DateEnd').val()
+            },
+            height: $(window).height() - 128,
+            colModel: [
+                         { label: '主键', name: 'F_Id', hidden: true },
+                         { label: '物料编号', name: 'MaterailCode', width: 120, align: 'center' },
+                         { label: '物料名称', name: 'MaterailCNName', width: 120, align: 'center' },
+                         { label: '工位号', name: 'StationCode', width: 120, align: 'center' },
+                         { label: '工位名称', name: 'StationName', width: 120, align: 'center' },
+                          {
+                              label: '调整源', name: 'EditType', width: 100, align: 'center',
+                              formatter: function (cellvalue, options, rowObject) {
+                                  if (cellvalue == "0") {
+                                      return "LES接口";
+                                  }
+                                  else if (cellvalue == "1") {
+                                      return "自动扣减";
+                                  }
+                                  else if (cellvalue == "2") {
+                                      return "手动调整";
+                                  }
+                              }
+                          },
+                         {
+                             label: '调整原因', name: 'ManualType', width: 100, align: 'center',
+                             formatter: function (cellvalue, options, rowObject) {
+                                 if (cellvalue == "0") {
+                                     return "普通调整";
+                                 }
+                                 else if (cellvalue == "1") {
+                                     return "库存转移";
+                                 }
+                                 else if (cellvalue == "2") {
+                                     return "工废";
+                                 }
+                                 else if (cellvalue == "3") {
+                                     return "料废";
+                                 }
+                             }
+                         },
+                         { label: '调整数量', name: 'EditCount', width: 80, align: 'center' },
+                         { label: '调整时间', name: 'F_CreatorTime', width: 150, align: 'center' }
+            ],
+            pager: "#gridPager",
+            sortname: 'F_CreatorTime',
+            rowNum: 10,
+            rowList: [10, 20, 30],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: {
+                    MaterialCode: $('#MaterialCode').val(),
+                    StationCode: $('#StationCode').val(),
+                    DateStart: $('#DateStart').val(),
+                    DateEnd: $('#DateEnd').val()
+                },
+            }).trigger('reloadGrid');
+        });
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-import" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_exput()">导出</a>
+        </div>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td style="padding-left: 10px;">
+                    <label for="PlanDateFrom">明细日期：</label>
+                    <input id="MaterialCode" name="MaterialCode" type="hidden" />
+                    <input id="StationCode" name="StationCode" type="hidden" />
+                </td>
+                <td>
+                    <div class="input-group">
+                        <input id="DateStart" name="DateStart" type="text" class="form-control input-wdatepicker" placeholder="" style="height: 28px; width: 150px;" onfocus="WdatePicker()">
+                    </div>
+                </td>
+                <td style="padding-left: 10px; padding-right: 10px">
+                    <label for="DateEnd">至</label>
+                </td>
+                <td>
+                    <div class="input-group">
+                        <input id="DateEnd" name="DateEnd" type="text" class="form-control input-wdatepicker" placeholder="" style="height: 28px; width: 150px;" onfocus="WdatePicker()">
+                    </div>
+                </td>
+                <td></td>
+                <td style="padding-left: 10px;">
+                    <div class="input-group">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+

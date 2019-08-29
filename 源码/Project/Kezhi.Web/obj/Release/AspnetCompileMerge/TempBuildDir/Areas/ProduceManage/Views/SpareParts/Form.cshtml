@@ -1,0 +1,100 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+
+    var keyValue = $.request("keyValue");
+    $(function () {
+
+        if (!!keyValue) {
+            $.ajax({
+                url: "/ProduceManage/SpareParts/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                }
+            });
+        }
+    });
+
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        var qty = $("#Qty").val();
+        var cQty = $("#CompletedQty").val();
+        var pQty = $("#PlanCount").val();
+        var L = Number(pQty);
+        var T = Number(qty) + Number(cQty);
+        if (L > T) {
+            $.modalAlert("上线数量不能大于剩余未上线数量！", "warning");
+            return;
+        }
+        $.submitForm({
+            url: "/ProduceManage/SpareParts/ComptSendJson?keyValue=" + keyValue + "&tQty=" + pQty,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form">
+                 <tr style="display:none;">
+                    <th class="formTitle">编号</th>
+                    <td class="formValue">
+                        <input id="F_Id" name="F_Id" type="text" class="form-control" readonly="readonly" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">计划号</th>
+                    <td class="formValue">
+                        <input id="JobNo" name="JobNo" type="text" class="form-control" readonly="readonly" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">物料编号</th>
+                    <td class="formValue">
+                        <input id="Vcode" name="Vcode" type="text" class="form-control" readonly="readonly" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">计划生产日期</th>
+                    <td class="formValue">
+                        <input id="PlanDate" name="PlanDate" type="text" class="form-control" readonly="readonly" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">交期</th>
+                    <td class="formValue">
+                        <input id="Deadline" name="Deadline" type="text" class="form-control" readonly="readonly" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">计划数量</th>
+                    <td class="formValue">
+                        <input id="Qty" name="Qty" type="text" class="form-control" readonly="readonly" />
+                    </td>
+                </tr>
+               <tr>
+                    <th class="formTitle">已上线数量</th>
+                    <td class="formValue">
+                        <input id="CompletedQty" name="CompletedQty" type="text" class="form-control" readonly="readonly" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">本次上线数量</th>
+                    <td class="formValue">
+                        <input id="PlanCount" name="PlanCount" type="text" class="form-control required" placeholder="请输入上线数量" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>

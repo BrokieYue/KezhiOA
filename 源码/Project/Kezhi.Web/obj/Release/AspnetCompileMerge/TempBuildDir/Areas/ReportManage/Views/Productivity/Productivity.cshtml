@@ -1,0 +1,225 @@
+﻿<!DOCTYPE html>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>饼图</title>
+    <link href="~/Content/css/framework-theme.css" rel="stylesheet" />
+    <script src="~/Content/js/jquery/jquery-2.1.1.min.js"></script>
+    <script src="~/Content/js/highcharts/highcharts.js"></script>
+    <script>
+        var chart, counts = 0, series = [];//counts为总数，series为报废率数组
+        var series1 = [];//各工序报废率数组
+        var series2 = [];//各工序成功率数组
+        //获取报废率
+        function GetProductScrapRate() {
+            $.ajax({
+                url: "/ReportManage/Productivity/GetProductScrapRate?startTime=" + $("#DeliveryTime_start").val() + "&endTime=" + $("#DeliveryTime_end").val(),
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    series = [["成功率", 100 - data], ["报废率", data - 0]];
+                    getProductScrapChart();
+                }
+            });
+        };
+        //获取各工序报废率
+        function GetProcessScrapRate() {
+            series2 = []; series1 = []; counts = 0
+            $.ajax({
+                url: "/ReportManage/Productivity/GetProcessScrapRate?startTime=" + $("#DeliveryTime_start").val() + "&endTime=" + $("#DeliveryTime_end").val(),
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    if (data.length > 0) {
+                        for (var i = 0; i < data.length; i++) {
+                            counts += parseInt(data[i]["counts"]);
+                        }
+                        for (var j = 0; j < data.length; j++) {
+                            if (data[j]["Status"] == "1")//成功状态
+                            {
+                                series2.push([data[j]["Name"], Math.round(parseInt(data[j]["counts"]) * 100 / counts)]);
+                            }
+                            else//报废状态
+                            {
+                                series1.push([data[j]["Name"], Math.round(parseInt(data[j]["counts"]) * 100 / counts)]);
+                            }
+                        }
+                    }
+                    getProcessScrapRateChart();
+                    getProcessSuccessRateChart();
+                }
+            });
+        };
+        $(function () {
+            GetProductScrapRate(null, null);
+            GetProcessScrapRate(null,null,null);
+            $("#btn_search").click(function () {
+                GetProductScrapRate();
+                GetProcessScrapRate();
+            });
+        });
+        //画出产品报废率饼图
+        function getProductScrapChart() {
+            $('#container').highcharts({
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false
+                },
+                title: {
+                    text: '生产成品率'
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            color: '#000000',
+                            connectorColor: '#000000',
+                            format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+                        },
+                        size: 300,
+                        showInLegend: true
+                    }
+                },
+                series: [{
+                    type: 'pie',
+                    name: '份额：',
+                    data: series
+                }]
+            });
+        };
+
+        //画出各工序报废率饼图
+        function getProcessScrapRateChart() {
+            if (series1.length <= 0) {
+                $('#container1').highcharts({
+                    title: {
+                        text: '您所搜索的或所有的工序报废率为0！'
+                    }
+                });
+                return;
+            }
+            $('#container1').highcharts({
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false
+                },
+                title: {
+                    text: '各工序报废率'
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                credits: {
+                    enabled: true
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            color: '#000000',
+                            connectorColor: '#000000',
+                            format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+                        },
+                        showInLegend: true, size: 280
+                    }
+                },
+                series: [{
+                    type: 'pie',
+                    name: '份额：',
+                    data: series1
+                }]
+            });
+           
+        }
+        //画出各工序成功率饼图
+        function getProcessSuccessRateChart()
+        {
+            if (series2.length <= 0) {
+                $('#container2').highcharts({
+                    title: {
+                        text: '您所搜索的或所有的工序成功率为0！'
+                    }
+                });
+                return;
+            }
+            $('#container2').highcharts({
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false
+                },
+                title: {
+                    text: '各工序成功率'
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            color: '#000000',
+                            connectorColor: '#000000',
+                            format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+                        },
+                        size: 280,
+                        showInLegend: true
+                    }
+                },
+                series: [{
+                    type: 'pie',
+                    name: '份额：',
+                    data: series2
+                }]
+            });
+        };
+        $(document).ready(function () {
+            getProductScrapChart();
+            getProcessScrapRateChart();
+            getProcessSuccessRateChart();
+        });
+
+    </script>
+</head>
+<body>
+    <div class="topPanel">
+        <div class="search">
+            <table>
+                <tr>
+                    <td>
+                        <div class="input-group">
+                            <input id="DeliveryTime_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'DeliveryTime_end\')}' })" placeholder="开始时间" style="width: 120px; margin-right: 10px">
+                            <input id="DeliveryTime_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'DeliveryTime_start\')}' })" placeholder="结束时间" style="width: 120px;">
+
+                            <span class="input-group-btn">
+                                <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+       </div>
+       <div id="container" style="min-width: 1340px; height: 500px;"></div>
+        <div style="width:1340px;margin:auto;">
+            <div id="container1" style="width: 670px; height: 470px; float:left;"></div>
+            <div id="container2" style="width: 670px; height: 470px; float:right;"></div>
+        </div>
+       
+</body>
+</html>

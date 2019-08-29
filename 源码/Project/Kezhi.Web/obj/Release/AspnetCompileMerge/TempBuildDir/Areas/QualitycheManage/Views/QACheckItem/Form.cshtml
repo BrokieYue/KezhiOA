@@ -1,0 +1,131 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+
+    var keyValue = $.request("keyValue");
+    $(function () {
+        initControl();
+        if (!!keyValue) {
+            $.ajax({
+                url: "/QualitycheManage/QACheckItem/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+
+                    $("#form1").formSerialize(data);
+                }
+            });
+           
+            $("#ItemCode").attr("readOnly", true);
+            $("#ItemCode").css("background", "LightGrey");
+        } else {
+            $("#Type").val("0");
+        }
+        $("#AreaName").dblclick(function () {
+        
+            var win = window.open("/QualitycheManage/QACheckItem/QAAreaForm", "质检区域列表", " height=450,width=1050,Left=300px,Top=100px, menubar=no,titlebar=no,scrollbar=no,toolbar=no, status=no,location=no");
+        });
+    });
+ 
+    function submitForm() {
+       
+        if ($('#DefectsMKTO').is(':checked')) {
+            $("#DefectsMK").val("1");
+        } else {
+            $("#DefectsMK").val("0");
+        }
+         
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        $.submitForm({
+            url: "/QualitycheManage/QACheckItem/SubmitForm?keyValue=" + keyValue + "",
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+    function initControl() {
+        $("#DutyBranchID").bindSelect({
+            url: "/SystemManage/Organize/GetTreeSelectJson",
+        });
+    }
+</script>
+<form id="form1" style="width:100%">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">项目编号：</th>
+                    <td class="formValue">
+                        <input id="ItemCode" name="ItemCode" type="text" class="form-control required" placeholder="项目编号" />
+                    </td>
+                    <th class="formTitle">项目名称：</th>
+                    <td class="formValue">
+                        <input id="ItemName" name="ItemName" type="text" class="form-control required" placeholder="项目名称" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">质检区域：</th>
+                    <td class="formValue">
+                        <input id="AreaName" name="AreaName" type="text" class="form-control required" style="background-color: LightGrey" readonly="readonly" placeholder="双击选择区域" />
+                    </td>
+                    <th class="formTitle">责任部门：</th>
+                    <td class="formValue">
+                        <select id="DutyBranchID" name="DutyBranchID" class="form-control required">@*修改下拉框不是默认必填--bichen 2018.11.8*@
+                            <option value="">==请选择==</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">问题等级：</th>
+                    <td class="formValue">
+                        <input id="Level" name="Level" type="text" class="form-control required" placeholder="问题等级" />
+                    </td>
+                    <th class="formTitle">顺序：</th>
+                    <td class="formValue">
+                        <input id="SeqNo" name="SeqNo" type="text" class="form-control required" placeholder="顺序" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">设备IP：</th>
+                    <td class="formValue">
+                        <input id="IPAddress" name="IPAddress" type="text" class="form-control" placeholder="设备IP" />
+                    </td>
+
+                </tr>
+                <tr>
+
+                    <th class="formTitle" style="height: 35px;">选项：</th>
+                    <td class="formValue" colspan="3" style="padding-top: 1px;">
+                        <div class="ckbox">
+                            <input id="DefectsMKTO" name="DefectsMKTO" type="checkbox"><label for="DefectsMKTO">有缺陷</label>
+                        </div>
+                        <div class="ckbox">
+                            <input id="F_EnabledMark" name="F_EnabledMark" type="checkbox" checked="checked"><label for="F_EnabledMark">有效</label>
+                        </div>
+                    </td>
+                
+                </tr>
+ 
+                <tr>
+                    <th class="formTitle" style="padding-top: 5px;">
+                        备注
+                    </th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="F_Description" name="F_Description" class="form-control" style="height: 60px;"></textarea>
+                        <input id="CategoryID" name="CategoryID" type="text" class="form-control " style="display:none " />
+                        <input id="AreaID" name="AreaID" type="text" class="form-control " style="display:none " />
+                        <input id="Type" name="Type" type="text" class="form-control " style="display:none " />
+                        <input id="DefectsMK" name="DefectsMK" type="text" class="form-control " style="display:none " />
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>

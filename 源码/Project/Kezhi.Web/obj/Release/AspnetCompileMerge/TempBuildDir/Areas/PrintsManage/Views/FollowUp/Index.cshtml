@@ -1,0 +1,455 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script language="javascript" src="~/Content/js/lodop/LodopFuncs.js"></script>
+<object id="LODOP_OB" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width=0 height=0>
+    <embed id="LODOP_EM" type="application/x-print-lodop" width=0 height=0 pluginspage="~/Content/js/lodop/install_lodop64.exe"></embed>
+</object>
+<script>
+ 
+    $(function () {
+        gridList();
+        gridListR();
+    })
+    //function gridList() {
+    //    var $gridList = $("#gridList");
+    //    $gridList.dataGrid({
+    //        url: "/ProduceManage/AVIOutIn/GetPlanJson",
+    //        height: $(window).height() - 155,
+    //        colModel: [
+    //            { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+    //            { label: "工单ID", name: "OrderID", align: 'center', hidden: true },
+    //            { label: "工单号", name: "OrderNo", width: 250, align: 'center' },
+    //            { label: "VIN码ID", name: "VINID", align: 'center', hidden: true },
+    //            { label: "VIN码", name: "VINNo", width: 280, align: 'center' },
+
+    //            { label: "整车编码ID", name: "VID", align: 'center', hidden: true },
+    //            { label: "整车编码", name: "VCode", width: 300, align: 'center' },
+    //            { label: "整车描述", name: "VDesc", width: 300, align: 'center' },
+
+    //                   {
+    //                       label: '车间', name: 'CurrPlant', width: 140, align: 'center', formatter: function (cellvalue, options, rowObject) {
+    //                           if ($.trim(rowObject.CurrPlant) == $.trim("StampingShop")) {
+    //                               return '<span >冲压车间</span>';
+    //                           }
+    //                           if ($.trim(rowObject.CurrPlant) == $.trim("AssemblyShop")) {
+    //                               return '<span >总装车间</span>';
+    //                           }
+    //                           if ($.trim(rowObject.CurrPlant) == $.trim("PaintShop")) {
+    //                               return '<span >涂装车间</span>';
+    //                           }
+    //                           if ($.trim(rowObject.CurrPlant) == $.trim("WeldingShop")) {
+    //                               return '<span >焊装车间</span>';
+    //                           }
+    //                           if ($.trim(rowObject.CurrPlant) == $.trim("InspectionShop")) {
+    //                               return '<span >交检车间</span>';
+    //                           }
+    //                       }
+    //                   },
+    //            { label: "当前站点", name: "CurrStation", width: 100, align: 'center' },
+
+    //                  {
+    //                      label: 'VIN状态', name: 'VINState', width: 100, align: 'center', formatter: function (cellvalue, options, rowObject) {
+    //                          if ($.trim(rowObject.VINState) == 0) {
+    //                              return '未生产';
+    //                          }
+    //                          if ($.trim(rowObject.VINState) == 1) {
+    //                              return '已开始';
+    //                          }
+    //                          if ($.trim(rowObject.VINState) == 2) {
+    //                              return '报废';
+    //                          }
+    //                          if ($.trim(rowObject.VINState) == 3) {
+    //                              return '切出中';
+    //                          }
+    //                          if ($.trim(rowObject.VINState) == 4) {
+    //                              return '返修';
+    //                          }
+    //                          if ($.trim(rowObject.VINState) == 5) {
+    //                              return '已完成';
+    //                          }
+    //                          if ($.trim(rowObject.VINState) == 6) {
+    //                              return '切入等待';
+    //                          }
+    //                      }
+    //                  },
+    //          {
+    //              label: '过点时间', name: 'PassTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+    //                  if (cellvalue != null && cellvalue != "") {
+    //                      return '<span >' + cellvalue.substr(0, 19) + '</span>';
+    //                  } else {
+
+    //                      return '<span >' + "" + '</span>';
+    //                  }
+    //              }
+
+    //          },
+
+    //           {
+    //               label: '上线时间', name: 'StartTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+    //                   if (cellvalue != null && cellvalue != "") {
+    //                       return '<span >' + cellvalue.substr(0, 19) + '</span>';
+    //                   } else {
+
+    //                       return '<span >' + "" + '</span>';
+    //                   }
+    //               }
+
+    //           },
+
+
+    //        ],
+    //        pager: "#gridPager",
+    //        sortname: 'PassTime asc',
+    //        viewrecords: true,
+    //        multiselect: false,//复选框
+    //        rowNum: 20,
+    //        postData: { CurrStation: "&*&*&" },
+    //        rowList: [20, 50, 100],
+    //        viewrecords: true
+
+
+    //    });
+    //    $("#btn_search").click(function () {
+    //        var codeid = $("#CurrStation").val();
+    //        $gridList.jqGrid('setGridParam', {
+    //            postData: { CurrStation: codeid}, page: 1
+    //        }).trigger('reloadGrid');
+    //    });
+    //    $("#CurrStation").change(function () {
+    //        var codeid = $("#CurrStation").val();
+    //        $gridList.jqGrid('setGridParam', {
+    //            postData: { CurrStation: codeid }, page: 1
+    //        }).trigger('reloadGrid');
+    //    });
+    //}
+
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/ProduceManage/AVIOutIn/GetPlanJson",
+            height: $(window).height() - 160,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "工单ID", name: "OrderID", align: 'center', hidden: true },
+              //  { label: "工单号", name: "OrderNo", width: 150, align: 'center' },
+                { label: "VIN码ID", name: "VINID", align: 'center', hidden: true },
+                { label: "VIN码", name: "VINNo", width: 150, align: 'center' },
+
+                { label: "整车编码ID", name: "VID", align: 'center', hidden: true },
+                { label: "整车编码", name: "VCode", width: 150, align: 'center', hidden: true },
+                { label: "整车描述", name: "VDesc", width: 200, align: 'center' },
+
+
+                { label: "当前站点", name: "CurrStation", width: 100, align: 'center' },
+
+               {
+                   label: '过点时间', name: 'PassTime', width: 150, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                       if (cellvalue != null && cellvalue != "") {
+                           return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                       } else {
+
+                           return '<span >' + "" + '</span>';
+                       }
+                   }
+
+               },
+
+
+            ],
+            pager: "#gridPager",
+            sortname: 'PassTime asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 15,
+            postData: { CurrStation: "G050", VINState: 1 },
+            rowList: [15, 50, 100],
+            viewrecords: true,
+            caption: "到达列队",
+            ondblClickRow: function (row) {
+                var rowData = $('#gridList').jqGrid('getRowData', row);
+                $('#VINCode').val(rowData.VINNo).focus();
+                var vin = rowData.VINNo;
+                GetVNI(vin);
+            },
+
+        });
+
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { CurrStation: "G050", VINState: 1 }, page: 1
+            }).trigger('reloadGrid');
+        });
+    }
+    function gridListR() {
+        var $gridListR = $("#gridListR");
+        $gridListR.dataGrid({
+            url: "/ProduceManage/AVIOutIn/GetPlanJson",
+            height: $(window).height() - 160,
+            colModel: [
+            { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+            { label: "工单ID", name: "OrderID", align: 'center', hidden: true },
+        //    { label: "工单号", name: "OrderNo", width: 150, align: 'center' },
+            { label: "VIN码ID", name: "VINID", align: 'center', hidden: true },
+            { label: "VIN码", name: "VINNo", width: 150, align: 'center' },
+
+            { label: "整车编码ID", name: "VID", align: 'center', hidden: true },
+            { label: "整车编码", name: "VCode", width: 150, align: 'center', hidden: true },
+            { label: "整车描述", name: "VDesc", width: 190, align: 'center' },
+
+
+            { label: "当前站点", name: "CurrStation", width: 100, align: 'center' },
+
+           {
+               label: '过点时间', name: 'PassTime', width: 150, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                   if (cellvalue != null && cellvalue != "") {
+                       return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                   } else {
+
+                       return '<span >' + "" + '</span>';
+                   }
+               }
+
+           },
+
+            ],
+            pager: "#gridPagerR",
+            sortname: 'PassTime asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 15,
+            postData: { CurrStation: "G060", VINState: 1 },
+            rowList: [15, 50, 100],
+            caption: "通过列队",
+            viewrecords: true
+
+
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { CurrStation: "G060", VINState: 1 }, page: 1
+            }).trigger('reloadGrid');
+        });
+
+    }
+
+    function PrintRepo() {
+
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        var vinon = $("#gridList").jqGridRowValue().VINNo;
+        var VCode = $("#gridList").jqGridRowValue().VCode;
+        var OrderNo = $("#gridList").jqGridRowValue().OrderNo;
+      
+        var StartTime = $("#gridList").jqGridRowValue().StartTime;
+        if (!keyValue) {
+            $.modalAlert("请选中一行数据", "warning");
+            return false;
+        } else {
+            var CurrStation = $("#CurrStation").val();
+            if (CurrStation == "G070") {
+                //打印随车卡
+                PrintCarfolloCard(vinon, OrderNo, VCode, VCode);
+            
+            } else {
+                //打印随车单
+                CreateVINPrintPage(vinon, OrderNo, VCode, VCode, StartTime);
+               
+            }
+         
+                   
+
+         
+        }
+    }
+    //打印随车单
+    function CreateVINPrintPage(VIN, order, VDesc, VCode, StartTime) {
+        var LODOP;
+        var date = getNowFormatDate();
+        LODOP = getLodop();
+
+        LODOP.PRINT_INITA(3, 13, 790, 1200, "随车跟踪单打印");
+        LODOP.ADD_PRINT_RECT(32, 65, 639, 404, 0, 1);
+        LODOP.ADD_PRINT_SHAPE(4, 82, 65, 638, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(107, 69, 137, 46, "VIN码：  ");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 18);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 3);
+        LODOP.SET_PRINT_STYLEA(0, "SpacePatch", 1);
+        LODOP.ADD_PRINT_SHAPE(4, 305, 65, 638, 2, 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT(48, 459, 84, 25, "打印时间：");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.ADD_PRINT_TEXT(48, 540, 180, 25, date);//打印时间
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.ADD_PRINT_BARCODE(99, 509, 196, 190, "QRCode", VIN);//二维码
+        LODOP.ADD_PRINT_TEXT(107, 211, 292, 46, VIN);//Vin码
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 20);
+        LODOP.ADD_PRINT_TEXT(310, 69, 633, 122, VDesc);//整车描述
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 33);
+        LODOP.ADD_PRINT_TEXT(48, 325, 116, 25, "【随车单】");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.ADD_PRINT_TEXT(174, 211, 292, 46, order);//工单号
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 20);
+        LODOP.ADD_PRINT_TEXT(174, 69, 137, 46, "工单号：");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 18);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 3);
+        LODOP.SET_PRINT_STYLEA(0, "SpacePatch", 1);
+        LODOP.ADD_PRINT_TEXT(240, 67, 137, 46, "整车编码：");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 18);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 3);
+        LODOP.SET_PRINT_STYLEA(0, "SpacePatch", 1);
+        LODOP.ADD_PRINT_TEXT(240, 211, 292, 46, VCode);//整车编码
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 20);
+        LODOP.ADD_PRINT_TEXT(48, 70, 84, 25, "上线时间：");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.ADD_PRINT_TEXT(48, 151, 180, 25, StartTime);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        // LODOP.SET_PRINT_MODE("WINDOW_DEFPAGESIZE:打印机名称或序号", 纸张名称);  
+        //设置默认打印机  LODOP.SET_PRINT_MODE("WINDOW_DEFPRINTER", 打印机名称或序号);
+        LODOP.SET_PRINT_PAGESIZE(1, 0, 0, "A4");//设置纸型
+        //调用直接打印方法 -yangxin
+        LODOP.PRINT();
+    }
+    function PrintCarfolloCard(VIN, order, VDesc, VCode) {
+        var LODOP;
+        var date = getNowFormatDate();
+        LODOP = getLodop();
+        LODOP.PRINT_INITA("0.26mm", "0mm", "100.54mm", "50.8mm", "随车跟踪卡打印");
+        LODOP.ADD_PRINT_RECT("0.79mm", "0.79mm", "98.43mm", "49.48mm", 0, 1);
+        LODOP.ADD_PRINT_SHAPE(4, "9.53mm", "1.06mm", "98.16mm", "0.53mm", 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT("11.11mm", "2.38mm", "22.49mm", "6.61mm", "VIN码：");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 3);
+        LODOP.ADD_PRINT_TEXT("18.79mm", "2.38mm", "22.49mm", "6.61mm", "工单号：");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 3);
+        LODOP.ADD_PRINT_TEXT("26.46mm", "2.38mm", "22.49mm", "6.61mm", "整车编码：");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.SET_PRINT_STYLEA(0, "Alignment", 3);
+        LODOP.ADD_PRINT_SHAPE(4, "33.87mm", "1.06mm", "98.16mm", "0.53mm", 0, 1, "#000000");
+        LODOP.ADD_PRINT_TEXT("2.12mm", "34.4mm", "22.23mm", "6.61mm", "制造日期：");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.ADD_PRINT_TEXT("2.12mm", "53.18mm", "46.3mm", "6.61mm", date);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.ADD_PRINT_BARCODE("11.64mm", "74.35mm", "23.02mm", "23.81mm", "QRCode", VIN);
+        LODOP.ADD_PRINT_TEXT("11.11mm", "25.14mm", "44.98mm", "6.61mm", VIN);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.ADD_PRINT_TEXT("18.79mm", "25.14mm", "44.98mm", "6.61mm", VDesc);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.ADD_PRINT_TEXT("26.19mm", "25.14mm", "44.98mm", "6.61mm", order);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        LODOP.ADD_PRINT_TEXT("35.19mm", "1.32mm", "97.1mm", "13.23mm", VCode);
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 13);
+        LODOP.SET_PRINT_STYLEA(0, "Bold", 1);
+        LODOP.ADD_PRINT_TEXT("2.12mm", "1.06mm", "32.01mm", "6.61mm", "【随车跟踪卡】");
+        LODOP.SET_PRINT_STYLEA(0, "FontSize", 11);
+        //调用直接打印方法 -yangxin
+        LODOP.SET_PRINT_COPIES(2); //打印几张不设置默认打印一张
+        LODOP.PRINT();
+    }
+    //返回当前时间
+    function getNowFormatDate() {
+        var now = new Date();
+
+        var year = now.getFullYear();       //年
+        var month = now.getMonth() + 1;     //月
+        var day = now.getDate();            //日
+
+        var hh = now.getHours();            //时
+        var mm = now.getMinutes();          //分
+        var ss = now.getSeconds();           //秒
+
+        var clock = year + "-";
+
+        if (month < 10)
+            clock += "0";
+
+        clock += month + "-";
+
+        if (day < 10)
+            clock += "0";
+
+        clock += day + " ";
+
+        if (hh < 10)
+            clock += "0";
+
+        clock += hh + ":";
+        if (mm < 10) clock += '0';
+        clock += mm + ":";
+
+        if (ss < 10) clock += '0';
+        clock += ss;
+        return (clock);
+    }
+    //清空文本框--bichen
+    function clean() {
+        $("#CurrStation").val("");
+    }
+</script>
+
+<div class="topPanel">
+    <div class="toolbar">
+            <div class="btn-group">
+                <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+            </div>
+            <div class="btn-group">
+                <a id="NF-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="PrintRepo()"><i class="fa fa-plus"></i>打印</a>
+            </div>
+   
+           
+        </div>
+    <div class="search">
+        <table>
+            <tr>
+
+                <td>
+                    <div class="input-group">
+
+                        <select id="CurrStation" name="CurrStation" class="form-control" style="width: 150px;">
+                            <option value="">==请选择站点==</option>
+                            <option value="G130">发动机分装线</option>
+                            <option value="G160">仪表盘分装线</option>
+                            <option value="G140">变速箱分装线</option>
+                            <option value="G150">SUV下车架分装线</option>
+                            <option value="G200">后桥分装线</option>
+                            <option value="G070">内饰一线上线</option>
+                        </select>
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+                @* 清空文本框--bichen*@
+                <td>
+                    <div class="input-group">
+                        <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class=" fa fa-link"></i></button>
+                    </div>
+                </td>
+            </tr>
+
+        </table>
+
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table style="width:100%;">
+        <tr>
+
+            <td width=50%>
+                <table id="gridList"></table>
+                <div id="gridPager"></div>
+            </td>
+            <td width=0.2%></td>
+
+            <td width=49.8%>
+                <table id="gridListR"></table>
+                <div id="gridPagerR"></div>
+            </td>
+        </tr>
+    </table>
+
+</div>
+

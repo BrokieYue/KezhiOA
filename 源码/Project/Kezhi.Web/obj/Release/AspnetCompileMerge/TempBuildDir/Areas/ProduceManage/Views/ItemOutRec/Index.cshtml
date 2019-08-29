@@ -1,0 +1,205 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    var keyValue = $.request("keyValue");  
+    
+
+    $(function () {
+ 
+        gridList();
+        $("#BatchNo").change(function () {
+            $("#OperateTime").val(getNowFormatDate());
+            
+        });
+    })
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/ProduceManage/ItemOutRec/GetPlanJson",
+            height: $(window).height() - 480,
+            colModel: [
+             { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                  {
+                      label: '记录类型', name: 'Type', width: 250, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                          if (rowObject.Type == 1) {
+                              return '供胶间物料调出';
+                          }
+                          if (rowObject.Type == 2) {
+                              return '调漆间物料调出';
+                          }
+
+                      }
+                  },
+              
+                { label: "物料批次号", name: "BatchNo", width: 250, align: 'left' },
+                { label: '用量', name: 'Usage', width: 160, align: 'left' },
+                { label: '桶编号', name: 'BarrelNo', width: 250, align: 'left' },
+
+                {
+                    label: '调出时间', name: 'OperateTime', width: 160, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "") {
+                            return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                        }
+                    }
+                },
+            { label: "创建时间", name: "F_CreatorTime", align: 'left', hidden: true, },
+            ],
+            pager: "#gridPager",
+            sortname: 'F_CreatorTime asc',
+            viewrecords: false,
+            multiselect: false,//复选框
+            rowNum: 10,
+            viewrecords: true,
+            caption: "供胶调漆物料调出列表",
+        });
+    }
+    // 清空文本
+    function btn_clearTxt() {
+        document.getElementById("BatchNo").value = "";
+        document.getElementById("Usage").value = "";
+        document.getElementById("BarrelNo").value = "";
+        document.getElementById("OperateTime").value = "";
+    }
+
+    // 
+    function btn_submitInfo() {
+        var batch = document.getElementById('BatchNo').value;
+        var BarrelNo = document.getElementById('BarrelNo').value;
+        var qty = document.getElementById('Usage').value;
+        var desc = document.getElementById('OperateTime').value;
+        if (batch.trim() == '') {
+            $.modalAlert("批次号不能为空！", "warning");
+            return;
+        }
+        if (BarrelNo.trim() == '') {
+            $.modalAlert("桶编号不能为空！", "warning");
+            return;
+        }
+        if (desc.trim() == '') {
+            $.modalAlert("调出时间不能为空！", "warning");
+            return;
+        }
+        if (qty.trim() == '') {
+            $.modalAlert("用量不能为空！", "warning");
+            return;
+        }
+        if (isNaN(qty)) {
+            $.modalAlert("请输入正确的用量数量！", "warning");
+            return;
+        }
+        var _qty = parseInt(qty);
+        if (_qty < 1) {
+            $.modalAlert("请输入正确的用量数量！", "warning");
+            return;
+        }
+        $.submitForm({
+            url: "/ProduceManage/ItemOutRec/SetItemOutRec",
+            param: { batch: batch, BarrelNo: BarrelNo, qty: qty, desc: desc, Type: $("#Type").val() },
+            success: function () {
+                btn_clearTxt();
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+
+    }
+    function getNowFormatDate() {
+        var now = new Date();
+
+        var year = now.getFullYear();       //年
+        var month = now.getMonth() + 1;     //月
+        var day = now.getDate();            //日
+
+        var hh = now.getHours();            //时
+        var mm = now.getMinutes();          //分
+        var ss = now.getSeconds();           //秒
+
+        var clock = year + "-";
+
+        if (month < 10)
+            clock += "0";
+
+        clock += month + "-";
+
+        if (day < 10)
+            clock += "0";
+
+        clock += day + " ";
+
+        if (hh < 10)
+            clock += "0";
+
+        clock += hh + ":";
+        if (mm < 10) clock += '0';
+        clock += mm + ":";
+
+        if (ss < 10) clock += '0';
+        clock += ss;
+        return (clock);
+    }
+    //Enter事件，跳下一个input--bichen
+    function focusNextInput(thisInput) {
+        var inputs = document.getElementsByTagName("input");//获取到所有的input
+        for (var i = 0; i < inputs.length; i++) {
+            // 如果是最后一个，则焦点回到第一个 
+            if (i == (inputs.length - 1)) {
+                inputs[0].focus();
+                break;
+            } else if (thisInput == inputs[i]) {
+                inputs[i + 1].focus();
+                break;
+            }
+        }
+    }
+</script>
+<div id="content">
+    <div class="rows" style="margin-bottom: 1%; border: 1px solid #e6e6e6; overflow: hidden; padding-left: 1px;">
+        <div style="border: none; border-radius: 0px; margin-bottom: 0px; box-shadow: none; -webkit-box-shadow: none;">
+            <div style="font-size: 28px; color: #777;  border-color: #faebcc; padding: 10px 10px; ">
+                生产线：&nbsp;&nbsp;<select id="Type"   name="Type" style="width: 220px; height: 45px; padding: 6px 12px; line-height: 1.42857143; color: blue; background-color: #fff;  border: 1px solid #ddd; border-radius: 4px; ">
+                        <option value="1">供胶间物料调出</option>
+                        <option value="2">调漆间物料调出</option>
+                    </select>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 当前操作员：&nbsp;&nbsp;
+                <span style="color:blue;">@Kezhi.Code.OperatorProvider.Provider.GetCurrent().UserName</span>
+            </div>
+            <table style="border-collapse: separate; border-spacing: 0px 10px; width: 100%; padding-left: 15px; ">
+                <tr>
+                    <td width="60%">
+                        <input id="BatchNo" type="text" placeholder="物料批次号" style="width:76%; height: 80px; font-size: 60px; float: left;background-color:yellow;" onkeypress="if(event.keyCode==13) focusNextInput(this);">
+                        <input id="Usage" type="text" placeholder="用量" style="width: 22%; height: 80px; font-size: 60px; float: right;" onkeypress="if(event.keyCode==13) focusNextInput(this);" onkeyup="value=value.replace(/[^\d\.]/g,'')" onblur="value=value.replace(/[^\d\.]/g,'')" />
+                    </td>
+                    <td width="10%"></td>
+                    <td width="30%">
+                        <span class="input-group-btn">
+                            <a id="btn_submit" class="btn btn-primary " style="width: 55%; height: 75px; font-size: 45px; text-align: center" onclick="btn_submitInfo()">信息提交</a>
+                        </span>
+                    </td>
+                </tr>
+               
+                <tr>
+                    <td>
+                        <input id="BarrelNo" type="text" placeholder="桶编号" style="width: 60%; height: 80px; font-size: 60px; float: left;" onkeypress="if(event.keyCode==13) focusNextInput(this);">
+                        <input id="OperateTime" name="OperateTime" type="text" onfocus="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm:ss' })" placeholder="调出时间" style="width: 38%; height: 80px; font-size: 35px; float: right; " onkeypress="if(event.keyCode==13) focusNextInput(this);">
+                    </td>
+                    <td></td>
+                    <td>
+                        <span class="input-group-btn">
+                            <a id="btn_clear" class="btn btn-primary " style="width: 55%; height: 75px; font-size: 45px; text-align: center" onclick="btn_clearTxt()">内容清空</a>
+                        </span>
+                    </td>
+                    <td>
+                      
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+</div>
+<div class="gridPanel" style="font-size:18px;">
+    <table id="gridList" style="font-size:18px;"></table>
+    <div id="gridPager" style="font-size:18px;"></div>
+</div>

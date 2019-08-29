@@ -1,0 +1,138 @@
+﻿<!DOCTYPE html>
+@{
+    ViewBag.Title = "Plan";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>车间主任日报图形数据</title>
+    <link href="~/Content/css/framework-theme.css" rel="stylesheet" />
+    <script src="~/Content/js/jquery/jquery-2.1.1.min.js"></script>
+    <script src="~/Content/js/highcharts/highcharts.js"></script>
+    <script>
+        //工序缺陷位置变量
+        var fId = "";
+        $(function () {
+            GetPlanData();
+            getPlanDetails(null);
+        });
+
+        function GetPlanData() {
+            $.ajax({
+                url: "/ReportManage/Plan/GetPlanData?FinishProductChartNo=" + $("#txtFinishProductChartNo").val() + "&OrderNo=" + $("#txtOrderNo").val(),
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    var html = "";
+                    $("#tb1").html(html);
+                    if (data.rows.length > 0) {
+                        for (var i = 0; i < data.rows.length; i++) {
+                            fId = data.rows[i]["F_Id"];
+                            html += "<tr><td style=\"text-align:center;border: 1px #000 solid;height:30px;\">" + data.rows[i]["OrderNo"] + "</td>"
+                                + "<td style=\"text-align:center;border: 1px #000 solid;height:30px;\">" + data.rows[i]["PlanCount"] + "</td>"
+                                 + "<td style=\"text-align:center;border: 1px #000 solid;height:30px;\">" + data.rows[i]["FinishProductChartNo"] + "</td>"
+                                  + "<td style=\"text-align:center;border: 1px #000 solid;height:30px;\">" + data.rows[i]["RoughChartNo"] + "</td>"
+                                   + "<td style=\"text-align:center;border: 1px #000 solid;height:30px;\">" + data.rows[i]["FinishedCount"] + "</td>"
+                                    + "<td style=\"text-align:center;border: 1px #000 solid;height:30px;\">" + data.rows[i]["UnfinishedCount"] + "</td>"
+                            + "<td style=\"text-align:center;border: 1px #000 solid;\" ><a style=\"text-decoration:underline;color:blue;cursor:pointer;\" onclick=\"getPlanDetails('" + fId + "')\">" + data.rows[i]["OnLineCount"] + "</a></td>"
+                             + "<td style=\"text-align:center;border: 1px #000 solid;height:30px;\">" + data.rows[i]["DeliveryTime"] + "</td>"
+                           + "</tr>";
+                        }
+                        $("#tb1").append(html);
+                    }
+                    else {
+                        $("#tb1").html("<tr><td colspan=\"8\" style=\"text-align:center;height:30px;\">经查询没有数据！</td></tr>");
+                    }
+                }
+            });
+        };
+
+        function getPlanDetails(fId) {
+            //debugger
+            $.ajax({
+                url: "/ReportManage/Plan/GetPlanTable?PlanId="+fId,
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    var html2 = "";
+                    $("#tb2").html(html2);
+                    if (data.rows.length > 0) {
+                        for (var i = 0; i < data.rows.length; i++) {
+                            html2 += "<tr><td style=\"text-align:center;border: 1px #000 solid;\">" + data.rows[i]["Batch"] + "</td>"
+                                + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["FinishProductChartNo"] + "</td>"
+                            + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["RoughChartNo"] + "</td>"
+                             + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["Name"] + "</td>"
+                            + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["StartTime"] + "</td></tr>";
+                        }
+                    }
+                    else {
+                        $("#tb2").html("<tr><td colspan=\"5\" style=\"text-align:center;height:30px;\">经查询没有数据！</td></tr>");
+                    }
+                    $("#tb2").append(html2);
+                }
+            });
+        };
+        $(function () {
+            $("#btn_search").click(function () {
+                GetPlanData();
+                getPlanDetails(null);
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="topPanel">
+        <div class="search">
+            <table>
+                <tr>
+                    <td>
+                        <div class="input-group">
+                            <input id="txtFinishProductChartNo" type="text" class="form-control" placeholder="请输入成品图号" style="width: 255px; margin-right:10px" />
+                            <input id="txtOrderNo" type="text" class="form-control" placeholder="请输入订单号" style="width: 255px; margin-right:10px" />
+                            <span class="input-group-btn">
+                                <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <!--报表详情开始-->
+    <div style="margin-top:40px;">
+        <h3 style="text-align:center;">交货期分析报表</h3>
+        <table style="margin:auto;cellpadding:0;cellspacing:1; background-color:white;border:1px black solid;border-collapse:collapse;width:100%;">
+            <thead style="background-color:#1d89bf;height:30px;width:100%;color:white;">
+                <tr>
+                    <th width="11%" style="text-align:center;">订单号</th>
+                    <th width="11%" style="text-align:center;">数量</th>
+                    <th width="11%" style="text-align:center;">成品图号</th>
+                    <th width="11%" style="text-align:center;">毛坯图号</th>
+                    <th width="11%" style="text-align:center;">已完成</th>
+                    <th width="11%" style="text-align:center;">未开始</th>
+                    <th width="11%" style="text-align:center;">在制</th>
+                    <th width="11%" style="text-align:center;">交货期</th>
+                </tr>
+            </thead>
+            <tbody id="tb1"></tbody>
+        </table>
+        <h3 style="text-align:center;">在制产品详情</h3>
+        <table style="margin:auto;cellpadding:0;cellspacing:1; background-color:white;border:1px black solid;border-collapse:collapse;width:100%;margin-bottom:50px;">
+            <thead style="background-color:#1d89bf;height:30px;width:100%;color:white;">
+                <tr>
+                    <th width="20%" style="text-align:center;">批次号</th>
+                    <th width="20%" style="text-align:center;">成品图号</th>
+                    <th width="20%" style="text-align:center;">毛坯图号</th>
+                    <th width="20%" style="text-align:center;">当前工序</th>
+                    <th width="20%" style="text-align:center;">工序开始时间</th>
+                </tr>
+            </thead>
+            <tbody id="tb2"></tbody>
+        </table>
+    </div>
+    <!--报表详情结束-->
+</body>
+</html>
+

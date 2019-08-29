@@ -1,0 +1,103 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+    });
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/ReportManage/Statistical/GetPlanJson",
+            height: $(window).height() - 130,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "车型", name: "ItemName", width: 270, align: 'left', sortable: false },
+                { label: "计划单号", name: "JobNo", width: 120, align: 'left', sortable: false },
+                { label: '计划数量', name: "Qty", width: 60, align: 'left', sortable: false },
+                { label: 'SplitFlag', name: "SplitFlag",  align: 'left', hidden: true },
+                    {
+                        label: '是否拆单', name: 'SplitFlag', width: 70, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+
+                            if (rowObject.SplitFlag == 0) {
+                                return '<span >未拆</span>';
+                            }
+                            else {
+                                return '<span >已拆</span>';
+                            }
+                        }
+                    },
+                { label: '已排产数量', name: "pcWQty", width: 115, align: 'left', sortable: false },
+                { label: '焊装车间', name: "WeldingShop", width: 115, align: 'left', sortable: false },
+                { label: '涂装车间', name: "PaintShop", width: 115, align: 'left', sortable: false },
+                { label: '总装车间', name: "AssemblyShop", width: 115, align: 'left', sortable: false },
+                { label: '报废数量', name: "bfQty", width: 115, align: 'left', sortable: false },
+                { label: '完工数量', name: "wgQty", width:115, align: 'left', sortable: false },
+            ],
+            pager: "#gridPager",
+            sortname: 'JobNo  asc',
+            multiSort: true,
+            viewrecords: true,
+           // multiselect: true,//复选框
+           // postData: { type: $("#Type_ID").val(), vinState: $("#VINState").val() },//进入jqgrid加载事件之前默认赋值，再加载
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true,
+            autoscroll: true,
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { itemname: $("#ItemName").val(), jobno: $("#JobNo").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+    }
+    //清空文本框--bichen
+    function clean() {
+
+        $("#ItemName").val("");
+        $("#JobNo").val("");
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        @*<div class="btn-group">
+            <a id="toolbars" class="btn btn-primary" onclick="clean()"><i class="fa fa-plus"></i>清空</a>
+        </div>*@
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+
+                <td>
+                    <div class="input-group">
+                        <input id="ItemName" type="text" class="form-control" placeholder="车型" style="width:280px; margin-right:10px">
+                        <input id="JobNo" type="text" class="form-control" placeholder="计划单号" style="width:150px;">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                    
+                    
+                </td>
+                @* 清空文本框--bichen*@
+                <td>
+                    <div class="input-group">
+                        <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class=" fa fa-link"></i></button>
+                    </div>
+                </td>
+            </tr>
+
+        </table>
+
+    </div>
+    </div>
+    <div class="gridPanel">
+        <table id="gridList"></table>
+
+        <div id="gridPager"></div>
+    </div>

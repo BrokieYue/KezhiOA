@@ -1,0 +1,30 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script src="~/Content/js/qrcode/jquery.qrcode.js"></script>
+<script src="~/Content/js/qrcode/qrcode.js"></script>
+<script src="~/Content/js/jqprint/jquery.jqprint-0.3.js"></script>
+<link media="print" href="~/Content/js/jqprint/jquery.jqprint.css" rel="stylesheet" />
+<script>
+    var code = $.request("code");
+    
+    $(function () {
+        $('#qrcodeTable').qrcode({
+            render: "table",
+            text: code,
+            width: "200",
+            height: "200"
+        });
+    })
+    function btn_print() {
+        $("#print").jqprint();
+    }
+</script>
+<div id="print">
+    
+    @*需要设置打印背景方能显示出二维码*@
+    <div id="qrcodeTable" style="margin:10px;text-align:center;"></div>
+        
+</div>
+<a class="btn btn-primary " onclick="btn_print()" style="margin-left: 60px;"><i class="fa fa-print" style=" font-size: 13px;"></i>直接打印</a>

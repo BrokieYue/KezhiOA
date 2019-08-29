@@ -1,0 +1,239 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script>
+    $(function () {
+        gridList();
+        initControl();
+    })
+
+    $(window).resize(function () {
+        $("#gridList").setGridWidth($(window).width());
+    })
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/BaseManage/ShiftManage/GetPlanJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "班次名称", name: "ClassName", width: 130, align: 'left' },
+            {
+                label: '车间', name: 'Plant', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                    if ($.trim(rowObject.Plant) == $.trim("StampingShop")) {
+                        return '<span >冲压车间</span>';
+                    }
+                    if ($.trim(rowObject.Plant) == $.trim("AssemblyShop")) {
+                        return '<span >总装车间</span>';
+                    }
+                    if ($.trim(rowObject.Plant) == $.trim("PaintShop")) {
+                        return '<span >涂装车间</span>';
+                    }
+                    if ($.trim(rowObject.Plant) == $.trim("WeldingShop")) {
+                        return '<span >焊装车间</span>';
+                    }
+                    if ($.trim(rowObject.Plant) == $.trim("InspectionShop")) {
+                        return '<span >交检车间</span>';
+                    }
+                }
+            },
+                {
+                    label: '班次', name: 'Class_Type', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (rowObject.Class_Type == 1) {
+                            return '<span >白班</span>';
+                        }
+                        if (rowObject.Class_Type == 2) {
+                            return '<span >中班</span>';
+                        }
+                        else {
+                            return '<span >晚班</span>';
+                        }
+                    }
+                },
+
+
+               {
+                   label: '开始时间', name: 'StartTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                       if (cellvalue != "") {
+                           return '<span >' + cellvalue.substr(10, 19) + '</span>';
+                       }
+                   }
+
+               },
+                {
+                    label: '结束时间', name: 'EndTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "") {
+                            return '<span >' + cellvalue.substr(10, 19) + '</span>';
+                        }
+                    }
+
+                },
+                {
+                    label: '结束时间是否次日', name: 'EndMk', width: 150, align: 'left', formatter: function (cellvalue, options, rowObject) {
+
+                        if (rowObject.EndMk == 1) {
+                            return '<span >是</span>';
+                        } else {
+                            return '<span >否</span>';
+                        }
+                    }
+                },
+
+                {
+                    label: '有效开始日期', name: 'StartDate', width: 150, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "") {
+                            return '<span >' + cellvalue.substr(0, 10) + '</span>';
+                        }
+                    }
+
+                },
+                {
+                    label: '有效结束日期', name: 'EndDate', width: 150, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "") {
+                            return '<span >' + cellvalue.substr(0, 10) + '</span>';
+                        }
+                    }
+
+                },
+
+            ],
+            pager: "#gridPager",
+            sortname: 'Plant asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { Plant: $("#Plant").val(), ClassName: $("#ClassName").val(), Class_Type: $("#Class_Type").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+    }
+
+    function btn_add() {
+        $.modalOpen({
+            id: "Form",
+            title: "新建",
+            url: "/BaseManage/ShiftManage/Form?planState=1",
+            width: "400px",
+            height: "500px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_edit() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        //修改 进行修改操作确定后没有选中行却一样可以操作--bichen
+        if (keyValue == null) {
+            $.modalAlert("请选中一行", "warning");
+        } else {
+            $.modalOpen({
+                id: "Form",
+                title: "修改",
+                url: "/BaseManage/ShiftManage/Form?keyValue=" + keyValue + "",
+                width: "400px",
+                height: "500px",
+                callBack: function (iframeId) {
+                    top.frames[iframeId].submitForm();
+                }
+            });
+        }
+    }
+
+
+    function btn_delete() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        //修改 进行修改操作确定后没有选中行却一样可以操作--bichen
+        if (keyValue == null) {
+            $.modalAlert("请选中一行", "warning");
+        } else {
+            $.deleteForm({
+                url: "/BaseManage/ShiftManage/DeleteForm",
+                param: { keyValue:keyValue},
+                success: function () {
+                    $("#gridList").resetSelection();
+                    $("#gridList").trigger("reloadGrid");
+                }
+            })
+        }
+    }
+    function initControl() {
+        $("#Class_Type").bindSelect({
+            url: "/PlanManage/PlanInfoStamping/GetItemList",
+            param: { anCode: "ClassType" }
+        });
+    }
+    //清空文本框--bichen
+    function clean() {
+        $("#ClassName").val("");
+        $("#Plant").val("");
+        $("#Class_Type").val("");
+    }
+</script>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建</a>
+        </div>
+        <div class="operate">
+            <ul class="nav nav-pills">
+                <li class="first">已选中<span>1</span>项</li>
+                <li><a id="NF-edit" authorize="yes" onclick="btn_edit()"><i class="fa fa-pencil-square-o"></i>修改</a></li>
+                <li><a id="NF-delete" authorize="yes" onclick="btn_delete()"><i class="fa fa-trash-o"></i>删除</a></li>
+            </ul>
+            <a href="javascript:;" class="close"></a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+
+                <td>
+                    <div class="input-group">
+                        <input id="ClassName" type="text" class="form-control" placeholder="班次名称" style="width: 100px; margin-right:10px">
+
+                        <select id="Plant" name="Plant" class="form-control" style="width: 150px; margin-right:10px">
+                            <option value="">==请选择车间==</option>
+                            <option value="StampingShop">冲压车间</option>
+                            <option value="WeldingShop">焊装车间</option>
+                            <option value="PaintShop">涂装车间</option>
+                            <option value="AssemblyShop">总装车间</option>
+                            <option value="InspectionShop">交检车间</option>
+                        </select>
+                        <select id="Class_Type" name="Class_Type" class="form-control" style="width: 150px;">
+                            <option value="">==请选择班次==</option>
+                        </select>
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+                @* 清空文本框--bichen*@
+                <td>
+                    <div class="input-group">
+                        <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class=" fa fa-link"></i></button>
+                    </div>
+                </td>
+            </tr>
+
+        </table>
+
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+

@@ -1,0 +1,129 @@
+﻿<!DOCTYPE html>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>车间主任日报图形数据</title>
+    <link href="~/Content/css/framework-theme.css" rel="stylesheet" />
+    <script src="~/Content/js/jquery/jquery-2.1.1.min.js"></script>
+    <script src="~/Content/js/highcharts/highcharts.js"></script>
+    <script>
+        
+        //工序缺陷位置变量
+        var DefectPosition = "";
+        $(function () {
+             GetProcessDefectPositionCount();
+             getPositionDetails(null);
+        });
+
+        function GetProcessDefectPositionCount() {
+            $.ajax({
+                url: "/ReportManage/ProcessDefectPosition/GetProcessDefectPositionCount?startTime=" + $("#DeliveryTime_start").val() + "&endTime=" + $("#DeliveryTime_end").val(),
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    console.log(data);
+                    var html = "";
+                    $("#tb1").html(html);
+                    if (data.rows.length > 0) {
+                        for (var i = 0; i < data.rows.length; i++) {
+                            DefectPosition = data.rows[i]["DefectPosition"];
+                            html += "<tr><td style=\"text-align:center;border: 1px #000 solid;height:30px;\">" + data.rows[i]["DefectPosition"] + "</td>"
+                            + "<td style=\"text-align:center;border: 1px #000 solid;\" ><a style=\"text-decoration:underline;color:blue;cursor:pointer;\" onclick=\"getPositionDetails('" + DefectPosition + "')\">" + data.rows[i]["counts"] + "</a></td></tr>";
+                        }
+                        $("#tb1").append(html);
+                    }
+                    else {
+                        $("#tb1").html("<tr><td colspan=\"2\" style=\"text-align:center;height:30px;\">经查询没有数据！</td></tr>");
+                    }
+                }
+            });
+        };
+
+        function getPositionDetails(DefectPosition) {
+            //debugger
+            $.ajax({
+                url: "/ReportManage/ProcessDefectPosition/GetProcessDefectPositionTable?startTime=" + $("#DeliveryTime_start").val() + "&endTime=" + $("#DeliveryTime_end").val() + "&DefectPosition=" + DefectPosition,
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    var html2 = "";
+                    $("#tb2").html(html2);
+                    if (data.rows.length > 0) {
+                        for (var i = 0; i < data.rows.length; i++) {
+                            html2 += "<tr><td style=\"text-align:center;border: 1px #000 solid;\">" + data.rows[i]["Batch"] + "</td>"
+                            + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["RoughChartNo"] + "</td>"
+                            + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["FinishProductChartNo"] + "</td>"
+                            + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["Revision"] + "</td>"
+                             + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["Name"] + "</td>"
+                            + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["DefectName"] + "</td>"
+                            + "<td style=\"text-align:center;border: 1px #000 solid;\" >" + data.rows[i]["DefectPosition"] + "</td></tr>";
+                        }
+                    }
+                    else {
+                        $("#tb2").html("<tr><td colspan=\"7\" style=\"text-align:center;height:30px;\">经查询没有数据！</td></tr>");
+                    }
+                    $("#tb2").append(html2);
+                }
+            });
+        };
+        $(function () {
+            $("#btn_search").click(function () {
+                GetProcessDefectPositionCount();
+                getPositionDetails(null);
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="topPanel">
+        <div class="search">
+            <table>
+                <tr>
+                    <td>
+                        <div class="input-group">
+                            <input id="DeliveryTime_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'DeliveryTime_end\')}' })" placeholder="开始时间" style="width: 120px; margin-right: 10px">
+                            <input id="DeliveryTime_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'DeliveryTime_start\')}' })" placeholder="结束时间" style="width: 120px;">
+                            <span class="input-group-btn">
+                                <button id="btn_search" type="button" class="btn  btn-primary" ><i class="fa fa-search"></i></button>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <!--报表详情开始-->
+    <div style="margin-top:40px;">
+        <h3 style="text-align:center;">缺陷位置次数报表</h3>
+        <table style="margin:auto;cellpadding:0;cellspacing:1; background-color:white;border:1px black solid;border-collapse:collapse;width:100%;">
+            <thead style="background-color:#1d89bf;height:30px;width:100%;color:white;">
+                <tr>
+                    <th width="50%" style="text-align:center;">缺陷位置</th>
+                    <th width="50%" style="text-align:center;">缺陷出现次数</th>
+                </tr>
+            </thead>
+            <tbody id="tb1"></tbody>
+        </table>
+        <h3 style="text-align:center;">缺陷位置产品详情</h3>
+        <table style="margin:auto;cellpadding:0;cellspacing:1; background-color:white;border:1px black solid;border-collapse:collapse;width:100%;margin-bottom:50px;">
+            <thead style="background-color:#1d89bf;height:30px;width:100%;color:white;">
+                <tr>
+                    <th width="14%" style="text-align:center;">批次号</th>
+                    <th width="14%" style="text-align:center;">毛坯图号</th>
+                    <th width="14%" style="text-align:center;">成品图号</th>
+                    <th width="14%" style="text-align:center;">版次</th>
+                    <th width="14%" style="text-align:center;">当前工序</th>
+                    <th width="14%" style="text-align:center;">原因类别</th>
+                    <th width="14%" style="text-align:center;">位置</th>
+                </tr>
+            </thead>
+            <tbody id="tb2"></tbody>
+        </table>
+    </div>
+    <!--报表详情结束-->
+</body>
+</html>

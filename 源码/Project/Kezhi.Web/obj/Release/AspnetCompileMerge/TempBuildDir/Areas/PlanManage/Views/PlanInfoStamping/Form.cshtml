@@ -1,0 +1,162 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+
+}
+<script>
+
+    var keyValue = $.request("keyValue");
+    var codeid = "";
+    $(function () {
+        initControl();
+        if (!!keyValue) {
+            $.ajax({
+                url: "/PlanManage/PlanInfoStamping/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+
+                    $("#form1").formSerialize(data);
+                }
+
+            });
+            $("#Type_Code").attr("disabled", "disabled");
+        } else {
+            $("#Type_Code").change(function () {
+                  codeid = $("#Type_Code").val();
+                $.ajax({
+                    type: "post",
+                    url: "/PlanManage/PlanInfoStamping/Stecondeid",
+                    data: { codeid: codeid },
+                    success: function (data) {
+                        $("#JobNo").val(data);
+                    }
+                });
+                TypeCodeVcode();
+            });
+        }
+        codeid = $("#Type_Code").val();
+        TypeCodeVcode();
+        $("#Vcode").dblclick(function () {
+
+            var win = window.open("../../PressManage/PressFeed/VehicleFrom", "物料编码列表", " height=450,width=1050,Left=300px,Top=100px, menubar=no,titlebar=no,scrollbar=no,toolbar=no,status=no,location=no");
+
+        });
+    });
+
+
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        var iteam = $("#Vcode").val();
+        var cson=0;
+        $.ajax({
+            url: "/PlanManage/PlanInfoStamping/ExistsItem?keyword=" + iteam,
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                if (!data.F_Id.length > 0)
+                {
+                    cson = 1;
+                }  
+            }
+        });
+        if (cson > 0 && codeid != "CF") {
+            $.modalMsg("物料不存在！", "error");
+            $('#Vcode').val("").focus();
+            return false;
+        }
+      
+        $.submitForm({
+            url: "/PlanManage/PlanInfoStamping/SubmitForm?keyValue=" + keyValue + "",
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+
+    function initControl() {
+        $("#Type_Code").bindSelect({
+            url: "/PlanManage/PlanInfoStamping/GetItemList",
+            param: { anCode: "Sys_CYPlanTyp" }
+        });
+         
+    }
+    function TypeCodeVcode() {
+        if (codeid == "CF") {
+            $("#Vcodetr").hide();
+
+        } else {
+
+            $("#Vcodetr").show();
+        }
+ 
+    }
+</script>
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+       
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">计划类型：</th>
+                    <td class="formValue">
+                        <select id="Type_Code" name="Type_Code" class="form-control required"> <option value="" selected>==请选择== </option></select>
+                    </td>
+                    <th class="formTitle"> 计划号：</th>
+                    <td class="formValue">
+                        <input id="JobNo" name="JobNo" type="text" class="form-control required" style="background-color: LightGrey" readonly="readonly" />
+                    </td>
+                </tr>
+                <tr id="Vcodetr">
+                    <th class="formTitle">物料编码：</th>
+                    <td class="formValue">
+                        <input id="Vcode" name="Vcode" type="text" class="form-control required" placeholder="请输入物料编码或双击选择物料" />
+                    </td>
+                    <th class="formTitle" style="display:none;">BOM：</th>
+                    <td class="formValue" style="display:none;">
+                        <input id="BOM" name="BOM" type="text" class="form-control required" placeholder="请输入BOM" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">生产日期：</th>
+                    <td class="formValue">
+                        <input id="PlanDate" name="PlanDate" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ Date: '#F{$dp.$D(\'PlanDate\')}' })" placeholder="计划生产日期" readonly="readonly">
+
+                    </td>
+                    <th class="formTitle">完成日期：</th>
+                    <td class="formValue">
+                        <input id="Deadline" name="Deadline" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ Date: '#F{$dp.$D(\'Deadline\')}' })" placeholder="计划完成日期" readonly="readonly">
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">计划数量：</th>
+                    <td class="formValue">
+                        <input id="Qty" name="Qty" type="text" class="form-control required" onkeyup="value=value.replace(/[^\d]/g,'')" placeholder="请输入计划数量" />
+                    </td>
+                    <th class="formTitle">特性值：</th>
+                    <td class="formValue">
+                        <input id="LOT_Code" name="LOT_Code" type="text" class="form-control control" placeholder="请输入特性值" />
+                        @*<input id="SplitFlag" name="SplitFlag" type="text" style="display:none;" />
+                        <input id="CompletedMark" name="CompletedMark" type="text" style="display:none;" />
+                        <input id="F_DeleteMark" name="F_DeleteMark" type="text" style="display:none;" />
+                        <input id="F_EnabledMark" name="F_EnabledMark" type="text" style="display:none;" />
+                        <input id="Source" name="Source" type="text" style="display:none;" />*@
+                   
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle" style="padding-top: 5px;">
+                        备注：
+                    </th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="F_Description" name="F_Description" class="form-control" style="height: 60px;"></textarea>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,79 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+
+}
+<script>
+
+
+    //上传/更新
+    function uploadFile() {
+        upload(function (data) {
+            console.log(data);
+            $("#hidFileName").val(data.fileName);
+        });
+    }
+
+    function upload(afterUploadFunc) {
+        var xlsFile = $("#fileInput")[0];
+
+        var result = {};
+        var formData = new FormData();
+        if (xlsFile.files.length > 0) {
+            $("#lblFileName").html(xlsFile.files[0].name);
+            formData.append('file', xlsFile.files[0]);
+        } else {
+            return;
+        }
+        var date = new Date;
+        var date = new Date;
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        month = (month < 10 ? "0" + month : month);
+        var mydate = (year.toString() + month.toString()) + "//"; //获取年月 例如201812
+
+        $.ajax({
+            url: '../../Attachment/Attachment.aspx?action=upload&pathType=ThreeCoorQA&month=' + mydate + '',
+            type: 'POST',
+            data: formData,
+            dataType: 'JSON',
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+
+                if (data.result == "ok") {
+                    if (afterUploadFunc) {
+                        afterUploadFunc(data);
+                    }
+                }
+            }
+        });
+    }
+</script>
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form" >
+                <tr>
+                    <th class="formTitle">文件名：</th>
+                    <td class="formValue">
+                        <span id="lblFileName" style="height: 25px; width: 200px; display: inline-block; float: left; border: 1px solid #000; padding-left: 5px;"></span>
+                    </td>
+
+                </tr>
+                
+                <tr>
+                    <th class="formTitle"></th>
+                    <td class="formValue" style="display:block;margin-top:20px;margin-left:40px;">
+                        <label for="fileInput" style="float: left; cursor: pointer; display: inline-block;">&nbsp;&nbsp;<i class="fa fa-cloud-upload fa-1x"></i>选择文件</label>
+                        <input type="file" id="fileInput" accept="application/vnd.ms-excel" style="display: none" onchange="uploadFile()" />
+                        <input type="hidden" id="hidFileName" />
+                    </td>
+                </tr>
+              
+            </table>
+        </div>
+    </div>
+</form>

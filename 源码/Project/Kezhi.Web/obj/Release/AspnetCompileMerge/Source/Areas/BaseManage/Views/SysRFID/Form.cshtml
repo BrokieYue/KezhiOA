@@ -1,0 +1,84 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+
+}
+<script>
+
+    var keyValue = $.request("keyValue");
+    $(function () {
+        
+        if (!!keyValue) {
+            $.ajax({
+                url: "/BaseManage/SysRFID/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+
+                    $("#form1").formSerialize(data);
+                }
+
+            });
+            
+        }
+ 
+    });
+
+
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        $.submitForm({
+            url: "/BaseManage/SysRFID/SubmitForm?keyValue=" + keyValue + "",
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+
+ 
+</script>
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+       
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form">
+                <tr>
+                    <th class="formTitle" > RFID编号：</th>
+                    <td class="formValue">
+                        <input id="RFID_No" name="RFID_No" type="text" class="form-control required" placeholder="RFID编号" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle"> 天线型号：</th>
+                    <td class="formValue">
+                        <input id="AntennaModel" name="AntennaModel" type="text" class="form-control required" placeholder="RFID读写天线型号" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle"> 控制器型号：</th>
+                    <td class="formValue">
+                        <input id="ControllerModel" name="ControllerModel" type="text" class="form-control required" placeholder="RFID控制器型号" />
+                    </td>
+               </tr>
+
+                <tr>
+                    <th class="formTitle"> 供应商：</th>
+                    <td class="formValue">
+                        <input id="Manufacturer" name="Manufacturer" type="text" class="form-control required" placeholder="供应商" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle"> RFID描述：</th>
+                    <td class="formValue">
+                        <input id="RFIDDesc" name="RFIDDesc" type="text" class="form-control required" placeholder="RFID描述" />
+                    </td>
+                </tr>
+        
+            </table>
+        </div>
+    </div>
+</form>

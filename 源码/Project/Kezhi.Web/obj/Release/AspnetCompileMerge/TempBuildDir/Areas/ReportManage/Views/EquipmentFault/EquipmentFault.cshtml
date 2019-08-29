@@ -1,0 +1,165 @@
+﻿<!DOCTYPE html>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>车间主任日报图形数据</title>
+    <link href="~/Content/css/framework-theme.css" rel="stylesheet" />
+    <script src="~/Content/js/jquery/jquery-2.1.1.min.js"></script>
+    <script src="~/Content/js/highcharts/highcharts.js"></script>
+    <script>
+        var series = [], xname = [], series1=[],counts=0;
+        function EquipmentFaultCount()
+        {
+            series = []; series1 = []; xname = []; counts = 0;
+            $.ajax({
+                url: "/ReportManage/EquipmentFault/EquipmentFaultCount?startTime=" + $("#DeliveryTime_start").val() + "&endTime=" + $("#DeliveryTime_end").val(),
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    if (data.rows.length > 0) {
+                        for (var i = 0; i < data.rows.length; i++)
+                        {
+                            counts += data.rows[i].counts;
+                        }
+                        for (var j = 0; j < data.rows.length; j++) {
+                            series.push(
+                                [data.rows[j].FaultWorking]
+                            );
+                            xname.push(
+                               data.rows[j].EquipmentName
+                            );
+                            series1.push(
+                                data.rows[j].counts * 100 / counts 
+                            );
+                        }
+                        
+                        getchart();
+                    }
+                    else {
+                        getchart();
+                    }
+                    return series;
+                }
+            });
+        };
+
+        function getchart() {
+            //柱状图
+            var title = { text: '没有查到设备故障报表' };
+            if (series.length > 0) {
+                title = { text: '设备故障报表' };
+            }
+            $('#container_Histogram').highcharts({
+                chart: {
+                    zoomType: 'xy'
+                },
+                title: title,
+                xAxis: [{
+                    categories: xname
+                }],
+                yAxis: [{//主Y轴
+                    labels: {
+                        format: '{value} %',
+                        style: {
+                            color: '#89A54E',
+                            fontSize: '12px'
+                        }
+                    },
+                    title: {
+                        text: '故障率',
+                        style: {
+                            color: '#89A54E',
+                            fontSize: '12px'
+                        }
+                    }
+                },
+              { // 次Y轴  
+                  title: {
+                      text: '故障工时',
+                      style: {
+                          color: '#4572A7'
+                      }
+                  },
+                  labels: {
+                      format: '{value}天',
+                      style: {
+                          color: '#4572A7'
+                      }
+                  },
+                  opposite: true
+              }
+                ],
+                tooltip: {
+                    shared: true,
+                    useHTML: true
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'left',
+                    x: 120,
+                    verticalAlign: 'top',
+                    y: 100,
+                    floating: true,
+                    backgroundColor: '#FFFFFF'
+                },
+                series: [ {
+                    name: '故障工时',
+                    color: '#4572A7',
+                    yAxis: 1,
+                    type: 'column',
+                    data: series
+
+                },{
+                    name: '故障率',
+                    data: series1,
+                    color: 'black',
+                    type: 'spline'
+                }
+                ]
+            });
+        };
+
+        $(function () {
+            EquipmentFaultCount();
+            //统计图
+            getchart();
+        });
+        $(function () {
+            $("#btn_search").click(function () {
+                EquipmentFaultCount();
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="topPanel">
+        <div class="search">
+            <table>
+                <tr>
+                    <td>
+                        <div class="input-group">
+                            <input id="DeliveryTime_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'DeliveryTime_end\')}' })" placeholder="开始时间" style="width: 120px; margin-right: 10px">
+                            <input id="DeliveryTime_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'DeliveryTime_start\')}' })" placeholder="结束时间" style="width: 120px;">
+
+                            <span class="input-group-btn">
+                                <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <!---柱状图-->
+    <div id="container_Histogram" style="min-width:400px;height:400px"></div>
+    <!---柱状图-->
+   
+</body>
+</html>
+
+
+

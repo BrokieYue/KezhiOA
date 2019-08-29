@@ -1,0 +1,498 @@
+﻿<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <!-- 以下是jsp页面的基本头部信息,所有jsp页面必须include此文件 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+    <meta http-equiv="pragma" content="no-cache"/>
+    <meta http-equiv="cache-control" content="no-cache"/>
+    <meta http-equiv="expires" content="0"/>
+    <style>
+        .iq_inputTitle
+        {
+            font-family: Arial, "宋体";
+            text-align: right;
+            font-size: 12px;
+            color: #000000;
+        }
+        .iq_inputTitleLeft
+        {
+            font-family: Arial, "宋体";
+            text-align: left;
+            font-size: 12px;
+            color: #000000;
+        }
+        /*按钮行高*/
+        .buttonHeight
+        {
+            height: 20px;
+        }
+    </style>
+    <style>
+        #minxi
+        {
+            border: solid #ccc 1px;
+            filter: alpha(opacity=60);
+            -moz-opacity: 0.6;
+            -khtml-opacity: 0.6;
+            opacity: 0.6;
+            background: #fff;
+        }
+        #minxi td
+        {
+            border: solid #ccc 1px;
+        }
+        .w65
+        {
+            width: 65px;
+        }
+        /*.wauto{*/
+        /*width: auto !important;*/
+        /*}*/
+    </style>
+</head>
+<body>
+  
+    <div class="easyui-layout layout easyui-fluid" style="width: 1701px; height: 298px;">
+        <div class="panel layout-panel layout-panel-center" style="left: 0px; top: 0px; width: 1701px;">
+            <div class="panel-header" style="width: 1689px;">
+                <div class="panel-title">车辆故障部位设置</div>
+                <div class="panel-tool">
+                </div>
+            </div>
+            <div title="" style="width: 1699px;height: 271px;" data-options="region:'center',title:'车辆故障部位设置'">
+                <div style="left: 0px;top: 0px; width: 1138px;">
+                    <div title="" style="width: 1136px; height: 868px;" data-options="region:'west'">
+                        <div style="left: 0px;top: 0px; width: 1144px;">
+                            <div title="" id="tablemx" style="width: 1142px;height: 562px;" data-options="region:'north',collapsible:false">
+                                <img width="100%" height="100%" id="bigpic" style="z-index: -1;" src="null">
+                                <table width="66%" height="60%" class="data-table" id="minxi" style="left: 4px; top: 30px;position: fixed; z-index: 100;" cellspacing="2">
+                                    <tbody>
+                                        <tr>
+                                            <td align="center" id="bwfq1" valign="middle" style="width: 373px; height: 174px;overflow: hidden;" mqsbdbwfq="1" mqsbdgzbw="右后门/右中滑门">
+                                                <div style="width: 373px; height: 174px;">
+                                                    右后门/右中滑门<div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td align="center" id="bwfq2" valign="middle" style="width: 372px; height: 174px;overflow: hidden;" mqsbdgzbw="右后门/右中滑门">
+                                                <div style="width: 372px; height: 174px;">
+                                                    右后门/右中滑门<div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td align="center" id="bwfq3" valign="middle" style="width: 373px; height: 174px;overflow: hidden;" mqsbdbwfq="3" mqsbdgzbw="右后门/右中滑门">
+                                                <div style="width: 373px; height: 174px;">
+                                                    右后门/右中滑门<div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center" id="bwfq4" valign="middle" style="width: 373px; height: 174px;
+                                                overflow: hidden;" onclick="iq.selectModels.show(4)" mqsbid="8a4de4fe526c7a0d01526d2002f001f4"
+                                                mqsdbid="8a4de4fe5273588b0152768a18f90768" mqsbdbwfq="4" mqsbdgzbw="右后门/右中滑门">
+                                                <div style="width: 373px; height: 174px;">
+                                                    右后门/右中滑门<div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td align="center" id="bwfq5" valign="middle" style="background: rgb(56, 173, 255);
+                                                width: 372px; height: 174px; overflow: hidden;" onclick="iq.selectModels.show(5)"
+                                                mqsbid="8a4de4fe526c7a0d01526d2002f001f4" mqsdbid="8a4de4fe5273588b0152768af3b40772"
+                                                mqsbdbwfq="5" mqsbdgzbw="右后门/右中滑门">
+                                                <div style="width: 372px; height: 174px;">
+                                                    右后门/右中滑门<div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td align="center" id="bwfq6" valign="middle" style="width: 373px; height: 174px;
+                                                overflow: hidden;" onclick="iq.selectModels.show(6)" mqsbid="8a4de4fe526c7a0d01526d2002f001f4"
+                                                mqsdbid="8a4de4fe5273588b0152768ba4c10776" mqsbdbwfq="6" mqsbdgzbw="右后门/右中滑门">
+                                                <div style="width: 373px; height: 174px;">
+                                                    右后门/右中滑门<div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center" id="bwfq7" valign="middle" style="width: 373px; height: 175px;
+                                                overflow: hidden;" onclick="iq.selectModels.show(7)" mqsbid="8a4de4fe526c7a0d01526d2002f001f4"
+                                                mqsdbid="8a4de4fe5273588b0152768c229f077e" mqsbdbwfq="7" mqsbdgzbw="右后门/右中滑门">
+                                                <div style="width: 373px; height: 175px;">
+                                                    右后门/右中滑门<div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td align="center" id="bwfq8" valign="middle" style="width: 372px; height: 175px;
+                                                overflow: hidden;" onclick="iq.selectModels.show(8)" mqsbid="8a4de4fe526c7a0d01526d2002f001f4"
+                                                mqsdbid="8a4de4fe5273588b0152768c94660784" mqsbdbwfq="8" mqsbdgzbw="右后门槛/右中滑门槛">
+                                                <div style="width: 372px; height: 175px;">
+                                                    右后门槛/右中滑门槛<div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td align="center" id="bwfq9" valign="middle" style="width: 373px; height: 175px;
+                                                overflow: hidden;" onclick="iq.selectModels.show(9)" mqsbid="8a4de4fe526c7a0d01526d2002f001f4"
+                                                mqsdbid="8a4de4fe5273588b0152768d1f2b078a" mqsbdbwfq="9" mqsbdgzbw="右后门槛/右中滑门槛">
+                                                <div style="width: 373px; height: 175px;">
+                                                    右后门槛/右中滑门槛<div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="panel layout-panel layout-panel-south easyui-fluid" style="left: 0px;
+                            top: 563px; width: 1144px;">
+                            <div title="" class="panel-body panel-body-noheader layout-body" style="width: 1142px;
+                                height: 301px;" data-options="region:'south'">
+                                <table class="data-table" id="tupian" cellspacing="4">
+                                    <tbody>
+                                        <tr>
+                                            <td id="tdimg0">
+                                                <img id="img0" style="margin: 5px; width: 80px; height: 80px;" onclick="iq.selectModels.dianj(0);"
+                                                    src="/quality/file/show?rdm=0.6061779309460533&amp;path=/u01/Server/upload/CA2015/2016-01-23/B0101C201_20160123095218582$CAdd035670e4ba4b89ad89fc1a712c44bd.jpg"
+                                                    mqsbdmodel="0" mqsbattid="2ed736c2bd294940805cde64810a7b09" mqsbid="8a4de4fe5268070001526c2f1f4f04d7"
+                                                    mqsbmemo="null" mqsbpname="B0101C201_20160123095218582.jpg" mqsbpno="B0101C201_20160123095218582"><a
+                                                        style="top: -35px; width: 15px; margin-left: -15px; position: relative;" onclick="iq.selectModels.del('8a4de4fe5268070001526c2f1f4f04d7','0','C201','2ed736c2bd294940805cde64810a7b09','B0101')"><img
+                                                            style="width: 15px;" src="/quality/skins/common/image/1.png"></a>
+                                            </td>
+                                            <td id="tdimg1">
+                                                <img id="img1" style="margin: 5px; width: 80px; height: 80px;" onclick="iq.selectModels.dianj(1);"
+                                                    src="/quality/file/show?rdm=0.8787218459271029&amp;path=/u01/Server/upload/CA2015/2016-01-23/B0101C201_20160123095218582$CAea291556a7ed4b3fb46958e0dde29fc3.jpg"
+                                                    mqsbdmodel="0" mqsbattid="01e9884f8fab42bdb2fd20c9e7ab1d11" mqsbid="8a4de4fe5268070001526c2fe81504e2"
+                                                    mqsbmemo="null" mqsbpname="B0101C201_20160123095218582.jpg" mqsbpno="B0101C201_20160123095218582"><a
+                                                        style="top: -35px; width: 15px; margin-left: -15px; position: relative;" onclick="iq.selectModels.del('8a4de4fe5268070001526c2fe81504e2','1','C201','01e9884f8fab42bdb2fd20c9e7ab1d11','B0101')"><img
+                                                            style="width: 15px;" src="/quality/skins/common/image/1.png"></a>
+                                            </td>
+                                            <td id="tdimg2">
+                                                <img id="img2" style="margin: 5px; width: 80px; height: 80px;" onclick="iq.selectModels.dianj(2);"
+                                                    src="/quality/file/show?rdm=0.7038551092021631&amp;path=/u01/Server/upload/CA2015/2016-01-23/B0101C201_20160123095348935$CAe420a1c7d5b3425da3ecd1fe08160ebb.jpg"
+                                                    mqsbdmodel="0" mqsbattid="a4d423d3107a48449b061d2d10ddf910" mqsbid="8a4de4fe5268070001526c33aceb04ef"
+                                                    mqsbmemo="null" mqsbpname="B0101C201_20160123095348935.jpg" mqsbpno="B0101C201_20160123095348935"><a
+                                                        style="top: -35px; width: 15px; margin-left: -15px; position: relative;" onclick="iq.selectModels.del('8a4de4fe5268070001526c33aceb04ef','2','C201','a4d423d3107a48449b061d2d10ddf910','B0101')"><img
+                                                            style="width: 15px;" src="/quality/skins/common/image/1.png"></a>
+                                            </td>
+                                            <td id="tdimg3">
+                                                <img id="img3" style="margin: 5px; width: 80px; height: 80px;" onclick="iq.selectModels.dianj(3);"
+                                                    src="/quality/file/show?rdm=0.9807515886788933&amp;path=/u01/Server/upload/CA2015/2016-01-23/B0101C201_20160123095348935$CA552e938c0846423bbc30e9914b86e677.jpg"
+                                                    mqsbdmodel="0" mqsbattid="87db89fdb05249ea906330c892f7ef8c" mqsbid="8a4de4fe5268070001526c3887af052b"
+                                                    mqsbmemo="null" mqsbpname="B0101C201_20160123095348935.jpg" mqsbpno="B0101C201_20160123095348935"><a
+                                                        style="top: -35px; width: 15px; margin-left: -15px; position: relative;" onclick="iq.selectModels.del('8a4de4fe5268070001526c3887af052b','3','C201','87db89fdb05249ea906330c892f7ef8c','B0101')"><img
+                                                            style="width: 15px;" src="/quality/skins/common/image/1.png"></a>
+                                            </td>
+                                            <td id="tdimg4">
+                                                <img id="img4" style="margin: 5px; width: 80px; height: 80px;" onclick="iq.selectModels.dianj(4);"
+                                                    src="/quality/file/show?rdm=0.5346083670042739&amp;path=/u01/Server/upload/CA2015/2016-01-23/B0101C201_20160123100249498$CA961670bf1b7c4ea5b9fa95f329421357.jpg"
+                                                    mqsbdmodel="0" mqsbattid="b6ec9062f33e4beb895cf57e47310676" mqsbid="8a4de4fe5268070001526c3938ed0537"
+                                                    mqsbmemo="null" mqsbpname="B0101C201_20160123100249498.jpg" mqsbpno="B0101C201_20160123100249498"><a
+                                                        style="top: -35px; width: 15px; margin-left: -15px; position: relative;" onclick="iq.selectModels.del('8a4de4fe5268070001526c3938ed0537','4','C201','b6ec9062f33e4beb895cf57e47310676','B0101')"><img
+                                                            style="width: 15px;" src="/quality/skins/common/image/1.png"></a>
+                                            </td>
+                                            <td id="tdimg5">
+                                                <img id="img5" style="margin: 5px; width: 80px; height: 80px;" onclick="iq.selectModels.dianj(5);"
+                                                    src="/quality/file/show?rdm=0.5524764306085856&amp;path=/u01/Server/upload/CA2015/2016-01-23/B0101C201_20160123100343121$CA475649b208a64fe78ad0a530cb624f3e.jpg"
+                                                    mqsbdmodel="0" mqsbattid="17ca9d44bdb945d78e3322e6b8f0bb52" mqsbid="8a4de4fe5268070001526c39f9e70541"
+                                                    mqsbmemo="null" mqsbpname="B0101C201_20160123100343121.jpg" mqsbpno="B0101C201_20160123100343121"><a
+                                                        style="top: -35px; width: 15px; margin-left: -15px; position: relative;" onclick="iq.selectModels.del('8a4de4fe5268070001526c39f9e70541','5','C201','17ca9d44bdb945d78e3322e6b8f0bb52','B0101')"><img
+                                                            style="width: 15px;" src="/quality/skins/common/image/1.png"></a>
+                                            </td>
+                                            <td id="tdimg6" style="background: rgb(56, 173, 255);">
+                                                <img id="img6" style="margin: 5px; width: 80px; height: 80px;" onclick="iq.selectModels.dianj(6);"
+                                                    src="/quality/file/show?rdm=0.5550055881402347&amp;path=/u01/Server/upload/CA2015/2016-01-23/B0101C201_2016012314145122$CAf97e92d48372447297f0038e628818c4.jpg"
+                                                    mqsbdmodel="0" mqsbattid="f581021a73ed405cab16423dc947e565" mqsbid="8a4de4fe526c7a0d01526d2002f001f4"
+                                                    mqsbmemo="null" mqsbpname="B0101C201_2016012314145122.jpg" mqsbpno="B0101C201_2016012314145122"><a
+                                                        style="top: -35px; width: 15px; margin-left: -15px; position: relative;" onclick="iq.selectModels.del('8a4de4fe526c7a0d01526d2002f001f4','6','C201','f581021a73ed405cab16423dc947e565','B0101')"><img
+                                                            style="width: 15px;" src="/quality/skins/common/image/1.png"></a>
+                                            </td>
+                                            <td id="tdimg7">
+                                                <img id="img7" style="margin: 5px; width: 80px; height: 80px;" onclick="iq.selectModels.dianj(7);"
+                                                    src="/quality/file/show?rdm=0.5403356946898867&amp;path=/u01/Server/upload/CA2015/2016-01-23/B0101C201_20160123141608960$CAa481997be4344a6ba0ad248dce475b62.jpg"
+                                                    mqsbdmodel="0" mqsbattid="af1e293eca554e439f8abbb413d0b620" mqsbid="8a4de4fe526c7a0d01526d2074bd01fa"
+                                                    mqsbmemo="null" mqsbpname="B0101C201_20160123141608960.jpg" mqsbpno="B0101C201_20160123141608960"><a
+                                                        style="top: -35px; width: 15px; margin-left: -15px; position: relative;" onclick="iq.selectModels.del('8a4de4fe526c7a0d01526d2074bd01fa','7','C201','af1e293eca554e439f8abbb413d0b620','B0101')"><img
+                                                            style="width: 15px;" src="/quality/skins/common/image/1.png"></a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td id="tdimg8">
+                                                <img id="img8" style="margin: 5px; width: 80px; height: 80px;" onclick="iq.selectModels.dianj(8);"
+                                                    src="/quality/file/show?rdm=0.49486933314558295&amp;path=/u01/Server/upload/CA2015/2016-01-23/B0101C201_20160123141652420$CAf1bd6c49b71c4517b8621fea4d77237a.jpg"
+                                                    mqsbdmodel="0" mqsbattid="41ece42eefe04bd49ccc99e5edac3fd4" mqsbid="8a4de4fe526c7a0d01526d2246f0021b"
+                                                    mqsbmemo="null" mqsbpname="B0101C201_20160123141652420.jpg" mqsbpno="B0101C201_20160123141652420"><a
+                                                        style="top: -35px; width: 15px; margin-left: -15px; position: relative;" onclick="iq.selectModels.del('8a4de4fe526c7a0d01526d2246f0021b','8','C201','41ece42eefe04bd49ccc99e5edac3fd4','B0101')"><img
+                                                            style="width: 15px;" src="/quality/skins/common/image/1.png"></a>
+                                            </td>
+                                            <td id="tdimg9">
+                                                <img id="img9" style="margin: 5px; width: 80px; height: 80px;" onclick="iq.selectModels.dianj(9);"
+                                                    src="/quality/file/show?rdm=0.09582475538912816&amp;path=/u01/Server/upload/CA2015/2016-01-23/B0101C201_20160123141813428$CA4948219fb4774b5994fd158a43ae5299.jpg"
+                                                    mqsbdmodel="0" mqsbattid="7047f58c70514f10a889d80f8865fc9c" mqsbid="8a4de4fe526c7a0d01526d22d5dc0222"
+                                                    mqsbmemo="null" mqsbpname="B0101C201_20160123141813428.jpg" mqsbpno="B0101C201_20160123141813428"><a
+                                                        style="top: -35px; width: 15px; margin-left: -15px; position: relative;" onclick="iq.selectModels.del('8a4de4fe526c7a0d01526d22d5dc0222','9','C201','7047f58c70514f10a889d80f8865fc9c','B0101')"><img
+                                                            style="width: 15px;" src="/quality/skins/common/image/1.png"></a>
+                                            </td>
+                                            <td id="tdimg10">
+                                                <img id="img10" style="margin: 5px; width: 80px; height: 80px;" onclick="iq.selectModels.dianj(10);"
+                                                    src="/quality/file/show?rdm=0.784960351813793&amp;path=/u01/Server/upload/CA2015/2016-01-23/B0101C201_20160123141842735$CAf1cd17548235449c95fba433c409b20f.jpg"
+                                                    mqsbdmodel="0" mqsbattid="0db976ae86d14df7b691a00a473b17cc" mqsbid="8a4de4fe526c7a0d01526d23254a022b"
+                                                    mqsbmemo="null" mqsbpname="B0101C201_20160123141842735.jpg" mqsbpno="B0101C201_20160123141842735"><a
+                                                        style="top: -35px; width: 15px; margin-left: -15px; position: relative;" onclick="iq.selectModels.del('8a4de4fe526c7a0d01526d23254a022b','10','C201','0db976ae86d14df7b691a00a473b17cc','B0101')"><img
+                                                            style="width: 15px;" src="/quality/skins/common/image/1.png"></a>
+                                            </td>
+                                            <td id="tdimg11">
+                                                <img id="img11" style="margin: 5px; width: 80px; height: 80px;" onclick="iq.selectModels.dianj(11);"
+                                                    src="/quality/file/show?rdm=0.8344435075064429&amp;path=/u01/Server/upload/CA2015/2016-01-23/B0101C201_20160123141909888$CA16b18bd8dbfb4522a35a4b9f9b6b9697.jpg"
+                                                    mqsbdmodel="0" mqsbattid="0819185eb92c4a279d362c7ba9f2205d" mqsbid="8a4de4fe526c7a0d01526d238a7f0234"
+                                                    mqsbmemo="null" mqsbpname="B0101C201_20160123141909888.jpg" mqsbpno="B0101C201_20160123141909888"><a
+                                                        style="top: -35px; width: 15px; margin-left: -15px; position: relative;" onclick="iq.selectModels.del('8a4de4fe526c7a0d01526d238a7f0234','11','C201','0819185eb92c4a279d362c7ba9f2205d','B0101')"><img
+                                                            style="width: 15px;" src="/quality/skins/common/image/1.png"></a>
+                                            </td>
+                                            <td id="tdimg12">
+                                                <img id="img12" style="margin: 5px; width: 80px; height: 80px;" onclick="iq.selectModels.dianj(12);"
+                                                    src="/quality/file/show?rdm=0.30881419279724564&amp;path=/u01/Server/upload/CA2015/2016-01-23/B0101C201_20160123141933902$CAd42aa5bda02f47f0a26dfbebb629fd81.jpg"
+                                                    mqsbdmodel="0" mqsbattid="fb8ee54dc54248a0a84daacce4e86327" mqsbid="8a4de4fe526c7a0d01526d251a9a0248"
+                                                    mqsbmemo="null" mqsbpname="B0101C201_20160123141933902.jpg" mqsbpno="B0101C201_20160123141933902"><a
+                                                        style="top: -35px; width: 15px; margin-left: -15px; position: relative;" onclick="iq.selectModels.del('8a4de4fe526c7a0d01526d251a9a0248','12','C201','fb8ee54dc54248a0a84daacce4e86327','B0101')"><img
+                                                            style="width: 15px;" src="/quality/skins/common/image/1.png"></a>
+                                            </td>
+                                            <td id="tdimg13">
+                                                <img id="img13" style="margin: 5px; width: 80px; height: 80px;" onclick="iq.selectModels.dianj(13);"
+                                                    src="/quality/file/show?rdm=0.18151340897785562&amp;path=/u01/Server/upload/CA2015/2016-01-23/B0101C201_20160123142002299$CA1753d84e88864ebbb31cd4f73c504986.jpg"
+                                                    mqsbdmodel="0" mqsbattid="8452c12278204d3589586314f3ef018f" mqsbid="8a4de4fe526c7a0d01526d278b300267"
+                                                    mqsbmemo="null" mqsbpname="B0101C201_20160123142002299.jpg" mqsbpno="B0101C201_20160123142002299"><a
+                                                        style="top: -35px; width: 15px; margin-left: -15px; position: relative;" onclick="iq.selectModels.del('8a4de4fe526c7a0d01526d278b300267','13','C201','8452c12278204d3589586314f3ef018f','B0101')"><img
+                                                            style="width: 15px;" src="/quality/skins/common/image/1.png"></a>
+                                            </td>
+                                            <td id="tdimg14">
+                                                <img id="img14" style="margin: 5px; width: 80px; height: 80px;" onclick="iq.selectModels.dianj(14);"
+                                                    src="/quality/file/show?rdm=0.6281443892801829&amp;path=/u01/Server/upload/CA2015/2016-01-23/B0101C201_20160123142426813$CA32097af933f5416bad3fb3810d0050f5.jpg"
+                                                    mqsbdmodel="0" mqsbattid="7643a205e57e47a3be525ec521f2a599" mqsbid="8a4de4fe526c7a0d01526d28f0820281"
+                                                    mqsbmemo="null" mqsbpname="B0101C201_20160123142426813.jpg" mqsbpno="B0101C201_20160123142426813"><a
+                                                        style="top: -35px; width: 15px; margin-left: -15px; position: relative;" onclick="iq.selectModels.del('8a4de4fe526c7a0d01526d28f0820281','14','C201','7643a205e57e47a3be525ec521f2a599','B0101')"><img
+                                                            style="width: 15px;" src="/quality/skins/common/image/1.png"></a>
+                                            </td>
+                                            <td id="tdimg15">
+                                                <img id="img15" style="margin: 5px; width: 80px; height: 80px;" onclick="iq.selectModels.dianj(15);"
+                                                    src="/quality/file/show?rdm=0.4914334629120656&amp;path=/u01/Server/upload/CA2015/2016-01-23/B0101C201_20160123142519816$CA5f9de95db7c24a938d0ae030de58e8a3.jpg"
+                                                    mqsbdmodel="0" mqsbattid="502366e111d74b729ed2def32984382f" mqsbid="8a4de4fe526c7a0d01526d29d22c028c"
+                                                    mqsbmemo="null" mqsbpname="B0101C201_20160123142519816.jpg" mqsbpno="B0101C201_20160123142519816"><a
+                                                        style="top: -35px; width: 15px; margin-left: -15px; position: relative;" onclick="iq.selectModels.del('8a4de4fe526c7a0d01526d29d22c028c','15','C201','502366e111d74b729ed2def32984382f','B0101')"><img
+                                                            style="width: 15px;" src="/quality/skins/common/image/1.png"></a>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td id="tdimg16">
+                                                <img id="img16" style="margin: 5px; width: 80px; height: 80px;" onclick="iq.selectModels.dianj(16);"
+                                                    src="/quality/file/show?rdm=0.8919439136635157&amp;path=/u01/Server/upload/CA2015/2016-01-23/B0101C201_20160123142602175$CAdd75c7494dc644b28a5cf3ae0762b9eb.jpg"
+                                                    mqsbdmodel="0" mqsbattid="6b7e2a0f0db64e14b99d047d932267bb" mqsbid="8a4de4fe526c7a0d01526d2b92db02a5"
+                                                    mqsbmemo="null" mqsbpname="B0101C201_20160123142602175.jpg" mqsbpno="B0101C201_20160123142602175"><a
+                                                        style="top: -35px; width: 15px; margin-left: -15px; position: relative;" onclick="iq.selectModels.del('8a4de4fe526c7a0d01526d2b92db02a5','16','C201','6b7e2a0f0db64e14b99d047d932267bb','B0101')"><img
+                                                            style="width: 15px;" src="/quality/skins/common/image/1.png"></a>
+                                            </td>
+                                            <td id="tdimg17">
+                                                <img id="img17" style="margin: 5px; width: 80px; height: 80px;" onclick="iq.selectModels.dianj(17);"
+                                                    src="/quality/file/show?rdm=0.44184509104673236&amp;path=/u01/Server/upload/CA2015/2016-01-23/B0101C201_20160123160442527$CA356496c77e0c4bda93e6ff08cd824197.jpg"
+                                                    mqsbdmodel="0" mqsbattid="4a51275ed9a045688d26ea68bcf99451" mqsbid="8a4de4fe526c7a0d01526d83e997053f"
+                                                    mqsbmemo="null" mqsbpname="B0101C201_20160123160442527.jpg" mqsbpno="B0101C201_20160123160442527"><a
+                                                        style="top: -35px; width: 15px; margin-left: -15px; position: relative;" onclick="iq.selectModels.del('8a4de4fe526c7a0d01526d83e997053f','17','C201','4a51275ed9a045688d26ea68bcf99451','B0101')"><img
+                                                            style="width: 15px;" src="/quality/skins/common/image/1.png"></a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="layout-split-proxy-h">
+                        </div>
+                        <div class="layout-split-proxy-v">
+                        </div>
+                    </div>
+                </div>
+                <div class="panel layout-panel layout-panel-east easyui-fluid" style="left: 1149px;
+                    top: 0px; width: 560px;">
+                    <div title="" class="easyui-layout panel-body panel-body-noheader layout-body layout"
+                        style="width: 558px; height: 868px;" data-options="region:'east'">
+                        <div class="panel layout-panel layout-panel-north easyui-fluid" style="left: 0px;
+                            top: 0px; width: 561px;">
+                            <div class="panel-header" style="width: 549px;">
+                                <div class="panel-title">
+                                    车辆部位设置</div>
+                                <div class="panel-tool">
+                                    <a class="panel-tool-collapse" style="display: none;" href="javascript:void(0)">
+                                    </a><a class="layout-button-up" href="javascript:void(0)"></a>
+                                </div>
+                            </div>
+                            <div title="" class="panel-body layout-body" style="width: 559px; height: 441px;"
+                                data-options="region:'north',title:'车辆部位设置'">
+                                <form class="dialog-data-form" id="data-form">
+                                <input name="id" id="mqsbId" type="hidden" value="8a4de4fe526c7a0d01526d2002f001f4">
+                                <input id="oldTdimg" type="hidden" value="tdimg6">
+                                <input name="mqsbAttid" id="mqsbAttid" type="hidden" value="f581021a73ed405cab16423dc947e565">
+                                <input name="mqsbPno" id="mqsbPno" type="hidden" value="B0101C201_2016012314145122">
+                                <input name="mqsbNo" id="mqsbNo" type="hidden">
+                                <table class="data-table" style="width: 100%;" cellspacing="4">
+                                    <tbody>
+                                        <tr>
+                                            <td class="w65" style="text-align: right; font-weight: bold;">
+                                                采集点<span class="starRequired">*</span>
+                                            </td>
+                                            <td>
+                                                <input name="mqsbCpname" style="width: 79%;" type="text" readonly="readonly">
+                                                <input name="mqsbCpcode" id="mqsbCpcode" type="hidden" value="B0101">
+                                                <input style="width: 20%; float: right;" onclick="iq.selectCollectpoint.selectCollectpoint('data-form', 'mqsbCpcode', 'mqsbCpname', 'mqsbCode');"
+                                                    type="button" value="查找">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="w65" style="text-align: right; font-weight: bold;">
+                                                车型<span class="starRequired">*</span>
+                                            </td>
+                                            <td>
+                                                <input name="mqsbName" style="width: 79%;" type="text" readonly="readonly">
+                                                <input name="mqsbCode" id="mqsbCode" type="hidden" value="C201">
+                                                <input style="width: 20%; float: right;" onclick="iq.selectModels.selectModels('data-form', 'mqsbCode', 'mqsbName', 'mqsbCpcode');"
+                                                    type="button" value="查找">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="w65" style="text-align: right; font-weight: bold;">
+                                                图片模式<span class="starRequired">*</span>
+                                            </td>
+                                            <td>
+                                                <select name="mqsbdModel" id="mqsbdModel" style="width: 100%;">
+                                                    <option value="">--请选择--</option>
+                                                    <option value="0">3*3(9 个格子)</option>
+                                                    <option value="1">6*6(36 个格子)</option>
+                                                    <option value="2">9*9(81个格子)</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="w65" style="text-align: right; font-weight: bold;">
+                                                图片<span class="starRequired">*</span>
+                                            </td>
+                                            <td>
+                                                <input id="fileName" style="width: 79%; background-color: rgb(235, 235, 228);" type="text"
+                                                    readonly="readonly">
+                                                <input name="mqsbPname" id="uploadFilePath" type="hidden" value="B0101C201_2016012314145122.jpg">
+                                                <input style="width: 20%; float: right;" onclick="system.file.openChooseFileZY();"
+                                                    type="button" value="上传">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="w65" style="text-align: right; font-weight: bold;">
+                                                备注
+                                            </td>
+                                            <td>
+                                                <textarea name="mqsbMemo" class="field-remark easyui-validatebox wauto validatebox-text"
+                                                    id="mqsbMemo" style="width: 100%; height: 40px;" maxlength="100" validtype="checkLength[100]"></textarea>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center" style="height: 26px;" colspan="2">
+                                                <input onclick="mqs.mqsBody.clearData();" type="button" value="新增">
+                                                <input id="saveid" onclick="mqs.mqsBody.doAdd();" type="button" value="修改">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="panel layout-panel layout-panel-south easyui-fluid" style="left: 0px;
+                            top: 468px; width: 561px;">
+                            <div class="panel-header" style="width: 549px;">
+                                <div class="panel-title">
+                                    车辆部位设置明细</div>
+                                <div class="panel-tool">
+                                    <a class="panel-tool-collapse" style="display: none;" href="javascript:void(0)">
+                                    </a><a class="layout-button-down" href="javascript:void(0)"></a>
+                                </div>
+                            </div>
+                            <div title="" class="panel-body layout-body" style="width: 559px; height: 372px;"
+                                data-options="region:'south',title:'车辆部位设置明细'">
+                                <form class="dialog-data-form" id="data-form1">
+                                <input name="mqsbdBid" id="mqsbdBid" type="hidden" value="8a4de4fe526c7a0d01526d2002f001f4">
+                                <input name="id" id="mqsdbId" type="hidden" value="8a4de4fe5273588b0152768af3b40772">
+                                <table class="data-table" style="width: 100%;" cellspacing="4">
+                                    <tbody>
+                                        <!--  
+		    		   <tr>         
+		    				<td class="w120" style="text-align: right; font-weight: bold;">区域名称<span class="starRequired">*</span></td>
+		    				<td>
+		    				   <input name="mqsbdAreaname" id="mqsbdAreaname" type="text" class="w250" />		      
+		    				</td>        
+		    			</tr> 
+		    			-->
+                                        <tr>
+                                            <td class="w65" style="text-align: right; font-weight: bold;">
+                                                故障部位<span class="starRequired">*</span>
+                                            </td>
+                                            <td>
+                                                <input name="mqsbdGzbw" id="mqsbdGzbw" style="width: 79%;" type="text" readonly="readonly">
+                                                <input style="width: 20%; float: right;" onclick="mqs.mqsBody.selectIcc();" type="button"
+                                                    value="查找">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="w65" style="text-align: right; font-weight: bold;">
+                                                图片序号<span class="starRequired">*</span>
+                                            </td>
+                                            <td>
+                                                <input name="mqsbdNo" id="mqsbdNo" style="width: 100%;" type="text" maxlength="50"
+                                                    readonly="readonly">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="w65" style="text-align: right; font-weight: bold;">
+                                                部位分区
+                                            </td>
+                                            <td>
+                                                <input name="mqsbdBwfq" id="mqsbdBwfq" style="width: 100%;" type="text" maxlength="30">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="w65" style="text-align: right; font-weight: bold;">
+                                                备注
+                                            </td>
+                                            <td>
+                                                <textarea name="mqsbdMemo" class="field-remark easyui-validatebox w250 validatebox-text"
+                                                    id="mqsbdMemo" style="width: 100%; height: 40px;" maxlength="100" validtype="checkLength[100]"></textarea>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td align="center" style="height: 20px;" colspan="2">
+                                                <input onclick="mqs.mqsBody.delMqsBodydetail();" type="button" value="删除">
+                                                <input id="saveMqsdbid" onclick="mqs.mqsBody.doAddMqsBodydetail();" type="button"
+                                                    value="修改">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="layout-split-proxy-h">
+                        </div>
+                        <div class="layout-split-proxy-v">
+                        </div>
+                    </div>
+                </div>
+                <div class="layout-split-proxy-h">
+                </div>
+                <div class="layout-split-proxy-v">
+                </div>
+            </div>
+        </div>
+        <input id="noNum" type="hidden" value="20170330104005561" nonumname="B0101C201">
+        <input id="_uploadFile_" type="hidden" url="/quality/file/upload?str=mqsBody&amp;newFileSize=3145728&amp;newImgType=jpg"
+            action="/quality/file/upload?str=mqsBody&amp;newFileSize=3145728&amp;newImgType=jpg&amp;fileName=B0101C201_20170330104005561">
+        <span id="winDiv"></span>
+        <div class="layout-split-proxy-h">
+        </div>
+        <div class="layout-split-proxy-v">
+        </div>
+    </div>
+</body>
+</html>

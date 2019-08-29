@@ -1,0 +1,303 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<style>
+::-webkit-scrollbar-track{border-radius: 10px;-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0);}
+::-webkit-scrollbar-thumb{background-color: rgba(0,0,0,0.05);border-radius: 10px;-webkit-box-shadow: inset 1px 1px 0 rgba(0,0,0,.1);}
+::-webkit-scrollbar-thumb{background-color: rgba(0,0,0,0.2);border-radius: 10px;-webkit-box-shadow: inset 1px 1px 0 rgba(0,0,0,.1);}
+::-webkit-scrollbar{width: 36px;height: 36px;}
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-thumb{border-radius: 999px;border: 5px solid transparent;}
+::-webkit-scrollbar-track{box-shadow: 1px 1px 5px rgba(0,0,0,.2) inset;}
+::-webkit-scrollbar-thumb{min-height: 20px;background-clip: content-box;box-shadow: 0 0 0 5px rgba(0,0,0,.2) inset;}
+::-webkit-scrollbar-corner{background: transparent;}
+    </style > 
+<script > 
+    $(function () {
+        gridListLeft();
+        gridListRight();
+        document.getElementById("VINNo").focus();
+    }) 
+    $(window).resize(function () {
+        $("#gridList1").setGridWidth($(window).width()/2);
+        $("#gridList2").setGridWidth($(window).width()/2);
+    })
+    function gridListLeft() {
+        var $gridList = $("#gridList1");
+        $gridList.dataGrid({
+            url: "/ProduceManage/AVIStationLabor/GetListJson",
+            height: $(window).height() - 320,
+            colModel: [
+             { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "VIN号", name: "VINNo", width: 140, align: 'left', sortable: false },
+                { label: '整车描述', name: 'VDesc', width: 300, align: 'left', sortable: false },
+                { label: '整车编码', name: 'VCode', width: 130, align: 'left', sortable: false },
+                { label: '订单号', name: 'OrderNo', width: 100, align: 'left', sortable: false },
+                { label: '订单类型', name: 'Type_Name', width: 80, align: 'left', sortable: false },
+                {
+                    label: '计划开工日期', name: 'PlanDate', width: 90, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "" && cellvalue != undefined && cellvalue !=null) {
+                            return '<span >' + cellvalue.substr(0, 10) + '</span>';
+                        }
+                    }
+                },
+               {
+                   label: '交期', name: 'Deadline', width: 90, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                       if (cellvalue != "" && cellvalue != undefined && cellvalue != null) {
+                           return '<span >' + cellvalue.substr(0, 10) + '</span>';
+                       }
+                   }
+               },
+            ],
+            pager: "#gridPager1",
+            sortname: 'pDate asc, PlanSeq asc, PlanSubSeq asc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true,
+            unwritten: false,  //设置无数据时提示文字不显示
+            caption: "待上线列表",
+        });
+    }
+
+    function gridListRight() {
+        var $gridList = $("#gridList2");
+        $gridList.dataGrid({
+            url: "/ProduceManage/AVIStationLabor/GetAVIListJson",
+            height: $(window).height() - 320,
+            colModel: [
+             { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "VIN号", name: "VINCode", width: 140, align: 'left', sortable: false },
+                { label: '整车描述', name: 'VDesc', width: 300, align: 'left', sortable: false },
+                { label: '整车编码', name: 'VCode', width: 130, align: 'left', sortable: false },
+                { label: '生产标识', name: 'ProduceFlag_Name', width: 80, align: 'left', sortable: false },
+                { label: '车型平台', name: 'CarModel_Name', width: 100, align: 'left', sortable: false },
+                { label: '发动机类型', name: 'CarModel_Name', width: 100, align: 'left', sortable: false },
+                { label: '变速箱', name: 'Gearbox_Name', width: 100, align: 'left', sortable: false },
+                { label: '驱动形式', name: 'Drive_Name', width: 100, align: 'left', sortable: false },
+                { label: '排放标准', name: 'EmissionSTD_Name', width: 100, align: 'left', sortable: false },
+                { label: '配置', name: 'Config_Name', width: 100, align: 'left', sortable: false },
+                { label: '外饰风格', name: 'Outlook_Name', width: 100, align: 'left', sortable: false },
+                { label: '内饰风格', name: 'Inside_Name', width: 100, align: 'left', sortable: false },
+                {
+                    label: '上线时间', name: 'F_CreatorTime', width: 90, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "" && cellvalue != undefined && cellvalue != null) {
+                            return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                        }
+                    }
+                }
+            ],
+            pager: "#gridPager2",
+            sortname: 'F_CreatorTime desc',
+            viewrecords: true,
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true,
+            unwritten: false,  //设置无数据时提示文字不显示
+            caption: "上线列表",
+        });
+    }
+  
+
+    document.onkeydown = function (e) {
+        
+        if (!e) e = window.event;
+        if ((e.keyCode || e.which) == 13) {
+            var vinC = $("#VINNo").val();
+            if (vinC == "") {
+                clearInit();
+                return false;
+            }
+            if (vinC.length < 17) {
+                $("#VINNo").css('background-color', 'red')
+                document.getElementById("tipTxt").innerText = "VIN码不存在...";
+                clearInit();
+                return false;
+            }
+            var vin = $("#VINNo").val().substring(0, 17);
+            $.ajax({
+                url: "/ProduceManage/AVIStationLabor/ExistsVINJson?keyword=" + vin,
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    if (data.rows.length > 0) {
+                        var state = data.rows[0].VINState;
+                        if (state == "1") {
+                            $("#VINNo").css('background-color', 'red')
+                            document.getElementById("tipTxt").innerText = vin + "已被扫描上线...";
+                            clearInit();
+                            return false;
+                        }
+                        if (state == "2") {
+                            $("#VINNo").css('background-color', 'red')
+                            document.getElementById("tipTxt").innerText = vin + "已被报废...";
+                            clearInit();
+                            return false;
+                        }
+                        if (state == "3") {
+                            $("#VINNo").css('background-color', 'red')
+                            document.getElementById("tipTxt").innerText = vin + "切出中...";
+                            clearInit();
+                            return false;
+                        }
+                        if (state == "4") {
+                            $("#VINNo").css('background-color', 'red')
+                            document.getElementById("tipTxt").innerText = vin + "正在返修中...";
+                            clearInit();
+                            return false;
+                        }
+
+                        if (state == "0") {   //VIN存在且未上线
+                            var fg;
+                            $.ajax({
+                                url: "/ProduceManage/AVIStationLabor/InsertAVIStationJson?vinNO=" + vin,
+                                dataType: "json",
+                                async: false,
+                                success: function (data) {
+                                    $.ajax({
+                                        url: "/ProduceManage/AVIStationLabor/GetVINJson?keyword=" + vin,
+                                        dataType: "json",
+                                        async: false,
+                                        success: function (data) {
+                                            if (data.rows.length > 0) {
+                                                for (var i = 0; i < data.rows.length; i++) {
+                                                    document.getElementById("VinCode").innerText = vin;
+                                                    document.getElementById("VCode").innerText = data.rows[i].VCode;
+                                                    //document.getElementById("CarModel_Name").innerText = data.rows[i].CarModel_Name;
+                                                    //document.getElementById("Outlook_Name").innerText = data.rows[i].Outlook_Name;
+                                                    //document.getElementById("Inside_Name").innerText = data.rows[i].Inside_Name;
+                                                    //document.getElementById("Config_Name").innerText = data.rows[i].Config_Name;
+                                                    document.getElementById("VDesc").innerText = data.rows[i].VDesc;
+                                                }
+                                                $("#VINNo").css('background-color', '#2ecc71')
+                                                document.getElementById("VINNo").value = "";
+                                                document.getElementById("VINNo").focus();
+                                                document.getElementById("tipTxt").innerText = "";
+                                                gridListLeft();
+                                               
+                                                //gridListRight();
+                                                $("#gridList1").jqGrid('setGridParam', {
+                                                    postData: {},
+                                                }).trigger('reloadGrid');
+                                                $("#gridList2").jqGrid('setGridParam', {
+                                                    postData: {  },
+                                                }).trigger('reloadGrid');
+                                            }
+                                            else {
+                                                $("#VINNo").css('background-color', 'red')
+                                                document.getElementById("tipTxt").innerText = vin + "上线失败...";
+                                                clearInit();
+                                                return false;
+                                            }
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                        else {
+                            $("#VINNo").css('background-color', 'red')
+                            document.getElementById("tipTxt").innerText = vin + "不存在或已上线...";
+                            clearInit();
+                            return false;
+                        }
+                    }
+                    else {
+                        $("#VINNo").css('background-color', 'red')
+                        document.getElementById("tipTxt").innerText = vin + "码系统不存在...";
+                        clearInit();
+                        return false;
+                    }
+                }
+            });
+        }
+    }
+
+
+    function clearInit()
+    {
+        document.getElementById("VinCode").innerText = "";
+        document.getElementById("VCode").innerText = "";
+        //document.getElementById("CarModel_Name").innerText = "";
+        //document.getElementById("Outlook_Name").innerText = "";
+        //document.getElementById("Inside_Name").innerText = "";
+        //document.getElementById("Config_Name").innerText = "";
+        document.getElementById("VDesc").innerText = "";
+        document.getElementById("VINNo").value = "";
+        document.getElementById("VINNo").focus();
+        gridListLeft();
+        gridListRight();
+    }
+
+    
+</script>
+<div id="areascontent">
+    <div class="rows" style="margin-bottom: 1%; border: 1px solid #e6e6e6; overflow: hidden; padding-left: 1px;">
+        <div style="border: none; border-radius: 0px; margin-bottom: 0px; box-shadow: none; -webkit-box-shadow: none;">
+            <table style="border-collapse: separate; border-spacing: 0px 2px; width: 100%; height: 150px; padding-left: 10px;margin-top:5px;">
+                <tr>
+                    <td width="100%">
+                        <input id="VINNo" type="text" placeholder="扫描VIN码" style="width:100%; height: 60px; font-size: 60px; float: left;background-color:yellow;">
+                    </td>
+                </tr>
+                <tr>
+                    <td height="10px;">
+                        <span id="tipTxt" style="font-size: 30px; float: left; color: red;"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table style="border-collapse: separate; background-color: #2ecc71; width: 100%; border-spacing: 0px 5px;" cellpadding="5">
+                            <tr>
+                                <td style="color: #fff; font-size: 20px; text-align: right; width: 14%; "> V&nbsp;&nbsp;I&nbsp;&nbsp;N&nbsp;号:&nbsp;</td>
+                                <td style="color: blue; font-size: 20px; width: 36%; ">
+                                    <span id="VinCode"></span>
+                                </td>
+                                <td style="color: #fff; font-size: 20px; text-align: right; width: 14%; ">&nbsp; 整车编码:&nbsp;</td>
+                                <td style="color: blue; font-size: 20px; width: 36%; ">
+                                    <span id="VCode"></span>
+                                </td>
+                            </tr>
+                            @*<tr>
+                                <td style="color: #fff; font-size: 20px; text-align: right; width: 14%; ">&nbsp; 车型平台:&nbsp;</td>
+                                <td style="color: blue; font-size: 20px;">
+                                    <span id="CarModel_Name"></span>
+                                </td>
+                                <td style="color: #fff; font-size: 20px; text-align: right; width: 14%; ">&nbsp;外饰颜色:&nbsp;</td>
+                                <td style="color: blue; font-size: 20px;">
+                                    <span id="Outlook_Name"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="color: #fff; font-size: 20px; text-align: right; width: 14%; ">&nbsp;内饰颜色:&nbsp;</td>
+                                <td style="color: blue; font-size: 20px;">
+                                    <span id="Inside_Name"></span>
+                                </td>
+                                <td style="color: #fff; font-size: 20px; text-align: right; width: 14%; ">配&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;置:&nbsp;</td>
+                                <td style="color: blue; font-size: 20px;">
+                                    <span id="Config_Name"></span>
+                                </td>
+                            </tr>*@
+                            <tr>
+                                <td style="color: #fff; font-size: 20px; text-align: right; width: 14%; ">描&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;述:&nbsp;</td>
+                                <td style="color: blue; font-size: 20px;" colspan="3">
+                                    <span id="VDesc"></span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="gridPanel" style="width: 48%; float: left;   ">
+    <table id="gridList1"></table>
+    <div id="gridPager1"></div>
+</div>
+<div class="gridPanel" style="width: 50%; float: right;   ">
+    <table id="gridList2"></table>
+    <div id="gridPager2"></div>
+</div>

@@ -1,0 +1,209 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+ <script>
+    var keyValue = $.request("keyValue");
+    $(function () {
+        gridList();
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/PlanManage/OrderInfo/GetdeletePlanJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "计划号", name: "JobNo", width: 120, align: 'left', sortable: false },
+                { label: '计划类型', name: 'Type_ID', align: 'left', hidden: true, sortable: false },
+                { label: '计划类型', name: 'Type_Name', width: 80, align: 'left', sortable: false },
+                { label: "工单号", name: "OrderNo", width: 120, align: 'left', sortable: false },
+                { label: '工单数量', name: 'OrderQty', width: 80, align: 'left', sortable: false },
+                { label: 'VIN号', name: 'VINNo', width: 130, align: 'left', sortable: false },
+                { label: '整车编码', name: 'VCode', width: 150, align: 'left', sortable: false },
+                { label: '整车描述', name: 'VDesc', width: 200, align: 'left', sortable: false },
+                {
+                    label: '计划生产日期', name: 'PlanDate', width: 90, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "") {
+                            return '<span >' + cellvalue.substr(0, 10) + '</span>';
+                        }
+                    }
+
+                },
+                {
+                    label: '交期', name: 'Deadline', width: 90, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "") {
+                            return '<span >' + cellvalue.substr(0, 10) + '</span>';
+                        }
+                    }
+
+                },
+                { label: 'PrinterState', name: 'PrinterState', align: 'left', hidden: true },
+                {
+                    label: '打刻机获取状态', name: 'PrinterStateStr', width: 90, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+
+                        if (rowObject.PrinterState == 0) {
+                            return '<span >未获取</span>';
+                        }
+                        else {
+                            return '<span >已获取</span>';
+                        }
+                    }
+                },
+                {
+                    label: '焊装上线时间', name: 'StartTime', width: 120, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != null) {
+                            if (cellvalue != "")
+                                return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                        }
+                        else { return '<span ></span>'; }
+                    }
+
+                },
+                { label: '当前站点', name: 'CurrStation', width: 100, align: 'left', sortable: false },
+                { label: '工单状态', name: 'VINState', align: 'left', hidden: true },
+                 {
+                     label: '工单状态', name: 'VINStateStr', width: 90, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                         if (rowObject.VINState == 0) {
+                             return '<span >未生产</span>';
+                         }
+                         if (rowObject.VINState == 1) {
+                             return '<span >已生产</span>';
+                         }
+                         if (rowObject.VINState == 2) {
+                             return '<span >报废</span>';
+                         }
+                         if (rowObject.VINState == 3) {
+                             return '<span >切出中</span>';
+                         }
+                         if (rowObject.VINState == 4) {
+                             return '<span >删除</span>';
+                         }
+                         if (rowObject.VINState == 5) {
+                             return '<span >完成</span>';
+                         }
+                         if (rowObject.VINState == 6) {
+                             return '<span >切入中</span>';
+                         }
+                     }
+                 },
+                { label: '创建人', name: 'F_CreatorUserId', align: 'left', hidden: true },
+                { label: '创建人', name: 'F_CreatorUserName', width: 100, align: 'left', sortable: false },
+                {
+                    label: '排产时间', name: 'ScheduleTime', width: 130, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "" && cellvalue != null && cellvalue != undefined)
+                            return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                    }
+                },
+             
+                { label: '删除人', name: 'F_DeleteUserName', width: 100, align: 'left', sortable: false },
+                    {
+                        label: '删除时间', name: 'F_DeleteTime', width: 130, align: 'left', sortable: false, formatter: function (cellvalue, options, rowObject) {
+                            if (cellvalue != "" && cellvalue != null && cellvalue != undefined) {
+                                return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                            } else {
+                                return "";
+                            }
+                                
+                        }
+                    },
+               { label: '备注', name: 'F_Description', width: 200, align: 'left', sortable: false }
+            ],
+            pager: "#gridPager",
+            sortname: 'PlanDate  asc,PlanSeq  asc,PlanSubSeq asc',
+            multiSort: true,
+            viewrecords: true,
+            multiselect: true,//复选框
+            postData: { type: $("#Type_ID").val(), vinState: $("#VINState").val() },//进入jqgrid加载事件之前默认赋值，再加载
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true,
+            autoscroll: true,
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyword: $("#KeyWord").val(), type: $("#Type_ID").val(), printState: $("#PrinterState").val(), starttime: $("#Deadline_start").val(), endtime: $("#Deadline_end").val(), vCode: $("#VCode").val(), vinState: $("#VINState").val(), startPlantime: $("#PlanTime_start").val(), endPlantime: $("#PlanTime_end").val(), scheduleTimeStart: $("#ScheduleTime_start").val(), scheduleTimeEnd: $("#ScheduleTime_end").val(), creatorTimeStart: $("#CreatorTime_start").val(), creatorTimeEnd: $("#CreatorTime_end").val(), fCreatorUserId: $("#F_CreatorUserId").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+    }
+
+
+
+
+</script>
+<div class="topPanel">
+   
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="KeyWord" type="text" class="form-control" placeholder="计划号/工单号/整车编码/VIN码" style="width: 120px; margin-right:5px">
+                        <select id="Type_ID" name="Type_ID" class="form-control required" style="width: 80px; margin-right: 5px">
+                            <option value="e22506c9-01a6-4c95-b6e1-2009f58e247d" selected="selected">整车量产</option>
+                            <option value="8349314f-f773-48ca-b1c3-1681e4fbfcc3">试制车</option>
+                            <option value="6632babe-4e02-485f-b173-d431868160ec">白车身备件</option>
+                        </select>
+                    
+                        <input id="PlanTime_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'PlanTime_start\')}' })" placeholder="计划生产时间（开始）" style="width: 140px; margin-right: 10px">
+                        <input id="PlanTime_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'PlanTime_end\')}' })" placeholder="计划生产时间（结束）" style="width: 140px;">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+
+                    </div>
+                </td>
+        
+                @* 清空文本框--bichen*@
+                <td>
+                    <div class="input-group">
+                        <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class=" fa fa-link"></i></button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+</div>
+<div id="search_level" style="display:none;">
+    <div class="topPanel" style="height:80px;">
+        <div class="search">
+            <table border="0" cellpadding="0" cellspacing="0" style="border-collapse:separate; border-spacing:0px 1px;">
+                <tr>
+                    <td style="height: 40px; line-height: 40px;">
+                        <span class="input-group" style="border: none; margin-bottom: 1px;">
+                            <input id="VCode" type="text" class="form-control" placeholder="整车编码" style="width: 140px; margin-right:10px">
+                            <select id="PrinterState" name="PrinterState" class="form-control" style="width:140px; margin-right:10px">
+                                <option value="-1">==打刻状态==</option>
+                                <option value="0">未获取</option>
+                                <option value="1">已获取</option>
+                            </select>
+                            <input id="Deadline_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'Deadline_end\')}' })" placeholder="交货时间（开始）" style="width: 140px; margin-right: 10px">
+                            <input id="Deadline_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'Deadline_start\')}' })" placeholder="交货时间（结束）" style="width: 140px; margin-right: 10px">
+                            <input id="ScheduleTime_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'ScheduleTime_end\')}' })" placeholder="排产时间（开始）" style="width: 140px; margin-right: 10px">
+                            <input id="ScheduleTime_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'ScheduleTime_end\')}' })" placeholder="排产时间（结束）" style="width: 140px; margin-right: 10px">
+                            <select id="F_CreatorUserId" name="F_CreatorUserId" class="form-control" style="width: 140px; margin-right: 10px">
+                                <option value="">==创建人==</option>
+                            </select>
+
+
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="height: 40px; line-height: 40px;">
+                        <span class="input-group" style="border:none;margin-top:0px;">
+                            <input id="CreatorTime_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'CreatorTime_end\')}' })" placeholder="创建时间（开始）" style="width: 140px; margin-right: 10px">
+                            <input id="CreatorTime_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'CreatorTime_end\')}' })" placeholder="创建时间（结束）" style="width: 140px; margin-right: 10px">
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+
+    <div id="gridPager"></div>
+</div>

@@ -1,0 +1,246 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+
+    })
+
+    $(window).resize(function () {
+        $("#gridList").setGridWidth($(window).width());
+    })
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/PlanManage/OrderSchedul/GetOrderPlanJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                { label: "计划号", name: "JobNo", width: 150, align: 'left' },
+                     { label: '计划类型', name: 'Type_ID', align: 'left', hidden: true },
+                 { label: '计划类型', name: 'Type_Name', width: 120, align: 'left' },
+   
+                 
+                { label: "工单号", name: "OrderNo", width: 120, align: 'left' },
+                { label: '工单数量', name: 'OrderQty', width: 80, align: 'left' },
+                
+                { label: '整车编码', name: 'VCode', width: 150, align: 'left' },
+                { label: '整车描述', name: 'VDesc', width: 200, align: 'left' },
+
+                { label: '创建人', name: 'F_CreatorUserId', align: 'left', hidden: true },
+                { label: '创建人', name: 'F_CreatorUserName', width: 100, align: 'left', sortable: false },
+                //{ label: 'PlanDateStr', name: 'PlanDate', hidden: true, align: 'left' },
+                {
+                    label: '计划生产日期', name: 'PlanDate', width: 90, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "") {
+                            return  cellvalue.substr(0, 10) ;
+                        }
+                    }
+
+                },
+                {
+                    label: '计划完成日期', name: 'Deadline', width: 90, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "") {
+                            return '<span >' + cellvalue.substr(0, 10) + '</span>';
+                        }
+                    }
+
+                },
+                
+                //{ label: 'State', name: 'State', align: 'left', hidden: true },
+                //{
+                //    label: '状态', name: 'StateStr', width: 80, align: 'left', formatter: function (cellvalue, options, rowObject) {
+
+                //        if (rowObject.State == 0) {
+                //            return '<span >未排产</span>';
+                //        }
+                //        if (rowObject.State == 1) {
+                //            return '<span >已排产</span>';
+                //        }
+                //        if (rowObject.State == 2) {
+                //            return '<span >计划取消</span>';
+                //        }
+                //        if (rowObject.State == 3) {
+                //            return '<span >排产取消</span>';
+                //        }
+                //        if (rowObject.State == 4) {
+                //            return '<span >已生产</span>';
+                //        }
+                //        if (rowObject.State == 5) {
+                //            return '<span >生产取消</span>';
+                //        }
+                //    }
+                //},
+
+            ],
+
+            pager: "#gridPager",
+            sortname: 'OrderNo asc',
+            viewrecords: true,
+            multiselect: true,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { JobNo: $("#JobNo").val(), typeCode: $("#Type_Code").val(), VCode: $("#VCode").val(), OrderNo: $("#OrderNo").val(), starttime: $("#PlanDate_start").val(), endtime: $("#PlanDate_end").val(), DeleteMark: $("#F_DeleteMark").val() }, page: 1
+            }).trigger('reloadGrid');
+        });
+
+    }
+    //修改日期-yangxin
+    function btn_edit() {
+        var list = [];
+        var sterow = $("#gridList").jqGridRowValue();
+        for (var i = 0; i < sterow.length; i++) {
+            list[i] = ("'" + sterow[i].F_Id + "'|" + sterow[i].OrderNo + "");
+        }
+        if (list.length == 0) {
+            $.modalAlert("请选择一条有效数据！", "warning")
+            return false;
+        }
+        $.modalOpen({
+            id: "Form",
+            title: "修改日期",
+            url: "/PlanManage/OrderSchedul/Form",
+            width: "350px",
+            height: "320px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    
+        $.ajax({
+            type: "post",
+            url: "/PlanManage/OrderSchedul/GetkeyValue",
+            data: { keyValue: list },
+            traditional: true,
+            success: function (data) {
+
+                
+            }
+
+        });   
+    }
+
+    //下发-yangxin
+    function btn_lock() {
+        var list =[];
+        var sterow = $("#gridList").jqGridRowValue();
+        for (var i = 0; i < sterow.length; i++) {
+            list.push(sterow[i].F_Id + "|" + sterow[i].OrderNo + "|" + sterow[i].PlanDate);
+        }
+        if (list.length == 0) {
+            $.modalAlert("请选择一条有效数据！", "warning")
+            return false;
+        }
+        $.modalConfirm("注：您确定下发已选工单？", function (r) {
+            if (r) {
+                $.submitForm({
+                    url: "/PlanManage/OrderSchedul/Scheduling",
+                    param: { keyValue: list.join(",") },
+                    success: function () {
+                        $.currentWindow().$("#gridList").trigger("reloadGrid");
+                    }
+                })
+            }
+        });
+
+    }
+    //取消 -yangxin
+    function btn_delete() {
+        var arryid = [];
+        var selrow = $("#gridList").jqGridRowValue();
+        for (var i = 0; i < selrow.length; i++) {
+            arryid.push(selrow[i].F_Id);
+        }
+        if (arryid.length == 0) {
+            $.modalAlert("请选择一条有效数据！", "warning")
+            return false;
+        }
+        $.modalConfirm("注：您确定取消已选工单？", function (r) {
+            if (r) {
+                $.submitForm({
+                    url: "/PlanManage/OrderSchedul/DeletePlan",
+                    param: { keyValue: arryid.join(",") },
+                    success: function () {
+                        $.currentWindow().$("#gridList").trigger("reloadGrid");
+                    }
+                })
+            }
+        });
+
+    }
+    //清空文本框--bichen
+    function clean() {
+        $("#JobNo").val("");
+        $("#VCode").val("");
+        $("#OrderNo").val("");
+        $("#PlanDate_start").val("");
+        $("#PlanDate_end").val("");
+        $("#Type_Code").val("");
+    }
+</script>
+
+<div class="topPanel">
+    <div class="toolbar">
+       
+        <div class="btn-group">
+            <a id="NF-edit" authorize="yes" class="btn btn-primary " onclick="btn_edit()"><i class="fa fa-edit"></i>修改日期</a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-lock" authorize="yes" class="btn btn-primary " onclick="btn_lock()"><i class="fa fa-lock"></i>下发排产</a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-delete" authorize="yes" class="btn btn-primary " onclick="btn_delete()"><i class="fa fa-trash-o "></i>取消工单</a>
+        </div>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="JobNo" type="text" class="form-control" placeholder="计划号" style="width: 100px; margin-right:5px">
+                        <input id="VCode" type="text" class="form-control" placeholder="整车编码" style="width: 100px; margin-right:5px">
+                        <input id="OrderNo" type="text" class="form-control" placeholder="工单号" style="width: 100px; margin-right:5px">
+                        <input id="PlanDate_start" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'PlanDate_start\')}' })" placeholder="计划生产日期(开始)" style="width: 130px; margin-right: 5px">
+                        <input id="PlanDate_end" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'PlanDate_end\')}' })" placeholder="计划生产日期(结束)" style="width: 130px; margin-right: 5px">
+                        <select id="Type_Code" name="Type_Code" class="form-control required" style="width: 120px;">
+                            <option value="">==计划类型==</option>
+                            <option value="e22506c9-01a6-4c95-b6e1-2009f58e247d">整车量产</option>
+                            <option value="8349314f-f773-48ca-b1c3-1681e4fbfcc3">整车试制</option>
+                            <option value="6632babe-4e02-485f-b173-d431868160ec">备件白车身</option>
+                            @*<option value="a77603ef-79d8-4b12-b60c-c4e6e4367c05">备件零部件</option>*@
+                     
+                        </select>
+                        <select id="F_DeleteMark" name="F_DeleteMark" class="form-control required" style="width: 120px;">
+                            <option value="-1">==工单状态==</option>
+                            <option value="0" selected="selected">未取消工单</option>
+                            <option value="1">已取消工单</option>
+                        </select>
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+                @* 清空文本框--bichen*@
+                <td>
+                    <div class="input-group">
+                        <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class=" fa fa-link"></i></button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+

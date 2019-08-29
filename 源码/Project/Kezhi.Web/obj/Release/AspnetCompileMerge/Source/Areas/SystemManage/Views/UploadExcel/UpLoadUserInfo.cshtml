@@ -1,0 +1,126 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+    })
+
+    function gridList(filepath) {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            //url: "/ProductionManage/OrderManage/GetUploadGridJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: '主键号', name: '主键号', width: 100, align: 'left' },
+                { label: '姓名', name: '姓名', width: 80, align: 'left' },
+                { label: '性别', name: '性别', width: 50, align: 'left' },
+                { label: '部门', name: '部门', width: 80, align: 'left' },
+                { label: '职位', name: '职位', width: 80, align: 'left' },
+                { label: '联系电话', name: '联系电话', width: 100, align: 'left' },
+                { label: '人员代码', name: '人员代码', width: 120, align: 'left' }
+            ],
+            pager: "#gridPager",
+            sortname: 'id asc',
+            rowNum: 1000,
+            viewrecords: true
+        });
+    }
+
+    function uploadFile() {
+        upload(function (data) {
+
+            console.log(data);
+            showList(data.fileName);
+            $("#hidFileName").val(data.fileName);
+        });
+    }
+
+    function upload(afterUploadFunc) {
+        var xlsFile = $("#fileInput")[0];
+
+        var result = {};
+        var formData = new FormData();
+        if (xlsFile.files.length > 0) {
+            $("#lblFileName").html(xlsFile.files[0].name);
+            formData.append('file', xlsFile.files[0]);
+        } else {
+            return;
+        }
+
+        $.ajax({
+            url: '../../Attachment/Attachment.aspx?action=upload',
+            type: 'POST',
+            data: formData,
+            dataType: 'JSON',
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+
+                if (data.result == "ok") {
+                    if (afterUploadFunc) {
+                        afterUploadFunc(data);
+                    }
+                }
+            }
+        });
+    }
+
+    function showList(fileName) {
+
+
+        var $gridList = $("#gridList");
+        $gridList.jqGrid('setGridParam', {
+            url: "/BomManage/UploadExcel/GetUploadGridJson",
+            postData: { fileName: fileName },
+            success: function (data) {
+
+                alert(11);
+            }
+        }).trigger('reloadGrid');
+    }
+
+    function submitForm() {
+        alert($("#hidFileName").val())
+        $.submitForm({
+            url: "/SystemManage/UploadExcel/UploadExcelStationInfoData?fileName=" + $("#hidFileName").val(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+                if (callbackFunc) {
+                    callbackFunc();
+                }
+            }
+        })
+    }
+
+</script>
+
+<div class="topPanel">
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <span id="lblFileName" style="height: 25px; width: 200px; display: inline-block; float: left; border: 1px solid #000; padding-left: 5px;"></span>
+                        <label for="fileInput" style="float: left; cursor: pointer; display: inline-block;">&nbsp;&nbsp;<i class="fa fa-cloud-upload fa-1x"></i>选择文件</label>
+                        <input type="file" id="fileInput" accept="application/vnd.ms-excel" style="display: none" onchange="uploadFile()" />
+                        <input type="hidden" id="hidFileName" />
+                    </div>
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <a id="NF-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="submitForm()">保存</a>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+</div>
+
+<div class="gridPanel">
+    <table id="gridList"></table>
+</div>
+

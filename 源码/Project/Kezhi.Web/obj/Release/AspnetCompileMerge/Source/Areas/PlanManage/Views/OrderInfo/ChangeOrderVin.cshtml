@@ -1,0 +1,165 @@
+﻿@{
+    ViewBag.Title = "插单";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    var pDate;
+    var keyValue = $.request("keyValue");
+    $(function () {
+        if (!!keyValue) {
+            $.ajax({
+                url: "/PlanManage/OrderInfo/GetGetOrderByFidJson?keyword =" + keyValue,
+                data: { keyword: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    if (data.length > 0) {
+                        document.getElementById("JobNo").value = data[0].JobNo;
+                        document.getElementById("Type_Name").value = data[0].Type_Name;
+                        document.getElementById("OrderNo").value = data[0].OrderNo;
+                        document.getElementById("OrderQty").value = data[0].OrderQty;
+                        document.getElementById("VINNo").value = data[0].VINNo;
+                        document.getElementById("VCode").value = data[0].VCode;
+                        document.getElementById("VDesc").value = data[0].VDesc;
+                        document.getElementById("PlanDate").value = data[0].PlanDate.substr(0, 10);
+                        pDate = data[0].PlanDate;
+                        document.getElementById("Deadline").value = data[0].Deadline.substr(0, 10);
+                        document.getElementById("ScheduleTime").value = data[0].ScheduleTime.substr(0, 10);
+                        document.getElementById("F_Description").value = data[0].F_Description;
+                    }
+                }
+            });
+        }
+        gridList();
+    })
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/PlanManage/OrderInfo/GetGetOrderByPdateJson?PlanDate=" + pDate,  //只获取计划生产日期为同一天的
+            height: 320,
+            colModel: [
+             { label: "编号", name: "F_Id", align: 'left', hidden: true },
+                { label: "计划号", name: "JobNo", width: 140, align: 'left' },
+                { label: '计划类型', name: 'Type_Name', width: 100, align: 'left' },
+                { label: "工单号", name: "OrderNo", width: 150, align: 'left'},
+                { label: '工单数量', name: 'OrderQty', width: 70, align: 'left' },
+                { label: '整车编码', name: 'VCode', width: 150, align: 'left'  },
+                {
+                    label: '计划生产日期', name: 'PlanDate', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "") {
+                            return '<span >' + cellvalue.substr(0, 10) + '</span>';
+                        }
+                    }
+                },
+                {
+                    label: '交期', name: 'Deadline', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "") {
+                            return '<span >' + cellvalue.substr(0, 10) + '</span>';
+                        }
+                    }
+                }
+            ],
+            pager: "#gridPager",
+            sortname: 'JobNo asc,OrderNo asc',
+            caption: "请选择变更工单",
+            viewrecords: true,
+            multiselect: true,//复选框
+            multiboxonly: true,
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true
+        });
+    }
+
+    function submitForm() {
+        var sctValue;
+        var sctOrderNO;
+        var selrow = $("#gridList").jqGridRowValue();
+        if (selrow.length == 0) {
+            $.modalAlert("请选择一条有效数据！", "warning")
+            return false;
+        }
+        sctValue = selrow[0].F_Id;
+        sctOrderNO = selrow[0].OrderNo;
+        if (sctValue == undefined) {
+            $.modalAlert("请选择一条有效数据！", "warning")
+            return false;
+        }
+
+        $.submitForm({
+            url: "/PlanManage/OrderInfo/ChangeOrderVin?changeOrder=" + sctValue + "&newOrderNO =" + sctOrderNO,
+            param: { keyword: keyValue },
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+</script>
+<form id="form1">
+    <div style="margin-bottom: 0px;margin-top:0; height: 25px; background-color: #fcf8e3; border-color: #faebcc">
+        <span style="margin-left: 10px; line-height: 25px;">所选工单信息</span>
+    </div>
+    <div style="padding-top: 5px; margin-right: 20px;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">计划号</th>
+                <td class="formValue">
+                    <input id="JobNo" name="JobNo" type="text" class="form-control" readonly="readonly" />
+                </td>
+                <th class="formTitle">计划类型</th>
+                <td class="formValue">
+                    <input id="Type_Name" name="Type_Name" type="text" class="form-control" readonly="readonly" />
+                </td>
+                <th class="formTitle">工单号</th>
+                <td class="formValue">
+                    <input id="OrderNo" name="OrderNo" type="text" class="form-control" readonly="readonly" />
+                </td>
+                <th class="formTitle">工单数量</th>
+                <td class="formValue">
+                    <input id="OrderQty" name="OrderQty" type="text" class="form-control" readonly="readonly" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">VIN号</th>
+                <td class="formValue">
+                    <input id="VINNo" name="VINNo" type="text" class="form-control" readonly="readonly" />
+                </td>
+                <th class="formTitle">整车编码</th>
+                <td class="formValue">
+                    <input id="VCode" name="VCode" type="text" class="form-control" readonly="readonly" />
+                </td>
+                <th class="formTitle">整车描述</th>
+                <td class="formValue">
+                    <input id="VDesc" name="VDesc" type="text" class="form-control" readonly="readonly" />
+                </td>
+                <th class="formTitle">计划生产日期</th>
+                <td class="formValue">
+                    <input id="PlanDate" name="PlanDate" type="text" class="form-control" readonly="readonly" />
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">交期</th>
+                <td class="formValue">
+                    <input id="Deadline" name="Deadline" type="text" class="form-control" readonly="readonly" />
+                </td>
+                <th class="formTitle">排产时间</th>
+                <td class="formValue">
+                    <input id="ScheduleTime" name="ScheduleTime" type="text" class="form-control" readonly="readonly" />
+                </td>
+                <th class="formTitle">备注</th>
+                <td class="formValue">
+                    <input id="F_Description" name="F_Description" type="text" class="form-control" readonly="readonly" />
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+
+
+
+

@@ -1,0 +1,407 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+
+<script>
+    $(function () {
+        gridList();
+        gridList2();
+   
+    })
+
+    $(window).resize(function () {
+        $("#gridList").setGridWidth($(window).width());
+    })
+
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/BaseManage/ProcesSmanagement/GetPlanJson",
+            height: $(window).height() / 2 - 128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+           {
+               label: '车间', name: 'Plant', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                   if ($.trim(rowObject.Plant) == $.trim("StampingShop")) {
+                       return '<span >冲压车间</span>';
+                   }
+                   if ($.trim(rowObject.Plant) == $.trim("AssemblyShop")) {
+                       return '<span >总装车间</span>';
+                   }
+                   if ($.trim(rowObject.Plant) == $.trim("PaintShop")) {
+                       return '<span >涂装车间</span>';
+                   }
+                   if ($.trim(rowObject.Plant) == $.trim("WeldingShop")) {
+                       return '<span >焊装车间</span>';
+                   }
+                   if ($.trim(rowObject.Plant) == $.trim("InspectionShop")) {
+                       return '<span >交检车间</span>';
+                   }
+               }
+           },
+                { label: "工序编号", name: "OpNo", width: 90, align: 'left' },
+                { label: "工序名称", name: "OpName", width: 150, align: 'left' },
+
+                {
+                    label: '工序类型', name: 'OpType', width: 90, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (rowObject.OpType == 1) {
+                            return '<span >生产工序</span>';
+                        }
+                        if (rowObject.OpType == 2) {
+                            return '<span >质量工序</span>';
+                        }
+                        if (rowObject.OpType == 3) {
+                            return '<span >换撬工序</span>';
+                        }
+                        if (rowObject.OpType == 4) {
+                            return '<span >切入切出工序</span>';
+                        }
+                        else {
+                            return '<span >快速通道工序</span>';
+                        }
+                    }
+                },
+                   { label: "创建人", name: "F_CreatorUserName", width: 90, align: 'left' },
+
+               {
+                   label: '创建时间', name: 'F_CreatorTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                       if (cellvalue != "") {
+                           return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                       }
+                   }
+
+               },
+                { label: "修改人", name: "F_LastModifyUserName", width: 90, align: 'left' },
+                {
+                    label: '修改时间', name: 'F_LastModifyTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "" && cellvalue != null && cellvalue != undefined) {
+                            return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                        }
+                    }
+
+                },
+
+            ],
+            pager: "#gridPager",
+            sortname: 'Plant asc,OpNo asc',
+            viewrecords: true,
+            fitColumns: true,
+           
+            multiselect: false,//复选框
+            rowNum: 10,
+            rowList: [20, 50, 50],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { Plant: $("#Plant").val(), OpNo: $("#OpNo").val(), OpName: $("#OpName").val(), OpType: $("#OpType").val(), }, page: 1
+            }).trigger('reloadGrid');
+        });
+    }
+    function gridList2() {
+        var $gridList = $("#gridList2");
+        $gridList.dataGrid({
+            url: "/BaseManage/ProcesSmanagement/GetPlanJsonThe",
+            height: $(window).height()/ 2-128,
+            colModel: [
+                { label: "编号", name: "F_Id", align: 'left', hidden: true, key: true },
+                   {
+                       label: '车间', name: 'Plant', width: 100, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                           if ($.trim(rowObject.Plant) == $.trim("StampingShop")) {
+                               return '<span >冲压车间</span>';
+                           }
+                           if ($.trim(rowObject.Plant) == $.trim("AssemblyShop")) {
+                               return '<span >总装车间</span>';
+                           }
+                           if ($.trim(rowObject.Plant) == $.trim("PaintShop")) {
+                               return '<span >涂装车间</span>';
+                           }
+                           if ($.trim(rowObject.Plant) == $.trim("WeldingShop")) {
+                               return '<span >焊装车间</span>';
+                           }
+                           if ($.trim(rowObject.Plant) == $.trim("InspectionShop")) {
+                               return '<span >交检车间</span>';
+                           }
+                       }
+                   },
+                { label: "工序编号", name: "OpNo", width: 90, align: 'left' },
+                { label: "站点编码", name: "StationCode", width: 90, align: 'left' },
+                { label: "顺序", name: "SeqNo", width: 70, align: 'left' },
+                { label: "创建人", name: "F_CreatorUserName", width: 90, align: 'left' },
+
+               {
+                   label: '创建时间', name: 'F_CreatorTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                       if (cellvalue != "") {
+                           return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                       }
+                   }
+
+               },
+                { label: "修改人", name: "F_LastModifyUserName", width: 90, align: 'left' },
+                {
+                    label: '修改时间', name: 'F_LastModifyTime', width: 130, align: 'left', formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue != "" && cellvalue != null && cellvalue != undefined) {
+                            return '<span >' + cellvalue.substr(0, 19) + '</span>';
+                        }
+                    }
+
+                },
+
+            ],
+            pager: "#gridPager2",
+            sortname: 'OpNo asc',
+            viewrecords: true,
+            postData: { keyValue: "~" },
+            multiselect: false,//复选框
+            rowNum: 20,
+            rowList: [20, 50, 100],
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyValue: "~" },
+            }).trigger('reloadGrid');
+        });
+        $('#gridList').on('click',  function (e) {
+            var keyValue = $("#gridList").jqGridRowValue().F_Id;
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyValue: keyValue },
+            }).trigger('reloadGrid');
+
+        });
+    }
+ 
+  
+   //工序新增-yangxin
+        function btn_add() {
+            $.modalOpen({
+                id: "Form",
+                title: "新建",
+                url: "/BaseManage/ProcesSmanagement/Form?planState=1",
+                width: "400px",
+                height: "350px",
+                callBack: function (iframeId) {
+                    top.frames[iframeId].submitForm();
+                }
+            });
+        }
+    //工序修改-yangxin
+        function btn_edit() {
+            var keyValue = $("#gridList").jqGridRowValue().F_Id;
+            if (keyValue) {
+                $.modalOpen({
+                    id: "Form",
+                    title: "修改",
+                    url: "/BaseManage/ProcesSmanagement/Form?keyValue=" + keyValue + "",
+                    width: "400px",
+                    height: "350px",
+                    callBack: function (iframeId) {
+                        top.frames[iframeId].submitForm();
+                    }
+                });
+            } else {
+                $.modalAlert("请选择一条有效数据！", "warning")
+                return false;
+            }
+        }
+
+    //工序删除-yangxin
+        function btn_delete() {
+            //修改没选中数据却弹出删除--bichen
+            var keyValue = $("#gridList").jqGridRowValue().F_Id;
+            if (keyValue == null) {
+                $.modalAlert("请选择一条有效数据！", "warning");
+            } else {
+                $.deleteForm({
+                    url: "/BaseManage/ProcesSmanagement/DeleteForm",
+                    param: { keyValue: keyValue },
+                    success: function () {
+                        $("#gridList").resetSelection();
+                        $("#gridList").trigger("reloadGrid");
+                    }
+                });
+            }
+ 
+        }
+    //工序站点关系新增-yangxin
+        function btn_addzd() {
+            var keyValue = $("#gridList").jqGridRowValue().F_Id;
+            if (keyValue) {
+                $.modalOpen({
+                    id: "Index",
+                    title: "添加站点关系",
+                    url: "/BaseManage/ProcesSmanagement/FormOpStation?keyValue=" + keyValue + "",
+                    width: "950px",
+                    height: "900px",
+                    callBack: function (iframeId) {
+                        top.frames[iframeId].submitForm();
+                    }
+                });
+            } else {
+                $.modalAlert("请选择一条工序数据！", "warning")
+                return false;
+            }
+        }
+
+    //工序站点关系修改顺序-yangxin
+        function btn_editzd() {
+            var keyValue = $("#gridList2").jqGridRowValue().F_Id;
+            if (keyValue) {
+                $.modalOpen({
+                    id: "Form",
+                    title: "修改",
+                    url: "/BaseManage/ProcesSmanagement/FormOpstUpdate?keyValue=" + keyValue + "",
+                    width: "400px",
+                    height: "330px",
+                    callBack: function (iframeId) {
+                        top.frames[iframeId].submitForm();
+                    }
+                });
+            } else {
+                $.modalAlert("请选择一条有效数据！", "warning")
+                return false;
+            }
+        }
+    //工序站点关系删除-yangxin
+        function btn_deletezd() {
+            //修改没选中数据却弹出删除--bichen
+            var keyValue = $("#gridList2").jqGridRowValue().F_Id;
+            if (keyValue == null) {
+                $.modalAlert("请选中一条有效数据！", "warning");
+            } else {
+                $.deleteForm({
+                    url: "/BaseManage/ProcesSmanagement/DeleteFormOpStation",
+                    param: { keyValue: keyValue },
+                    success: function () {
+                        $("#gridList2").resetSelection();
+                        $("#gridList2").trigger("reloadGrid");
+                    }
+                });
+            }
+        }
+        //清空文本框--bichen
+        function clean() {
+            $("#OpNo").val("");
+            $("#OpName").val("");
+            $("#Plant").val("");
+            $("#OpType").val("-1");
+        }
+</script>
+
+    <div class="topPanel">
+        <div class="toolbar">
+            <div class="btn-group">
+                <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+            </div>
+            <div class="btn-group">
+                <a id="NF-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建工序</a>
+            </div>
+
+            <div class="btn-group">
+                <a id="NF-edit" authorize="yes" class="btn btn-primary " onclick="btn_edit()"><i class="fa fa-edit"></i>修改工序</a>
+            </div>
+            <div class="btn-group">
+                <a id="NF-delete" authorize="yes" class="btn btn-primary " onclick="btn_delete()"><i class="fa fa-trash-o "></i>删除工序</a>
+            </div>
+        </div>
+        <div class="search">
+                <table>
+                    <tr>
+                        <th class="formTitle">工序表　</th>
+                        <td>
+                            <div class="input-group">
+                                <input id="OpNo" type="text" class="form-control" placeholder="工序编号" style="width: 100px; margin-right:10px">
+                                <input id="OpName" type="text" class="form-control" placeholder="工序名称" style="width: 100px; margin-right:10px">
+                                <select id="Plant" name="Plant" class="form-control" style="width: 150px; margin-right:10px">
+                                    <option value="">==请选择车间==</option>
+                                    <option value="StampingShop">冲压车间</option>
+                                    <option value="WeldingShop">焊装车间</option>
+                                    <option value="PaintShop">涂装车间</option>
+                                    <option value="AssemblyShop">总装车间</option>
+                                    <option value="InspectionShop">交检车间</option>
+                                </select>
+                                <select id="OpType" name="OpType" class="form-control required" style="width: 150px;">
+                                    <option value="-1">==请选择工序类型==</option>
+                                    <option value="1">生产工序</option>
+                                    <option value="2">质量工序</option>
+                                    <option value="3">换撬工序</option>
+                                    <option value="4">切入切出工序</option>
+                                    <option value="5">快速通道工序</option>
+                                </select>
+                                <span class="input-group-btn">
+                                    <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                                </span>
+                            </div>
+                        </td>
+                        @* 清空文本框--bichen*@
+                        <td>
+                            <div class="input-group">
+                                <button id="btn_search" type="button" class="btn btn-primary" style="margin-left: 5px;" onclick="clean()"><i class="fa fa-link"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    <div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a id="NF-add" authorize="yes" class="btn btn-primary " onclick="btn_addzd()"><i class="fa fa-plus"></i>添加工序站点</a>
+        </div>
+        <div class="btn-group">
+           @*修改页面样式将图标样式由 fa fa-trash-o 修改为 fa fa-edit --bichen*@
+            <a id="NF-editzd" authorize="yes" class="btn btn-primary " onclick="btn_editzd()"><i class="fa fa-edit "></i>修改工序站点顺序</a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-delete" authorize="yes" class="btn btn-primary " onclick="btn_deletezd()"><i class="fa fa-trash-o "></i>删除工序站点</a>
+        </div>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <th class="formTitle">工序站点关系表</th>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="gridPanel">
+    <table id="gridList2"></table>
+    <div id="gridPager2"></div>
+</div>
+    @*<table width="99%" align="center">
+        <tr>
+            <td width="40%" style="float: left;margin: 0px;padding: 0px;">
+                <table id="gridList2"></table>
+                <div id="gridPager2"></div>
+            </td>
+            <td width="4%" style="float: left; margin: 0px; padding: 0px;">
+ 
+            </td>
+            <td width="56%" style="float: left; margin: 0px; padding: 0px;">
+
+                <table id="gridList3" style='display:inline;' border=1></table>
+                <div id="gridPager3"></div>
+
+            </td>
+        </tr>
+    </table>*@
+ 
+    @*<div class="gridPanel" style="height: auto; width: 50%; float: left; display: inline; ">
+        <table id="gridList2"></table>
+        <div id="gridPager2"></div>
+       
+    </div>
+    <div style="height: auto;  float: left; display: inline; ">
+        <a id="NF-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建</a>
+    </div>
+    <div class="right" style="height: auto; width: 46%; float: left; display: inline; ">
+        <table id="gridList3"></table>
+        <div id="gridPager3"></div>
+    </div>*@
+
