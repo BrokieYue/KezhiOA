@@ -19,7 +19,6 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
 
     public class JobPerformanceController : ControllerBase
     {
-        private bool ImportResult = false;
         private WorkDailyRecordApp workDailyRecordApp = new WorkDailyRecordApp();
         private AreaApp areaApp = new AreaApp();
         private UserApp userApp = new UserApp();
@@ -48,9 +47,22 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                 startTime = Common.GetMonthStartTime(DateTime.Now.Date);
                 endTime = Common.GetMonthEndTime(DateTime.Now.Date);
             }
+            List<V_WorkDailyRecordEntity> list = workDailyRecordApp.GetList(pagination, keyword, startTime, endTime, organize, filiale);
+            foreach (var entity in list)
+            {
+                if (entity.F_WorkAddress.Equals("其他"))
+                {
+                    entity.F_WorkAddress = entity.F_OtherAddress;
+                }
+                if (!string.IsNullOrEmpty(entity.F_WorkCategory) && !entity.F_WorkCategory.Equals("项目实施"))
+                {
+                    entity.F_ProjectCode = entity.F_ProjectId;
+                    entity.F_ProjectName = entity.F_ProjectId;
+                }
+            }
             var data = new
             {
-                rows = workDailyRecordApp.GetList(pagination, keyword, startTime, endTime, organize, filiale),
+                rows = list,
                 total = pagination.total,
                 page = pagination.page,
                 records = pagination.records
@@ -82,6 +94,18 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             if (list.Count < 1)
             {
                 return Error("没有需要导出的数据");
+            }
+            foreach (var entity in list)
+            {
+                if (entity.F_WorkAddress.Equals("其他"))
+                {
+                    entity.F_WorkAddress = entity.F_OtherAddress;
+                }
+                if (!string.IsNullOrEmpty(entity.F_WorkCategory) && !entity.F_WorkCategory.Equals("项目实施"))
+                {
+                    entity.F_ProjectCode = entity.F_ProjectId;
+                    entity.F_ProjectName = entity.F_ProjectId;
+                }
             }
             DataTable dataTable = KezhiExcel.ListToDataTable(list, true);
 
@@ -229,6 +253,8 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             dataTable.Columns.Remove("F_ProjectManagerName");
             dataTable.Columns.Remove("F_OrganizeName");
             dataTable.Columns.Remove("F_ItemName");
+            dataTable.Columns.Remove("F_WorkCategory");
+            dataTable.Columns.Remove("F_OtherAddress");
 
             dataTable.Columns["F_WorkUserName"].SetOrdinal(0);
             dataTable.Columns["F_WorkDate"].SetOrdinal(1);

@@ -57,6 +57,11 @@
             id: "F_ItemName",
             text: "F_ItemName"
         });
+        $("#F_WorkCategory").bindSelect({
+            url: "/SystemManage/ItemsData/GetWorkCategoryJson",
+            id: "F_ItemName",
+            text: "F_ItemName"
+        });
        //当选中项目时，默认地址为项目所在地址
         $("#F_ProjectId").change(function () {
             $("#F_WorkAddressFirst > option").remove();
@@ -95,27 +100,28 @@
         //其他工作地点
         $("#F_WorkAddressFirst").change(function () {
             var address = $("#F_WorkAddressFirst").val();
-            console.log(address)
             if (address == "其他") {
-                $("#OtherAddress").css("display", "table-row");
+                $("#F_WorkAddressOther").css("display", "table-row");
             } else {
-                $("#OtherAddress").css("display", "none");
+                $("#F_WorkAddressOther").css("display", "none");
             }
+            $("#F_WorkAddress").val(address);
         })
         $("#F_WorkAddressFirst1").change(function () {
             var address = $("#F_WorkAddressFirst1").val();
             if (address == "其他") {
-                $("#OtherAddress").css("display", "table-row");
+                $("#F_WorkAddressOther").css("display", "table-row");
             } else {
-                $("#OtherAddress").css("display", "none");
+                $("#F_WorkAddressOther").css("display", "none");
             }
+            $("#F_WorkAddress").val(address);
         })
         //项目类型设置
-        $("#F_OtherProject").change(function () {
-            var otherProject = $("#F_OtherProject").val();
+        $("#F_WorkCategory").change(function () {
+            var otherProject = $("#F_WorkCategory").val();
             if (otherProject != "项目实施") {
-                $("#F_WorkAddressOther").val('');
-                $("#OtherAddress").css("display", "none");
+                $("#F_OtherAddress").val('');
+                $("#F_WorkAddressOther").css("display", "none");
                 $("#F_WorkAddressFirst1 > option").remove();
                 $(".otherwork").css('display', 'table-cell');
                 $(".projectStyle").css('display', 'none');
@@ -132,13 +138,12 @@
             } else {
                 $(".otherwork").css('display', 'none');
                 $(".projectStyle").css('display', 'table-row');
-                $("#F_WorkAddressOther").val("");
-                $("#OtherAddress").css("display", "none");
+                $("#F_OtherAddress").val("");
+                $("#F_WorkAddressOther").css("display", "none");
             }
         })
         //cookie设置
         var keyValue = $.request("keyValue");
-        debugger;
         if (keyValue == null || keyValue == "") {
             var F_WorkTimeStart = getCookie("WorkTimeStart");
             var F_WorkTimeEnd = getCookie("WorkTimeEnd");
@@ -191,13 +196,12 @@
             return false;
         }
         //设置工作地点
-        var otherAddress = $("#F_WorkAddressOther").val();
-        var address = $("#F_WorkAddressFirst").val();
-        console.log(otherAddress)
-        if (otherAddress != undefined && address == "其他") {
-            $("#F_WorkAddress").val(otherAddress);
-        } else {
-            $("#F_WorkAddress").val(address);
+        var Address = $("#F_WorkAddress").val();
+        var address1 = $("#F_WorkAddressFirst").val();
+        var address2 = $("#F_WorkAddressFirst1").val();
+        if (Address == null || Address == '') {
+            var realAddress = (address1 == null || address1 == '') ? address2 : address1
+            $("#F_WorkAddress").val(realAddress)
         }
         //修改
         if (keyValue != null && keyValue != "") {
@@ -296,15 +300,14 @@
                 <tr>
                     <th class="formTitle">工作类型&nbsp;&nbsp;<span class="fontStyle">*</span></th>
                     <td class="formValue">
-                        <select id="F_OtherProject" name="F_OtherProject" class="form-control">
-                            <option value="项目实施">项目实施</option>
-                            <option value="管理工作">管理工作</option>
-                            <option value="售前工作">售前工作</option>
+                        <select id="F_WorkCategory" name="F_WorkCategory" class="form-control">
                         </select>
                     </td>
                     <th class="formTitle otherwork">工作地点&nbsp;&nbsp;<span class="fontStyle">*</span></th>
                     <td class="formValue otherwork">
-                        <select id="F_WorkAddressFirst1" class="form-control required"></select>
+                        <select id="F_WorkAddressFirst1" class="form-control">
+                            <option value=""></option>
+                        </select>
                     </td>
                 </tr>
                 <tr class="projectStyle">
@@ -316,19 +319,20 @@
                     </td>
                     <th class="formTitle">工作地点&nbsp;&nbsp;<span class="fontStyle">*</span></th>
                     <td class="formValue">
-                        <select id="F_WorkAddressFirst" class="form-control required" >
+                        <select id="F_WorkAddressFirst" class="form-control " >
+                            <option value=""></option>
                         </select>
                     </td>
                 </tr>
-                <tr id ="OtherAddress"style="display:none" >
+                <tr id="F_WorkAddressOther" style="display:none">
                     <th class="formTitle"></th>
                     <td class="formValue"></td>
                     <th class="formTitle">其他工作地点&nbsp;&nbsp;<span class="fontStyle">*</span></th>
                     <td class="formValue">
-                        <input id="F_WorkAddressOther" name="F_WorkAddressOther" type="text" class="form-control required" placeholder="请在此输入工作地点">
+                        <input id="F_OtherAddress" name="F_OtherAddress" type="text" class="form-control required" placeholder="请在此输入工作地点">
                     </td>
                 </tr>
-                <tr style="display:none">
+                <tr hidden>
                     <th class="formTitle"></th>
                     <td class="formValue">
                         <input id="F_WorkAddress" name="F_WorkAddress" type="text" class="form-control required" >

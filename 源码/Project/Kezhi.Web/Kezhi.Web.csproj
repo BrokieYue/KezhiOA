@@ -650,6 +650,7 @@
     <Content Include="Areas\OAManage\Views\JobPerformance\Form.cshtml" />
     <Content Include="Areas\OAManage\Views\JobPerformance\Index.cshtml" />
     <Content Include="Areas\OAManage\Views\WeeklyWorkLog\Index.cshtml" />
+    <Content Include="Areas\OAManage\Views\WorkDailyRecord\UpdateForm.cshtml" />
     <None Include="Properties\PublishProfiles\NFine.Framework.Release.pubxml" />
   </ItemGroup>
   <PropertyGroup>

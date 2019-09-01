@@ -35,13 +35,10 @@
                 dataType: "json",
                 async: false,
                 success: function (data) {
-                    console.log(data.F_Gender)
-                    console.log(typeof (data.F_Gender))
                     var gender = data.F_Gender == true ? "先生" : "女士";
                     if (data.message != "F") {
                         $.modalAlert(data.F_RealName + gender + "：公司全体同事祝您生日快乐!","success")
                     }
-                    console.log("Y"+ data.message);
                 }, error: function (data) {
                     console.log(data.message)
                 }

@@ -37,6 +37,15 @@ namespace Kezhi.Web.Areas.SystemManage.Controllers
         }
         [HttpGet]
         [HandlerAjaxOnly]
+        public ActionResult GetWorkCategoryJson()
+        {
+            string keyword = "";
+            ItemsEntity entity = itemApp.GetItemByFullName("其他工作");
+            var data = itemsDetailApp.GetList(entity.F_Id, keyword);
+            return Content(data.ToJson());
+        }
+        [HttpGet]
+        [HandlerAjaxOnly]
         public ActionResult GetSebsidyJson()
         {
             string keyword = "";

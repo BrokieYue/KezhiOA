@@ -20,7 +20,6 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
 
     public class WeeklyWorkLogController : ControllerBase
     {
-        private bool ImportResult = false;
         private WorkDailyRecordApp workDailyRecordApp = new WorkDailyRecordApp();
         private AreaApp areaApp = new AreaApp();
         private UserApp userApp = new UserApp();
@@ -51,9 +50,22 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                 endTime = Common.GetDateTimeWeekLastDaySun(DateTime.Now.Date);
 
             }
+           List<V_WorkDailyRecordEntity> list = workDailyRecordApp.GetList(pagination, keyword, startTime, endTime, organize, filiale);
+            foreach (var entity in list)
+            {
+                if (entity.F_WorkAddress.Equals("其他"))
+                {
+                    entity.F_WorkAddress = entity.F_OtherAddress;
+                }
+                if (!string.IsNullOrEmpty(entity.F_WorkCategory) && !entity.F_WorkCategory.Equals("项目实施"))
+                {
+                    entity.F_ProjectCode = entity.F_ProjectId;
+                    entity.F_ProjectName = entity.F_ProjectId;
+                }
+            }
             var data = new
             {
-                rows = workDailyRecordApp.GetList(pagination, keyword, startTime, endTime, organize, filiale),
+                rows = list,
                 total = pagination.total,
                 page = pagination.page,
                 records = pagination.records
@@ -228,6 +240,18 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
 
             }
             List<V_WorkDailyRecordEntity> list = workDailyRecordApp.GetWeekListNoPage(keyword,null, startTime, endTime, organize, filiale);
+            foreach (var entity in list)
+            {
+                if (entity.F_WorkAddress.Equals("其他"))
+                {
+                    entity.F_WorkAddress = entity.F_OtherAddress;
+                }
+                if (!string.IsNullOrEmpty(entity.F_WorkCategory) && !entity.F_WorkCategory.Equals("项目实施"))
+                {
+                    entity.F_ProjectCode = entity.F_ProjectId;
+                    entity.F_ProjectName = entity.F_ProjectId;
+                }
+            }
             if (list.Count < 1)
             {
                 return Error("没有需要导出的数据");
@@ -389,6 +413,8 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             dataTable.Columns.Remove("F_ProjectId");
             dataTable.Columns.Remove("F_WorkType");
             dataTable.Columns.Remove("F_EnabledMark");
+            dataTable.Columns.Remove("F_WorkCategory");
+            dataTable.Columns.Remove("F_OtherAddress");
 
             //设置列排序
             dataTable.Columns["F_ProjectNum"].SetOrdinal(0);

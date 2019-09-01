@@ -32,6 +32,8 @@ namespace Kezhi.Domain.Entity.OA
         public string F_LastModifyUserId { get; set; }
         public DateTime? F_DeleteTime { get; set; }
         public string F_DeleteUserId { get; set; }
+        public string F_WorkCategory{get;set;}
+        public string F_OtherAddress { get; set; }
 
     }
 }

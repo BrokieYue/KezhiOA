@@ -64,6 +64,7 @@
     <Compile Include="Entity\OA\JobPerformanceEntitiy.cs" />
     <Compile Include="Entity\OA\ProjectEntity.cs" />
     <Compile Include="Entity\OA\V_ProjectEntity.cs" />
+    <Compile Include="Entity\OA\V_WorkDailyRecordEntityUpdate.cs" />
     <Compile Include="Entity\OA\V_WorkDailyRecordEntity.cs" />
     <Compile Include="Entity\OA\WorkDailyRecordEntityPlus.cs" />
     <Compile Include="Infrastructure\ICreationAudited.cs" />

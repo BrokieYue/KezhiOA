@@ -41,9 +41,31 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
         [HandlerAjaxOnly]
         public ActionResult GetGridJson(Pagination pagination, string keyword, DateTime? startTime, DateTime? endTime, string organize, string filiale)
         {
+            //设置项目（非项目实施的，项目编号为工作类型）
+            ItemsEntity itenEntity = itemApp.GetItemByFullName("其他工作");
+            List<ItemsDetailEntity> itemList = itemsDetailApp.GetList(itenEntity.F_Id, "");
+            string category = "项目实施";
+            if (itemList.Count > 0)
+            {
+                category = itemList[0].F_ItemName;
+            }
+            List<V_WorkDailyRecordEntity> list = workDailyRecordApp.GetList(pagination, keyword, startTime, endTime, organize, filiale);
+            foreach (var entity in list)
+            {
+                if (entity.F_WorkAddress.Equals("其他"))
+                {
+                    entity.F_WorkAddress = entity.F_OtherAddress;
+                }
+                if (!string.IsNullOrEmpty(entity.F_WorkCategory) && !entity.F_WorkCategory.Equals(category))
+                {
+                    entity.F_ProjectCode = entity.F_ProjectId;
+                    entity.F_ProjectName = entity.F_ProjectId;
+                }
+            }
             var data = new
             {
-                rows = workDailyRecordApp.GetList(pagination, keyword, startTime, endTime, organize, filiale),
+               
+                rows = list,
                 total = pagination.total,
                 page = pagination.page,
                 records = pagination.records
@@ -62,9 +84,44 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
         public ActionResult GetFormJson(string keyValue)
         {
             var data = workDailyRecordApp.GetForm(keyValue);
+            
             return Content(data.ToJson());
         }
-        
+        /// <summary>
+        /// 更新工作日志
+        /// </summary>
+        /// <param name="keyValue"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [HandlerAjaxOnly]
+        public ActionResult GetUpdateFormJson(string keyValue)
+        {
+            var data = workDailyRecordApp.GetForm(keyValue);
+            V_WorkDailyRecordEntityUpdate entity = new V_WorkDailyRecordEntityUpdate();
+            entity.F_Id = data.F_Id;
+            entity.F_CreatType = data.F_CreatType;
+            entity.F_DailyRecord = data.F_DailyRecord;
+            entity.F_Description = data.F_Description;
+            entity.F_IfLocal = data.F_IfLocal;
+            entity.F_ItemName = data.F_ItemName;
+            entity.F_OtherAddress = data.F_OtherAddress;
+            entity.F_ProjectCode = data.F_ProjectCode;
+            entity.F_ProjectId = data.F_ProjectId;
+            entity.F_ProjectName = data.F_ProjectName;
+            entity.F_WorkAddressCode = data.F_WorkAddressCode;
+            entity.F_WorkCategory = data.F_WorkCategory;
+            entity.F_WorkDate = data.F_WorkDate;
+            entity.F_WorkTimeEnd = data.F_WorkTimeEnd;
+            entity.F_WorkTimeStart = data.F_WorkTimeStart;
+            entity.F_WorkUserId = data.F_WorkUserId;
+            entity.F_WorkUserName = data.F_WorkUserName;
+            entity.F_WorkType = data.F_WorkType;
+            entity.F_WorkAddressFirst = data.F_WorkAddress;
+            entity.F_WorkAddressFirst1 = data.F_WorkAddress;
+            entity.F_WorkSubsidy = data.F_WorkSubsidy;
+
+            return Content(entity.ToJson());
+        }
         /// <summary>
         /// 日志对象新增修改提交
         /// </summary>
@@ -96,6 +153,18 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             {
                 workDailyRecordEntity.F_WorkTimeStart = "\\";
                 workDailyRecordEntity.F_WorkTimeEnd = "\\";
+            }
+            //设置项目（非项目实施的，项目编号为工作类型）
+            ItemsEntity entity = itemApp.GetItemByFullName("其他工作");
+            List<ItemsDetailEntity> itemList = itemsDetailApp.GetList(entity.F_Id, "");
+            string category = "项目实施";
+            if (itemList.Count > 0)
+            {
+                category = itemList[0].F_ItemName;
+            }
+            if (string.IsNullOrEmpty(workDailyRecordEntity.F_ProjectId) && !workDailyRecordEntity.F_WorkCategory.Equals(category))
+            {
+                workDailyRecordEntity.F_ProjectId = workDailyRecordEntity.F_WorkCategory;
             }
            //添加日志
             if (string.IsNullOrEmpty(keyValue) || "".Equals(keyValue))
@@ -408,6 +477,8 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             dataTable.Columns.Remove("F_ProjectManagerName");
             dataTable.Columns.Remove("F_ProjectName");
             dataTable.Columns.Remove("F_ItemName");
+            dataTable.Columns.Remove("F_WorkCategory");
+            dataTable.Columns.Remove("F_OtherAddress");
 
 
             //设置列排序
@@ -472,6 +543,9 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                 DataTable dt = KezhiExcel.GetExcelDataTable(file);
                 List<WorkDailyRecordEntity> list = new List<WorkDailyRecordEntity>();
                 var LoginInfo = OperatorProvider.Provider.GetCurrent();
+                //获取其他工作
+                ItemsEntity entity = itemApp.GetItemByFullName("其他工作");
+                List<ItemsDetailEntity> itemList = itemsDetailApp.GetList(entity.F_Id, "");
                 //遍历行数据
                 var row = dt.Rows[2];
                 var user = row.ItemArray[7];
@@ -513,17 +587,35 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                     string st_projectcode = ToStr(dt.Rows[i][4]);
                     string st_projectid = "";
                     string st_projectname = "";
+                    string st_category = "";
                     ProjectEntity project = null;
                     project = getProjectid(st_projectcode);
 
                     if (project == null)
                     {
-                        return "编号为：" + st_projectcode + "的项目不存在";
+                        var flag = true;
+                        if(itemList.Count > 0){
+                            foreach(var item in itemList){
+                                if (st_projectcode.Equals(item.F_ItemName))
+                                {
+                                    st_projectid = item.F_ItemName;
+                                    st_category = item.F_ItemName;
+                                    flag = false;
+                                    break;
+                                }
+                            }
+                        }
+                       
+                        if (flag)
+                        {
+                            return "编号为：" + st_projectcode + "的项目不存在";
+                        }
                     }
                     else
                     {
                         st_projectname = project.F_ProjectName;
                         st_projectid = project.F_Id;
+                        st_category = itemList[0].F_ItemName;
                     }
                     string st_workaddress = ToStr(dt.Rows[i][2]);
                     if (string.IsNullOrEmpty(st_workaddress))
@@ -583,10 +675,11 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                     model.F_Id = Guid.NewGuid().ToString();
                     model.F_WorkUserId = st_userid;
                     model.F_WorkDate = dt_workdate;
-                    model.F_ProjectId = st_projectid;
                     model.F_WorkType = st_worktype;
-                    model.F_WorkAddress = st_workaddress;
+                    model.F_WorkAddress = "其他";
+                    model.F_OtherAddress = st_workaddress;
                     model.F_ProjectId = st_projectid;
+                    model.F_WorkCategory = st_category;
                     model.F_IfLocal = true;
                     model.F_Description = st_Description;
                     model.F_DailyRecord = st_DailyRecord;
@@ -786,6 +879,11 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
         public bool GetWorkDaily(string workdate)
         {
            return workDailyRecordApp.GetWorkDailyByWorkDate(workdate);
+        }
+
+        public ActionResult UpdateForm()
+        {
+            return View();
         }
         #region 获取其他对象方法
         /// <summary>

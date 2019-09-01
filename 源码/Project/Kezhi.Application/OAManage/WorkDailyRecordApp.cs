@@ -190,7 +190,6 @@ namespace Kezhi.Application.OAManage
         {
             return service.FindEntity(keyValue);
         }
-
         public WorkDailyRecordEntity GetEntity(string keyValue)
         {
             return service1.FindEntity(keyValue);

@@ -18,11 +18,11 @@
                 { label: '日期', name: 'F_WorkDate', width: 80, align: 'left', formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' } },
                 { label: '人员ID', name: 'F_WorkUserId', hidden: true },
                 { label: '部门', name: 'F_OrganizeName', width: 80, align: 'left' },
-                { label: '姓名', name: 'F_WorkUserName', width: 80, align: 'left' },
+                { label: '姓名', name: 'F_WorkUserName', width: 80, align: 'left', },
                 { label: '项目ID', name: 'F_ProjectId', hidden: true },
                 { label: '项目编号', name: 'F_ProjectCode', width: 80, align: 'left',hidden: true},
                 { label: '项目名称', name: 'F_ProjectName', width: 120, align: 'left' },
-                { label: '地点', name: 'F_WorkAddress', width: 80, align: 'left' },
+                { label: '地点', name: 'F_WorkAddress', width: 80, align: 'left', },
                 { label: "日志类型", name: "F_WorkType", width: 60, align: "left" },
                 { label: '内容', name: 'F_DailyRecord', width: 500, align: 'left' },
                 { label: '开始时间', name: 'F_WorkTimeStart', width: 60, align: 'left'},
@@ -75,7 +75,7 @@
         $.modalOpen({
             id: "Form",
             title: "修改日志",
-            url: "/OAManage/WorkDailyRecord/Form?keyValue=" + keyValue,
+            url: "/OAManage/WorkDailyRecord/UpdateForm?keyValue=" + keyValue,
             width: "700px",
             height: "610px",
             callBack: function (iframeId) {

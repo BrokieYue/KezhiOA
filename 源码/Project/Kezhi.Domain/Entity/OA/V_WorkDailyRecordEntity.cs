@@ -41,7 +41,8 @@ namespace Kezhi.Domain.Entity.OA
         public DateTime? F_DeleteTime { get; set; }
         public string F_DeleteUserId { get; set; }
         public string F_ProjectCode { get; set; }
-        
+        public string F_WorkCategory { get; set; }
+        public string F_OtherAddress { get; set; }
         
         public string F_CreateorUserName { get; set; }
         public string F_LastModifyUserName { get; set; }
