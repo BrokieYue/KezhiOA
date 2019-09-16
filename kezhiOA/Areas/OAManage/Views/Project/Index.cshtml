@@ -26,6 +26,20 @@
                 {
                     label: '结束时间', name: 'F_ProjectTimeEnd', width: 100, align: 'left', formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
                 },
+                {
+                    label: "项目状态", name: "F_ProjectStatus", width: 60, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == '进行中') {
+                            return '<span class=\"label label-success\">进行中</span>';
+                        } else if (cellvalue == '已结束') {
+                            return '<span class=\"label label-primary\">已结束</span>';
+                        } else if (cellvalue == '已关闭') {
+                            return '<span class=\"label label-danger\">已关闭</span>';
+                        } else {
+                            return '<span class=\"label label-default\">暂无状态</span>';
+                        }
+                    }
+                },
                 { label: '备注', name: 'F_Description', width: 100, align: 'left' }
             ],
             pager: "#gridPager",
@@ -38,7 +52,7 @@
         });
         $("#btn_search").click(function () {
             $gridList.jqGrid('setGridParam', {
-                postData: { keyword: $("#txt_ProjectCode").val() },
+                postData: { keyword: $("#txt_ProjectCode").val(), projectStatus: $("#F_ProjectStatus").val() },
             }).trigger('reloadGrid');
         });
     }
@@ -48,6 +62,11 @@
             url: "../../SystemManage/User/GetUserListJson",
             id: "F_Id",
             text: "F_RealName"
+        });
+        $("#F_ProjectStatus").bindSelect({
+            url: "/SystemManage/ItemsData/GetProjectStatusJson",
+            id: "F_ItemName",
+            text: "F_ItemName"
         });
 
     }
@@ -85,7 +104,40 @@
             }
         })
     }
-    
+    function btn_import() {
+        //批量导入
+        $.modalOpen({
+            id: "Index",
+            title: "导入预览",
+            url: "/OAManage/Project/Import",
+            width: "930px",
+            height: "810px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+                //loadSelect();
+            }
+        });
+    }
+    function btn_export() {
+        var keyvalue = $("#txt_ProjectCode").val();
+        var rows = document.getElementById("gridList").rows.length;
+        if (rows <= 1) {
+            $.modalAlert("没有要导出的数据", "error");
+            return false;
+        }
+        //导出日志
+        var form = $("<form>");   //定义一个form表单
+        form.attr('style', 'display:none');   //在form表单中添加查询参数
+        form.attr('target', '');
+        form.attr('id', 'formDownload');
+        form.attr('method', 'post');
+        var url = "/OAManage/Project/ExcelDailyRecord?keyword=" + keyvalue +"&projectStatus="+ $("#F_ProjectStatus").val();
+        form.attr('action', url);
+        $('body').append(form);  //将表单放置在web中
+        form.submit();
+
+        $('#formDownload').remove();
+    }
 </script>
 
 <div class="topPanel">
@@ -94,7 +146,13 @@
             <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
         </div>
         <div class="btn-group">
-            <a id="NF-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建</a>
+            <a id="NF-add"  class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建</a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-Import" class="btn btn-primary dropdown-text" onclick="btn_import()"><i class="fa fa-upload"></i>导入</a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-Export" class="btn btn-primary dropdown-text" onclick="btn_export()"><i class="fa fa-upload"></i>导出</a>
         </div>
         <div class="operate">
             <ul class="nav nav-pills">
@@ -112,7 +170,10 @@
             <tr>
                 <td>
                     <div class="input-group">
-                        <input id="txt_ProjectCode" type="text" class="form-control" placeholder="项目编号" style="width: 200px;">
+                        <input id="txt_ProjectCode" type="text" class="form-control" placeholder="项目编号或名称" style="width: 200px;">
+                        <select id="F_ProjectStatus" name="F_ProjectStatus" class="form-control" style="width:120px; margin-left:10px">
+                            <option value="">==项目状态==</option>
+                        </select>
                         <span class="input-group-btn">
                             <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
                         </span>

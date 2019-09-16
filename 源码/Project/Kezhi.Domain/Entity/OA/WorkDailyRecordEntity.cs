@@ -25,6 +25,7 @@ namespace Kezhi.Domain.Entity.OA
         public bool? F_CreatType { get; set; }
         public bool? F_DeleteMark { get; set; }
         public bool? F_EnabledMark { get; set; }
+        public bool? F_CurrentDayMark { get; set; }
         public string F_Description { get; set; }
         public DateTime? F_CreatorTime { get; set; }
         public string F_CreatorUserId { get; set; }

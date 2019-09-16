@@ -8,6 +8,7 @@ namespace Kezhi.Domain.Entity.OA
         public string F_Id { get; set; }
         public string F_ProjectCode { get; set; }
         public string F_ProjectName { get; set; }
+        public string F_ClientContractNO { get; set; }
         public string F_ProjectAddress { get; set; }
         public string F_ProjectProvence { get; set; }
         public string F_ProjectCity { get; set; }
@@ -15,6 +16,8 @@ namespace Kezhi.Domain.Entity.OA
         public string F_ProjectType { get; set; }
         public DateTime? F_ProjectTimeStart { get; set; }
         public DateTime? F_ProjectTimeEnd { get; set; }
+        public string F_ProjectClient { get; set; }
+        public string F_ProjectStatus { get; set; }
         public bool? F_DeleteMark { get; set; }
         public bool? F_EnabledMark { get; set; }
         public string F_Description { get; set; }

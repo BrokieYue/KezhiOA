@@ -46,10 +46,28 @@ namespace Kezhi.Web.Areas.SystemManage.Controllers
         }
         [HttpGet]
         [HandlerAjaxOnly]
+        public ActionResult GetProjectType()
+        {
+            string keyword = "";
+            ItemsEntity entity = itemApp.GetItemByFullName("项目类型");
+            var data = itemsDetailApp.GetList(entity.F_Id, keyword);
+            return Content(data.ToJson());
+        }
+        [HttpGet]
+        [HandlerAjaxOnly]
         public ActionResult GetSebsidyJson()
         {
             string keyword = "";
             ItemsEntity entity = itemApp.GetItemByFullName("津贴");
+            var data = itemsDetailApp.GetList(entity.F_Id, keyword);
+            return Content(data.ToJson());
+        }
+        [HttpGet]
+        [HandlerAjaxOnly]
+        public ActionResult GetProjectStatusJson()
+        {
+            string keyword = "";
+            ItemsEntity entity = itemApp.GetItemByFullName("项目状态");
             var data = itemsDetailApp.GetList(entity.F_Id, keyword);
             return Content(data.ToJson());
         }

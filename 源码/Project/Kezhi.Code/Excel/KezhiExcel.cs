@@ -684,7 +684,7 @@ namespace Kezhi.Code.Excel
         {
             string HeaderName = "";
 
-            if (Type == "performance")
+            if (Type.Equals("performance"))
             {
                 switch (HeaderCode)
                 {
@@ -728,7 +728,7 @@ namespace Kezhi.Code.Excel
                         break;
                 }
             }
-            else if (Type == "WorkDailyRecord")
+            else if (Type.Equals("WorkDailyRecord"))
             {
                 switch (HeaderCode)
                 {
@@ -766,7 +766,7 @@ namespace Kezhi.Code.Excel
                         break;
                 }
             }
-            else if (Type == "WorkWeekDailyRecord")
+            else if (Type.Equals("WorkWeekDailyRecord"))
             {
                 switch (HeaderCode)
                 {
@@ -814,6 +814,47 @@ namespace Kezhi.Code.Excel
                         break;
                     case "F_ProjectCodeUser":
                         HeaderName = "项目编号";
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else if (Type.Equals("ProjectMessage"))
+            {
+                switch (HeaderCode)
+                {
+                    case "F_ProjectCode":
+                        HeaderName = "项目编号";
+                        break;
+                    case "F_ProjectName":
+                        HeaderName = "项目名称";
+                        break;
+                    case "F_ProjectAddress":
+                        HeaderName = "项目地点";
+                        break;
+                    case "F_ProjectManagerName":
+                        HeaderName = "项目经理";
+                        break;
+                    case "F_ProjectType":
+                        HeaderName = "项目类型";
+                        break;
+                    case "F_ProjectTimeStart":
+                        HeaderName = "开始时间";
+                        break;
+                    case "F_ProjectTimeEnd":
+                        HeaderName = "结束时间";
+                        break;
+                    case "F_Description":
+                        HeaderName = "备注";
+                        break;
+                    case "F_ProjectClient":
+                        HeaderName = "客户";
+                        break;
+                    case "F_ClientContractNO":
+                        HeaderName = "对方合同号";
+                        break;
+                    case "F_ProjectStatus":
+                        HeaderName = "项目状态";
                         break;
                     default:
                         break;

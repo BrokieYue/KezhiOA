@@ -1,0 +1,149 @@
+﻿@{
+    ViewBag.Title = "Import";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script charset="gb2312">
+    $(function () {
+        gridList();
+
+    })
+
+    function gridList(filepath) {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            height: $(window).height() - 128,
+            colModel: [
+                { label: '项目编号', name: 'F2', width: 80, align: 'left' },
+                { label: '项目名称', name: 'F3', width: 150, align: 'left' },
+                { label: '对方合同号', name: 'F4', width: 120, align: 'left' },
+                { label: '客户', name: 'F5', width: 150, align: 'left' },
+                { label: '项目地点', name: 'F6', width: 100, align: 'left' },
+                { label: '项目类型', name: 'F7', width: 80, align: 'left' },
+                { label: '项目经理', name: 'F8', width: 60, align: 'left' },
+                { label: '项目状态', name: 'F9', width: 60, align: 'left' },
+                { label: '备注', name: 'F10', width: 200, align: 'left' },
+            ],
+            pager: "#gridPager",
+            sortname: 'F2 asc',
+            rowNum: 1000,
+            viewrecords: true
+        });
+    }
+
+
+    function uploadFile() {
+        upload(function (data) {
+            showList(data.fileName);
+            $("#hidFileName").val(data.fileName);
+        });
+    }
+    function showList(fileName) {
+        var $gridList = $("#gridList");
+        $gridList.jqGrid('setGridParam', {
+            url: "/OAManage/Project/GetUploadGridJson",
+            postData: { fileName: fileName },
+            success: function (data) {
+
+            }
+        }).trigger('reloadGrid');
+    }
+
+    function upload(afterUploadFunc) {
+        var xlsFile = $("#fileInput")[0];
+        var result = {};
+        var formData = new FormData();
+        if (xlsFile.files.length > 0) {
+            $("#lblFileName").html(xlsFile.files[0].name);
+            formData.append('file', xlsFile.files[0]);
+        } else {
+            return;
+        }
+        $.ajax({
+            url: '../../Attachment/Attachment.aspx?action=upload',
+            type: 'POST',
+            data: formData,
+            dataType: 'JSON',
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+
+                if (data.result == "ok") {
+                    if (afterUploadFunc) {
+                        afterUploadFunc(data);
+                    }
+                }
+            }
+        });
+    }
+
+    //下载模板 -Liko
+    function btn_downimport() {
+        var form = $("<form>");   //定义一个form表单
+        form.attr('style', 'display:none');   //在form表单中添加查询参数
+        form.attr('target', '');
+        form.attr('id', 'formDownload');
+
+        var url = "/OAManage/Project/Excel";
+        form.attr('action', url);
+
+        $('body').append(form);  //将表单放置在web中
+        form.submit();
+        $('#formDownload').remove();
+    }
+
+    function submitForm() {
+        var allCountID = $("#gridList").jqGrid('getDataIDs');
+        if (allCountID.length == 0) {
+            $.modalAlert("记录数据行为0！", "warning")
+            return false;
+        }
+        var name = $("#hidFileName").val();
+        $("#fileInput").val("");
+        $("#lblFileName").val("");
+        $.submitForm({
+            url: "/OAManage/Project/UploadExcelData",
+            param: { fileName: $("#hidFileName").val() },
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+
+    }
+
+    function sleep(n) { //n表示的毫秒数
+        var start = new Date().getTime();
+        while (true) if (new Date().getTime() - start > n) break;
+    }
+
+</script>
+
+
+
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <span id="lblFileName" style="height: 25px; width: 200px; display: inline-block; float: left; border: 1px solid #000; padding-left: 5px;"></span>
+                        <label for="fileInput" style="float: left; cursor: pointer; display: inline-block;">&nbsp;&nbsp;<i class="fa fa-cloud-upload fa-1x"></i>选择文件</label>
+                        <label id="fileUpload" style="float: left; cursor: pointer; display: inline-block;" onclick="btn_downimport()">&nbsp;&nbsp;<i class="fa fa-cloud-download fa-1x"></i>下载模板</label>
+                        <input type="file" id="fileInput" accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display: none" onchange="uploadFile()" />
+                        <input type="hidden" id="hidFileName" />
+                    </div>
+                </td>
+
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>

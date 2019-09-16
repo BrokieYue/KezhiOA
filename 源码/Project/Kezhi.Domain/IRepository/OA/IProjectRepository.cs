@@ -6,6 +6,7 @@
 *********************************************************************************/
 using Kezhi.Data;
 using Kezhi.Domain.Entity.OA;
+using System.Collections.Generic;
 
 namespace Kezhi.Domain.IRepository.OA
 {
@@ -13,5 +14,9 @@ namespace Kezhi.Domain.IRepository.OA
     {
         void DeleteForm(string keyValue);
         void SubmitForm(ProjectEntity projectEntity,string keyValue);
+
+        List<ProjectEntity> GetListOrderByDate();
+
+        List<ProjectEntity> GetListByStatus(string[] status);
     }
 }

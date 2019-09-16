@@ -76,6 +76,7 @@ namespace Kezhi.Application.SystemManage
             }
             else
             {
+               
                 userEntity.Create();
             }
             service.SubmitForm(userEntity, userLogOnEntity, keyValue);
@@ -138,8 +139,28 @@ namespace Kezhi.Application.SystemManage
         /// <returns></returns>
         public UserEntity GetUser(string username)
         {
-            UserEntity userEntity = service.FindEntity(t => t.F_RealName.Contains(username));
+            UserEntity userEntity = service.FindEntity(t => t.F_RealName.Equals(username));
             return userEntity;
         }
+        /// <summary>
+        /// 根据账号查询用户
+        /// </summary>
+        /// <param name="account"></param>
+        /// <returns></returns>
+        public UserEntity GetUserByAccount(string account)
+        {
+            UserEntity userEntity = service.FindEntity(t => t.F_Account == account);
+            return userEntity;
+        }
+        /// <summary>
+        /// 根据部门查询没有添加员工风采的用户
+        /// </summary>
+        /// <param name="department"></param>
+        /// <returns></returns>
+        public List<UserEntity> GetUserByDepartment(string department)
+        {
+            return service.GetUserByDepartment(department);
+        }
+
     }
 }

@@ -21,27 +21,14 @@
                 dataType: "json",
                 async: false,
                 success: function (data) {
-                    //var address = data.F_ProjectAddress;
-                    //var province;
-                    //var city;
-                    //if(address.indexOf("省") != -1 ){
-                    //    province = address.substring(0, address.indexOf("省") + 1);
-                    //    city = address.substring(address.indexOf("省") + 1, address.length + 1);
-                    //} else if (address.indexOf("区") != -1) {
-                    //    province = address.substring(0, address.indexOf("区") + 1);
-                    //    city = address.substring(address.indexOf("区") + 1, address.length + 1);
-                    //} else {
-                    //    province = address.substring(0, 2);
-                    //    city = address.substring(2, address.length + 1);
-                    //}
-                    //$("#F_ProjectProvence").find("option[text='" + province + "']").prop("selected", true);
-                    //$("#F_ProjectProvence").find("option[value='110000']").prop("selected", true);
-                    //$("#F_ProjectProvence").find("option[value='110000']").attr("selected", true);
+                    if (data.F_ProjectProvence == undefined || data.F_ProjectProvence == "") {
+                        $("#projectAddress").css("display", "none");
+                        $("#projectOtherAddress").css("display", "table-row");
+                    } else {
+                        $("#projectAddress").css("display", "table-row");
+                        $("#projectOtherAddress").css("display", "none");
+                    }
                     $("#form1").formSerialize(data);
-                   
-                   
-                    //$("#F_ProjectCity option[text='" + city + "']").prop("selected", "selected");
-
                 }
             });
         }
@@ -53,18 +40,6 @@
             id: "F_Id",
             text: "F_FullName"
         });
-        //$.ajax({
-        //    url: "/OAManage/Project/GetAddressSelectJson?layers=1&parentid=0",
-        //    dataType: "json",
-        //    async: false,
-        //    success: function (data) {
-        //        console.log(data)
-        //        for (var i = 0; i < data.length; i++) {
-        //            $("#F_ProjectProvence").append("<option value='" + data[i].F_Id + "'>" + data[i].F_FullName + "</option>");
-        //        }
-                
-        //    }
-        //});
         $("#F_ProjectProvence").change(function () {
             
             $("#F_ProjectCity").empty();
@@ -76,13 +51,34 @@
                 text: "F_FullName"
             });
         });
-        
        
         $("#F_ProjectManagerId").bindSelect({
             url: "/OAManage/Project/GetUserSelectJson",
             id: "F_Id",
             text: "F_RealName"
         });
+        $("#F_ProjectType").bindSelect({
+            url: "/SystemManage/ItemsData/GetProjectType",
+            id: "F_ItemName",
+            text: "F_ItemName"
+        });
+
+        $("#F_ProjectStatus").bindSelect({
+            url: "/SystemManage/ItemsData/GetProjectStatusJson",
+            id: "F_ItemName",
+            text: "F_ItemName"
+        });
+        if (keyValue == undefined || keyValue == "") {
+            $("#projectAddress").css("display", "table-row");
+            $("#projectOtherAddress").css("display", "none");
+
+        }
+    }
+    function showProvence() {
+        $("#projectOtherAddress").css("display", "none");
+        $("#projectAddress").css("display", "table-row");
+        $("#F_ProjectAddress").val("");
+       
     }
     function submitForm() {
         if (!$('#form1').formValid()) {
@@ -102,7 +98,7 @@
     <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
         <div style="padding-top: 20px; margin-right: 30px;">
             <table class="form">
-                <tr>
+                <tr id="projectAddress">
                     <th class="formTitle">项目地点<span class="fontStyle">*</span></th>
                     <td class="formValue">
                         <select id="F_ProjectProvence" name="F_ProjectProvence" class="form-control required">
@@ -114,6 +110,16 @@
                         <select id="F_ProjectCity" name="F_ProjectAddress" class="form-control required">
                             <option value="">==市级行政区==</option>
                         </select>
+                    </td>
+                </tr>
+                <tr id="projectOtherAddress">
+                    <th class="formTitle">项目地点<span class="fontStyle">*</span></th>
+                    <td class="formValue">
+                        <input id="F_ProjectAddress" name="F_ProjectAddress" type="text" class="form-control required"/>
+                    </td>
+                    <th class="formTitle"></th>
+                    <td class="formValue">
+                        <input type="button" value="修改项目地址" onclick="showProvence()"/>
                     </td>
                 </tr>
                 <tr>
@@ -136,19 +142,30 @@
                     <th class="formTitle">项目类型<span class="fontStyle">*</span></th>
                     <td class="formValue">
                         <select id="F_ProjectType" name="F_ProjectType" class="form-control">
-                            <option value="MES项目">MES项目</option>
-                            <option value="电气项目">电气项目</option>
+                            
                         </select>
                     </td>
                 </tr>
                 <tr>
-                    <th class="formTitle">开始时间<span class="fontStyle">*</span></th>
+                    <th class="formTitle">项目状态<span class="fontStyle">*</span></th>
                     <td class="formValue">
-                        <input id="F_ProjectTimeStart" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'F_ProjectTimeEnd\')}', skin: 'whyGreen', dateFmt: 'yyyy-MM-dd' })" placeholder="计划时间（开始）" />
+                        <select id="F_ProjectStatus" name="F_ProjectStatus" class="form-control required">
+                            <option value="">==请选择==</option>
+                        </select>
                     </td>
-                    <th class="formTitle">结束时间<span class="fontStyle">*</span></th>
+                    <th class="formTitle">客户</th>
                     <td class="formValue">
-                        <input id="F_ProjectTimeEnd" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'F_ProjectTimeStart\')}', skin: 'whyGreen', dateFmt: 'yyyy-MM-dd' })" placeholder="计划时间（结束）" />
+                        <input id="F_ProjectClient" name="F_ProjectClient" type="text" class="form-control" placeholder="客户名称" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">开始时间</th>
+                    <td class="formValue">
+                        <input id="F_ProjectTimeStart" type="text" class="form-control input-wdatepicker" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'F_ProjectTimeEnd\')}', skin: 'whyGreen', dateFmt: 'yyyy-MM-dd' })" placeholder="计划时间（开始）" />
+                    </td>
+                    <th class="formTitle">结束时间</th>
+                    <td class="formValue">
+                        <input id="F_ProjectTimeEnd" type="text" class="form-control input-wdatepicker" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'F_ProjectTimeStart\')}', skin: 'whyGreen', dateFmt: 'yyyy-MM-dd' })" placeholder="计划时间（结束）" />
                     </td>
                 </tr>
                 <tr>

@@ -27,6 +27,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
         private RoleApp roleApp = new RoleApp();
         private ItemsDetailApp itemsDetailApp = new ItemsDetailApp();
         private ItemsApp itemApp = new ItemsApp();
+        private OrganizeApp oraginzeApp = new OrganizeApp();
 
         /// <summary>
         /// 界面模糊查询功能
@@ -49,6 +50,17 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                 startTime = Common.GetDateTimeWeekFirstDayMon(DateTime.Now.Date);
                 endTime = Common.GetDateTimeWeekLastDaySun(DateTime.Now.Date);
 
+            }
+            var LoginInfo = OperatorProvider.Provider.GetCurrent();
+            //非行政部管理人员只能查询本部门日志
+            UserEntity user = userApp.GetForm(LoginInfo.UserId);
+            if (!LoginInfo.UserCode.Equals("admin"))
+            {
+                var organizeName = oraginzeApp.GetForm(user.F_DepartmentId).F_FullName;
+                if (!organizeName.Equals("行政部"))
+                {
+                    organize = organizeName;
+                }
             }
            List<V_WorkDailyRecordEntity> list = workDailyRecordApp.GetList(pagination, keyword, startTime, endTime, organize, filiale);
             foreach (var entity in list)
@@ -239,6 +251,17 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                 endTime = Common.GetDateTimeWeekLastDaySun(DateTime.Now.Date);
 
             }
+            var LoginInfo = OperatorProvider.Provider.GetCurrent();
+            //非行政部管理人员只能查询本部门日志
+            UserEntity user = userApp.GetForm(LoginInfo.UserId);
+            if (!LoginInfo.UserCode.Equals("admin"))
+            {
+                var organizeName = oraginzeApp.GetForm(user.F_DepartmentId).F_FullName;
+                if (!organizeName.Equals("行政部"))
+                {
+                    organize = organizeName;
+                }
+            }
             List<V_WorkDailyRecordEntity> list = workDailyRecordApp.GetWeekListNoPage(keyword,null, startTime, endTime, organize, filiale);
             foreach (var entity in list)
             {
@@ -415,6 +438,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             dataTable.Columns.Remove("F_EnabledMark");
             dataTable.Columns.Remove("F_WorkCategory");
             dataTable.Columns.Remove("F_OtherAddress");
+            dataTable.Columns.Remove("F_CurrentDayMark");
 
             //设置列排序
             dataTable.Columns["F_ProjectNum"].SetOrdinal(0);

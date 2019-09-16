@@ -341,7 +341,13 @@ $.fn.formSerialize = function (formdate) {
                 postdata[id] = $this.is(":checked");
                 break;
             default:
-                var value = $this.val() == "" ? "&nbsp;" : $this.val();
+                var value = "";
+                if ($this.val() == null || $this.val() == "") {
+                    value = "&nbsp";
+                } else {
+                    value = $this.val()
+                }
+                //var value = $this.val() == "" ? "&nbsp;" : $this.val();
                 if (!$.request("keyValue")) {
                     value = value.replace(/&nbsp;/g, '');
                 }

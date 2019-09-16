@@ -58,6 +58,14 @@ namespace Kezhi.Web.Areas.SystemManage.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult SubmitForm(UserEntity userEntity, UserLogOnEntity userLogOnEntity, string keyValue)
         {
+            if (string.IsNullOrEmpty(keyValue))
+            {
+                UserEntity entity = userApp.GetUserByAccount(userEntity.F_Account);
+                if (entity != null && !string.IsNullOrEmpty(entity.F_Id))
+                {
+                    return Error("该账号已存在");
+                }
+            }
             userApp.SubmitForm(userEntity, userLogOnEntity, keyValue);
             return Success("操作成功。");
         }
@@ -136,6 +144,12 @@ namespace Kezhi.Web.Areas.SystemManage.Controllers
             }
            
             return Error("F");
+        }
+        [HttpGet]
+        public ActionResult GetUserByDepartment(string department)
+        {
+            var data = userApp.GetUserByDepartment(department);
+            return Content(data.ToJson());
         }
        
 

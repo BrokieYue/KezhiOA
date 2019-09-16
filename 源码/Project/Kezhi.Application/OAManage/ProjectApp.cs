@@ -37,17 +37,39 @@ namespace Kezhi.Application.OAManage
         /// <param name="pagination"></param>
         /// <param name="keyword"></param>
         /// <returns></returns>
-        public List<V_ProjectEntity> GetList(Pagination pagination, string keyword)
+        public List<V_ProjectEntity> GetList(Pagination pagination, string keyword, string projectStatus)
         {
             var expression = ExtLinq.True<V_ProjectEntity>();
             if (!string.IsNullOrEmpty(keyword))
             {
-                expression = expression.And(t => t.F_ProjectCode.Contains(keyword));
+                expression = expression.And(t => t.F_ProjectCode.Equals(keyword));
                 expression = expression.Or(t => t.F_ProjectName.Contains(keyword));
+            }
+            if (!string.IsNullOrEmpty(projectStatus))
+            {
+                if (projectStatus.Equals("暂无状态"))
+                {
+                    expression = expression.And(t => t.F_ProjectStatus.Equals(projectStatus));
+                    expression = expression.Or(t => t.F_ProjectStatus == null);
+                }
+                else
+                {
+                    expression = expression.And(t => t.F_ProjectStatus.Equals(projectStatus));
+                }
+                
             }
             return service.FindList(expression, pagination);
         }
-
+        /// <summary>
+        /// 不带分页查询
+        /// </summary>
+        /// <param name="pagination"></param>
+        /// <param name="keyword"></param>
+        /// <returns></returns>
+        public List<V_ProjectEntity> GetLists(string keyword,string projectStatus)
+        {
+            return service.GetListsNoPage(keyword, projectStatus);
+        }
         /// <summary>
         /// 根据项目编号或项目名称模糊查获取项目列表，不带分页
         /// </summary>
@@ -55,9 +77,13 @@ namespace Kezhi.Application.OAManage
         /// <returns></returns>
         public List<V_ProjectEntity> GetList(string keyword)
         {
-            return GetList(null,keyword);
-        }
 
+            return GetList(null,keyword,null);
+        }
+        public List<ProjectEntity> GetListByStatus(string[] status)
+        {
+            return service1.GetListByStatus(status);
+        }
         /// <summary>
         /// 根据主键获取对象
         /// </summary>
@@ -103,8 +129,31 @@ namespace Kezhi.Application.OAManage
         /// <returns></returns>
         public ProjectEntity GetProject(string projectCode)
         {
-            ProjectEntity projectEntity = service1.FindEntity(t => t.F_ProjectCode == projectCode);
+            ProjectEntity projectEntity = service1.FindEntity(t => t.F_ProjectCode.Equals(projectCode));
             return projectEntity;
+        }
+
+        public void InsertList(List<ProjectEntity> list)
+        {
+            service1.Insert(list);
+
+        }
+        /// <summary>
+        /// 项目去重
+        /// </summary>
+        /// <param name="users"></param>
+        public void DeleteDuplicate()
+        {
+            List<ProjectEntity> list = new List<ProjectEntity>();
+            list = service1.GetListOrderByDate();
+            for (var i = 0; i < list.Count - 2; i++)
+            {
+                if (list[i].F_ProjectCode.ToString().Equals(list[i + 1].F_ProjectCode.ToString()) && list[i].F_ProjectName.Equals(list[i + 1].F_ProjectName))
+                {
+                    service1.Delete(list[i + 1]);
+                }
+            }
+
         }
 
     }

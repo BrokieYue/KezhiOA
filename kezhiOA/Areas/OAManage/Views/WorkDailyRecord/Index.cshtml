@@ -26,7 +26,8 @@
                 { label: "日志类型", name: "F_WorkType", width: 60, align: "left" },
                 { label: '内容', name: 'F_DailyRecord', width: 500, align: 'left' },
                 { label: '开始时间', name: 'F_WorkTimeStart', width: 60, align: 'left'},
-                { label: '结束时间', name: 'F_WorkTimeEnd', width: 60, align: 'left'},
+                { label: '结束时间', name: 'F_WorkTimeEnd', width: 60, align: 'left' },
+                { label: '背景颜色', name: 'F_CurrentDayMark', hidden:true },
                 { label: '备注', name: 'F_Description', width: 100, align: 'left' }
             ],
             pager: "#gridPager",
@@ -35,7 +36,19 @@
             //multiSort: true,
             viewrecords: true,
             sortable: false,
-            remoteSort : false,
+            remoteSort: false,
+            loadComplete: function () {
+                //在表格加载完成后执行
+                var ids = $("#gridList").jqGrid("getDataIDs");//获取所有行的id
+                var rowDatas = $("#gridList").jqGrid("getRowData");//获取所有行的数据
+                rowDatas.push($gridList.jqGrid('getRowData', ids[ids.length - 1]));//jqgrid有一个bug，最后一行数据无法获取；解决根据最后一个ID获取
+                for (var i = 0; i < rowDatas.length; i++) {
+                    if (rowDatas[i].F_CurrentDayMark != 'true') {
+                        $("#" + ids[i] + " td").css("color", "red");
+                    }
+                }
+            }
+
         });
         $("#btn_search").click(function () {
             $gridList.jqGrid('setGridParam', {

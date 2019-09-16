@@ -30,6 +30,7 @@ namespace Kezhi.Domain.Entity.OA
         public string F_WorkCategory { get; set; }
         public string F_OtherAddress { get; set; }
         public int? F_WorkSubsidy { get; set; }
+        public bool? F_CurrentDayMark { get; set; }
        
     }
 }

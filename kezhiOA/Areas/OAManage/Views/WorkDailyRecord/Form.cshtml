@@ -46,10 +46,39 @@
             }
         });
         //设置项目下拉框    
-        $("#F_ProjectId").bindSelect({
-            url: "/OAManage/WorkDailyRecord/GetProjectJson",
-            id: "F_Id",
-            text: "F_ProjectName"
+        $('#F_Project').combobox({
+            url: "/OAManage/Project/GetProjectJson",
+            valueField: 'F_Id',
+            textField: 'F_ProjectName',
+            onChange: function (record) {
+                debugger;
+                $("#F_WorkAddressFirst > option").remove();
+                var project = $('#F_Project').combobox('getValue');;
+                $("#F_ProjectId").val(project);
+                $.ajax({
+                    url: "/OAManage/WorkDailyRecord/GetProjectId",
+                    data: { projectId: project },
+                    datatype: "json",
+                    async: false,
+                    success: function (data) {
+                        var obj = eval("(" + data + ")");
+                        var workType = $("#F_WorkType").val();
+                      
+                        if (obj != null && obj.F_ProjectAddress != undefined && obj.F_ProjectAddress != null) {
+                            $("#F_WorkAddressFirst").append("<option  value='" + obj.F_ProjectAddress + "'>" + obj.F_ProjectAddress + "</option>");
+                        }
+                        if (workType != "加班" && workType != "正常") {
+                            $("#F_WorkAddressFirst").append("<option  value='在家休息'>在家休息</option>");
+                        }
+                        $("#F_WorkAddressFirst").bindSelect({
+                            url: "/SystemManage/ItemsData/GetKezhiJson",
+                            id: "F_ItemName",
+                            text: "F_ItemName"
+                        });
+                        $("#F_WorkAddressFirst").append("<option value='其他'>其他</option>");
+                    }
+                });
+            }
         });
         //设置津贴
         $("#F_WorkSubsidy").bindSelect({
@@ -62,32 +91,6 @@
             id: "F_ItemName",
             text: "F_ItemName"
         });
-       //当选中项目时，默认地址为项目所在地址
-        $("#F_ProjectId").change(function () {
-            $("#F_WorkAddressFirst > option").remove();
-            var project = $("#F_ProjectId").val();
-            $.ajax({
-                url: "/OAManage/WorkDailyRecord/GetProjectId",
-                data: { projectId: project },
-                datatype: "json",
-                async: false,
-                success: function (data) {
-                    var obj = eval("(" + data + ")");
-                    var workType = $("#F_WorkType").val();
-                    
-                    $("#F_WorkAddressFirst").append("<option  value='" + obj.F_ProjectAddress + "'>" + obj.F_ProjectAddress + "</option>");
-                    if (workType != "加班" && workType != "正常") {
-                        $("#F_WorkAddressFirst").append("<option  value='在家休息'>在家休息</option>");
-                    }
-                    $("#F_WorkAddressFirst").bindSelect({
-                        url: "/SystemManage/ItemsData/GetKezhiJson",
-                        id: "F_ItemName",
-                        text: "F_ItemName"
-                    });
-                    $("#F_WorkAddressFirst").append("<option value='其他'>其他</option>");
-                }
-            });
-        })
         //工作类型
         $("#F_WorkType").change(function () {
             var workType = $("#F_WorkType").val();
@@ -147,14 +150,19 @@
         if (keyValue == null || keyValue == "") {
             var F_WorkTimeStart = getCookie("WorkTimeStart");
             var F_WorkTimeEnd = getCookie("WorkTimeEnd");
-            if (F_WorkTimeStart == undefined) {
+            
+            if (F_WorkTimeStart == undefined || F_WorkTimeStart == '\\') {
                 $("#F_WorkTimeStart").val("8:00")
                 $("#F_WorkTimeEnd").val("17:30")
             } else {
                 $("#F_WorkTimeStart").val(F_WorkTimeStart)
                 $("#F_WorkTimeEnd").val(F_WorkTimeEnd)
             }
-            
+            $('#F_Project').combobox({
+                onLoadSuccess: function () {
+                    $('#F_Project').combobox('setValue', getCookie("Project"));
+                }
+            })
             var myDate = new Date();
             var year = myDate.getFullYear();        //获取当前年
             var month = myDate.getMonth() + 1;   //获取当前月
@@ -183,6 +191,7 @@
         //创建cookie
         setCookie("WorkTimeStart", $("#F_WorkTimeStart").val());
         setCookie("WorkTimeEnd", $("#F_WorkTimeEnd").val());
+        setCookie("Project", $("#F_ProjectId").val());
         var flag = true;
         var userName = $.trim($("#F_WorkUserId").text());
         if (userName == "超级管理员") {
@@ -301,6 +310,7 @@
                     <th class="formTitle">工作类型&nbsp;&nbsp;<span class="fontStyle">*</span></th>
                     <td class="formValue">
                         <select id="F_WorkCategory" name="F_WorkCategory" class="form-control">
+                           
                         </select>
                     </td>
                     <th class="formTitle otherwork">工作地点&nbsp;&nbsp;<span class="fontStyle">*</span></th>
@@ -313,9 +323,8 @@
                 <tr class="projectStyle">
                     <th class="formTitle">项目&nbsp;&nbsp;<span class="fontStyle">*</span></th>
                     <td class="formValue">
-                        <select id="F_ProjectId" name="F_ProjectId" class="form-control required">
-                            <option value="">==请选择==</option>
-                        </select>
+                        <select id="F_Project" class="form-control required "></select>
+                        
                     </td>
                     <th class="formTitle">工作地点&nbsp;&nbsp;<span class="fontStyle">*</span></th>
                     <td class="formValue">
@@ -338,7 +347,9 @@
                         <input id="F_WorkAddress" name="F_WorkAddress" type="text" class="form-control required" >
                     </td>
                     <th class="formTitle"></th>
-                    <td class="formValue"></td>
+                    <td class="formValue">
+                        <input type="text" id="F_ProjectId" name="F_ProjectId" value="" class="form-control required" />
+                    </td>
                 </tr>
                 <tr>
                     <th class="formTitle" valign="top" style="padding-top: 5px;">

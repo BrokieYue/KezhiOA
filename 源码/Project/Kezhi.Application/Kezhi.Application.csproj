@@ -64,6 +64,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FamilyVisage\FamilyVisageApp.cs" />
     <Compile Include="Infrastructure\DbLogType.cs" />
     <Compile Include="OAManage\ProjectApp.cs" />
     <Compile Include="OAManage\WorkDailyRecordApp.cs" />

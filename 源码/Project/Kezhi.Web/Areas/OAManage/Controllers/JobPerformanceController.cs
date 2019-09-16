@@ -26,6 +26,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
         private RoleApp roleApp = new RoleApp();
         private ItemsDetailApp itemsDetailApp = new ItemsDetailApp();
         private ItemsApp itemApp = new ItemsApp();
+        private OrganizeApp oraginzeApp = new OrganizeApp();
 
         /// <summary>
         /// 界面模糊查询功能
@@ -37,15 +38,26 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
         [HandlerAjaxOnly]
         public ActionResult GetGridJson(Pagination pagination, string keyword, DateTime? startTime, DateTime? endTime, string organize, string filiale, string prevmonth)
         {
+            var LoginInfo = OperatorProvider.Provider.GetCurrent();
             if (prevmonth != null && prevmonth.Equals("true"))
             {
                 startTime = Common.GetMonthStartTime(DateTime.Now.Date).AddMonths(-1);
-                endTime = Common.GetMonthEndTime(DateTime.Now.Date).AddMonths(-1);
+                endTime = Common.GetMonthStartTime(DateTime.Now.Date).AddHours(-1);
             }
             if (startTime == null || endTime == null)
             {
                 startTime = Common.GetMonthStartTime(DateTime.Now.Date);
                 endTime = Common.GetMonthEndTime(DateTime.Now.Date);
+            }
+            //非行政部管理人员只能查询本部门日志
+            UserEntity user = userApp.GetForm(LoginInfo.UserId);
+            if (!LoginInfo.UserCode.Equals("admin"))
+            {
+                var organizeName = oraginzeApp.GetForm(user.F_DepartmentId).F_FullName;
+                if (!organizeName.Equals("行政部"))
+                {
+                    organize = organizeName;
+                }
             }
             List<V_WorkDailyRecordEntity> list = workDailyRecordApp.GetList(pagination, keyword, startTime, endTime, organize, filiale);
             foreach (var entity in list)
@@ -83,12 +95,23 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             if (prevmonth != null && prevmonth.Equals("true"))
             {
                 startTime = Common.GetMonthStartTime(DateTime.Now.Date).AddMonths(-1);
-                endTime = Common.GetMonthEndTime(DateTime.Now.Date).AddMonths(-1);
+                endTime = Common.GetMonthStartTime(DateTime.Now.Date).AddHours(-1);
             }
             if (startTime == null || endTime == null)
             {
                 startTime = Common.GetMonthStartTime(DateTime.Now.Date);
                 endTime = Common.GetMonthEndTime(DateTime.Now.Date);
+            }
+            var LoginInfo = OperatorProvider.Provider.GetCurrent();
+            //非行政部管理人员只能查询本部门日志
+            UserEntity user = userApp.GetForm(LoginInfo.UserId);
+            if (!LoginInfo.UserCode.Equals("admin"))
+            {
+                var organizeName = oraginzeApp.GetForm(user.F_DepartmentId).F_FullName;
+                if (!organizeName.Equals("行政部"))
+                {
+                    organize = organizeName;
+                }
             }
             List<V_WorkDailyRecordEntity> list = workDailyRecordApp.GetListNoPage(keyword, startTime, endTime, organize, filiale);
             if (list.Count < 1)
@@ -255,6 +278,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             dataTable.Columns.Remove("F_ItemName");
             dataTable.Columns.Remove("F_WorkCategory");
             dataTable.Columns.Remove("F_OtherAddress");
+            dataTable.Columns.Remove("F_CurrentDayMark");
 
             dataTable.Columns["F_WorkUserName"].SetOrdinal(0);
             dataTable.Columns["F_WorkDate"].SetOrdinal(1);

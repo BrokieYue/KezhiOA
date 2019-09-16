@@ -6,6 +6,7 @@
 *********************************************************************************/
 using Kezhi.Data;
 using Kezhi.Domain.Entity.SystemManage;
+using System.Collections.Generic;
 
 namespace Kezhi.Domain.IRepository.SystemManage
 {
@@ -13,5 +14,7 @@ namespace Kezhi.Domain.IRepository.SystemManage
     {
         void DeleteForm(string keyValue);
         void SubmitForm(UserEntity userEntity, UserLogOnEntity userLogOnEntity, string keyValue);
+
+        List<UserEntity> GetUserByDepartment(string department);
     }
 }

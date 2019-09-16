@@ -8,6 +8,8 @@ using Kezhi.Code;
 using Kezhi.Data;
 using Kezhi.Domain.Entity.OA;
 using Kezhi.Domain.IRepository.OA;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Kezhi.Repository.OA
 {
@@ -35,6 +37,39 @@ namespace Kezhi.Repository.OA
                 }
                 db.Commit();
             }
+        }
+        public List<ProjectEntity> GetListOrderByDate()
+        {
+            List<ProjectEntity> list = new List<ProjectEntity>();
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append(@"SELECT * FROM [KezhiOADB].[dbo].[T_OA_Project] order by F_ProjectCode, F_CreatorTime desc ");
+           
+            return this.FindList(strSql.ToString()); 
+        }
+
+        public List<ProjectEntity> GetListByStatus(string[] status)
+        {
+            List<ProjectEntity> list = new List<ProjectEntity>();
+            StringBuilder strSql = new StringBuilder();
+
+            strSql.Append(@"SELECT * FROM [KezhiOADB].[dbo].[T_OA_Project] where 1 =1  ");
+            if (status.Length > 0)
+            {
+                for (var i = 0; i < status.Length; i++)
+                {
+                    if (i == 0)
+                    {
+                        strSql.Append(@" and F_ProjectStatus != '"+ status[0] +"'");
+                    }
+                    else
+                    {
+                        strSql.Append(@"Or F_ProjectStatus != '"+ status[i] +"'");
+                    }
+                    
+                }
+                strSql.Append(@"OR F_ProjectStatus is null");
+            }
+            return this.FindList(strSql.ToString());
         }
     }
 }

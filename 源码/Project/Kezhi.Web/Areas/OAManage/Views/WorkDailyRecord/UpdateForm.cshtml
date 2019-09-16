@@ -38,7 +38,9 @@
                                 if (data1 != null && data1 != "null") {
                                     var obj = eval("(" + data1 + ")");
                                     $("#F_WorkAddressFirst > option").remove();
-                                    $("#F_WorkAddressFirst").append("<option  value='" + obj.F_ProjectAddress + "'>" + obj.F_ProjectAddress + "</option>");
+                                    if (obj != null && obj.F_ProjectAddress != undefined && obj.F_ProjectAddress != null) {
+                                        $("#F_WorkAddressFirst").append("<option  value='" + obj.F_ProjectAddress + "'>" + obj.F_ProjectAddress + "</option>");
+                                    }
                                     if (workType != "加班" && workType != "正常") {
                                         $("#F_WorkAddressFirst").append("<option  value='在家休息'>在家休息</option>");
                                         $("#F_WorkAddressFirst1").append("<option  value='在家休息'>在家休息</option>");
@@ -52,6 +54,11 @@
                                 }
                             }
                         });
+                        $('#F_Project').combobox({
+                            onLoadSuccess: function () {
+                                $('#F_Project').combobox('setValue', project);
+                            }
+                        })
                     $("#form1").formSerialize(data);
                     $("#F_WorkUserId").append("<option  value='" + data.F_WorkUserId + "' selected>" + data.F_WorkUserName + "</option>")
                     $("#F_WorkUserId").attr("disabled", "disabled")
@@ -63,7 +70,7 @@
                         $("#workDate").css("display", "table-row");
                     }
                     //显示其他工作地点
-                    if (data.F_OtherAddress != null && data.F_OtherAddress != "") {
+                    if (data.F_OtherAddress != null && data.F_OtherAddress != "" && data.F_OtherAddress != "&nbsp") {
                         $("#F_WorkAddressOther").css("display", "table-row");
                     } else {
                         $("#F_WorkAddressOther").css("display", "none");
@@ -84,10 +91,39 @@
             }
         });
         //设置项目下拉框    
-        $("#F_ProjectId").bindSelect({
-            url: "/OAManage/WorkDailyRecord/GetProjectJson",
-            id: "F_Id",
-            text: "F_ProjectName"
+        //设置项目下拉框    
+        var workFlag = false;//修改页面第一次不让变化
+        $('#F_Project').combobox({
+            url: "/OAManage/Project/GetProjectJson",
+            valueField: 'F_Id',
+            textField: 'F_ProjectName',
+            onChange: function (record) {
+                $("#F_WorkAddressFirst > option").remove();
+                var project = $('#F_Project').combobox('getValue');;
+                $("#F_ProjectId").val(project);
+                $.ajax({
+                    url: "/OAManage/WorkDailyRecord/GetProjectId",
+                    data: { projectId: project },
+                    datatype: "json",
+                    async: false,
+                    success: function (data) {
+                        var obj = eval("(" + data + ")");
+                        var workType = $("#F_WorkType").val();
+                        $("#F_WorkAddressFirst").append("<option  value='" + obj.F_ProjectAddress + "'>" + obj.F_ProjectAddress + "</option>");
+                        if (workType != "加班" && workType != "正常") {
+                            $("#F_WorkAddressFirst").append("<option  value='在家休息'>在家休息</option>");
+                        }
+                        $("#F_WorkAddressFirst").bindSelect({
+                            url: "/SystemManage/ItemsData/GetKezhiJson",
+                            id: "F_ItemName",
+                            text: "F_ItemName"
+                        });
+                        $("#F_WorkAddressFirst").append("<option value='其他'>其他</option>");
+                    }
+                });
+              
+            }
+            
         });
         //设置津贴
         $("#F_WorkSubsidy").bindSelect({
@@ -109,37 +145,6 @@
             text: "F_ItemName"
         });
         $("#F_WorkAddressFirst1").append("<option value='其他'>其他</option>");
-        //当选中项目时，默认地址为项目所在地址
-        var workFlag = false;//修改页面第一次不让变化
-        $("#F_ProjectId").change(function () {
-            if (workFlag) {
-                $("#F_WorkAddressFirst > option").remove();
-                var project = $("#F_ProjectId").val();
-                $.ajax({
-                    url: "/OAManage/WorkDailyRecord/GetProjectId",
-                    data: { projectId: project },
-                    datatype: "json",
-                    async: false,
-                    success: function (data) {
-                        var obj = eval("(" + data + ")");
-                        var workType = $("#F_WorkType").val();
-                        $("#F_WorkAddressFirst").append("<option  value='" + obj.F_ProjectAddress + "'>" + obj.F_ProjectAddress + "</option>");
-                        if (workType != "加班" && workType != "正常") {
-                            $("#F_WorkAddressFirst").append("<option  value='在家休息'>在家休息</option>");
-                        }
-                        $("#F_WorkAddressFirst").bindSelect({
-                            url: "/SystemManage/ItemsData/GetKezhiJson",
-                            id: "F_ItemName",
-                            text: "F_ItemName"
-                        });
-                        $("#F_WorkAddressFirst").append("<option value='其他'>其他</option>");
-                    }
-                });
-            } else {
-                workFlag = true;
-            }
-            
-        })
         //工作类型
         $("#F_WorkType").change(function () {
             var workType = $("#F_WorkType").val();
@@ -377,9 +382,7 @@
                 <tr class="projectStyle">
                     <th class="formTitle">项目&nbsp;&nbsp;<span class="fontStyle">*</span></th>
                     <td class="formValue">
-                        <select id="F_ProjectId" name="F_ProjectId" class="form-control required">
-                            <option value="">==请选择==</option>
-                        </select>
+                        <select id="F_Project" class="form-control required "></select>
                     </td>
                     <th class="formTitle">工作地点&nbsp;&nbsp;<span class="fontStyle">*</span></th>
                     <td class="formValue">
@@ -402,7 +405,9 @@
                         <input id="F_WorkAddress" name="F_WorkAddress" type="text" class="form-control required" >
                     </td>
                     <th class="formTitle"></th>
-                    <td class="formValue"></td>
+                    <td class="formValue">
+                        <input type="text" id="F_ProjectId" name="F_ProjectId" value="" class="form-control required" />
+                    </td>
                 </tr>
                 <tr>
                     <th class="formTitle" valign="top" style="padding-top: 5px;">

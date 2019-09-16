@@ -166,3 +166,5 @@ E:\上海科致OA管理\源码\Project\Kezhi.Web\bin\zh-Hans\System.Web.WebPages
 E:\上海科致OA管理\源码\Project\Kezhi.Web\obj\Debug\Kezhi.Web.csprojResolveAssemblyReference.cache
 E:\上海科致OA管理\源码\Project\Kezhi.Web\obj\Debug\Kezhi.Web.dll
 E:\上海科致OA管理\源码\Project\Kezhi.Web\obj\Debug\Kezhi.Web.pdb
+E:\上海科致OA管理\kezhiOA\源码\Project\Kezhi.Web\obj\Debug\Kezhi.Web.csprojResolveAssemblyReference.cache
+E:\上海科致OA管理\kezhiOA\源码\Project\Kezhi.Web\obj\Debug\Kezhi.Web.dll

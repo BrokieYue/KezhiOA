@@ -30,6 +30,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
         private RoleApp roleApp = new RoleApp();
         private ItemsDetailApp itemsDetailApp = new ItemsDetailApp();
         private ItemsApp itemApp = new ItemsApp();
+        private OrganizeApp oraginzeApp = new OrganizeApp();
 
         /// <summary>
         /// 界面模糊查询功能
@@ -49,6 +50,18 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             {
                 category = itemList[0].F_ItemName;
             }
+            var LoginInfo = OperatorProvider.Provider.GetCurrent();
+            //非行政部管理人员只能查询本部门日志
+            UserEntity user = userApp.GetForm(LoginInfo.UserId);
+            if (!LoginInfo.UserCode.Equals("admin"))
+            {
+                var organizeName = oraginzeApp.GetForm(user.F_DepartmentId).F_FullName;
+                if (!organizeName.Equals("行政部"))
+                {
+                    organize = organizeName;
+                }
+            }
+           
             List<V_WorkDailyRecordEntity> list = workDailyRecordApp.GetList(pagination, keyword, startTime, endTime, organize, filiale);
             foreach (var entity in list)
             {
@@ -139,16 +152,22 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             DateTime oldDate;
             DateTime.TryParse(workDateStr, out workDate);
             DateTime.TryParse("2010-01-01", out oldDate);
+            string worktype = "双休,调休,法定假日";
             if (workDate > DateTime.Now.Date)
             {
                 return Error("无法创建未工作的日志");
             }
+            else if (workDate == DateTime.Now.Date || worktype.Contains(workDailyRecordEntity.F_WorkType))
+            {
+                workDailyRecordEntity.F_CurrentDayMark = true;
+            }
             if(workDate < oldDate){
                 return Error("创建日期距离当前时间太久，无法创建");
             }
+           
             //工作描述
             workDailyRecordEntity.F_DailyRecord = workDailyRecordEntity.F_DailyRecord.ToString().Trim();
-            string worktype = "双休,调休,法定假日";
+           
             if (workDailyRecordEntity.F_WorkAddress.Equals("在家休息") || worktype.Contains(workDailyRecordEntity.F_WorkType))
             {
                 workDailyRecordEntity.F_WorkTimeStart = "\\";
@@ -162,24 +181,13 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             {
                 category = itemList[0].F_ItemName;
             }
-            if (string.IsNullOrEmpty(workDailyRecordEntity.F_ProjectId) && !workDailyRecordEntity.F_WorkCategory.Equals(category))
+            if (!workDailyRecordEntity.F_WorkCategory.Equals(category))
             {
                 workDailyRecordEntity.F_ProjectId = workDailyRecordEntity.F_WorkCategory;
             }
            //添加日志
             if (string.IsNullOrEmpty(keyValue) || "".Equals(keyValue))
             {
-                //津贴设置
-                if (workDailyRecordEntity.F_WorkSubsidy == 10)
-                {
-                    workDailyRecordEntity.F_WorkSubsidy = 0;
-                    workDailyRecordEntity.F_MealSubsidy = 10;
-                }
-                else
-                {
-                    workDailyRecordEntity.F_MealSubsidy = 0;
-                }
-                
                 //外场说明设置
                 workDailyRecordEntity = SetOutfield(workDailyRecordEntity);
                 workDailyRecordEntity.F_CreatType = false;
@@ -187,14 +195,24 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                 workDailyRecordEntity.F_RestHours = "0";
                 workDailyRecordEntity.F_DeductHours = "0";
             }
+            //津贴设置
+            if (workDailyRecordEntity.F_WorkSubsidy == 10)
+            {
+                workDailyRecordEntity.F_WorkSubsidy = 0;
+                workDailyRecordEntity.F_MealSubsidy = 10;
+            }
+            else
+            {
+                workDailyRecordEntity.F_MealSubsidy = 0;
+            }
             //工作时长设置
             SetWorkedHours(workDailyRecordEntity);
             //1、支付工时 2、考核扣除工时
             string weekDate = CommonUtil.GetWeekByTime(workDailyRecordEntity.F_WorkDate.ToString());
-            if (weekDate.Equals("星期六") || weekDate.Equals("星期日"))
+            if (weekDate.Equals("星期六") || weekDate.Equals("星期日") || !workDailyRecordEntity.F_WorkType.Equals("正常"))
             {
                 workDailyRecordEntity.F_PayHours = "0";
-                workDailyRecordEntity.F_DeductHours = workDailyRecordEntity.F_WorkedHours;
+                workDailyRecordEntity.F_DeductHours = "0";
             }
             else
             {
@@ -251,7 +269,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                 //5、对迟到早退现象（加班），工作时长为下班时间-上班时间（过13点，减0.5H，过17点半，减1H吃饭时间）
                 else if ((startTime > 8.5F || endTime < 19.5F) &&  workDailyRecordEntity.F_WorkType.Equals("加班"))
                 {
-                    if (endTime >= 13)
+                    if (endTime >= 13 && endTime <= 17.5)
                     {
                         workDailyRecordEntity.F_WorkedHours = (endTime - startTime - 0.5).ToString();
                     }else if(endTime >= 17.5 ){
@@ -259,7 +277,15 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                     }
                     else
                     {
-                        workDailyRecordEntity.F_WorkedHours = (endTime - startTime).ToString();
+                        float span = endTime - startTime;
+                        if (span >= 8)
+                        {
+                            workDailyRecordEntity.F_WorkedHours = "8";
+                        }
+                        else
+                        {
+                            workDailyRecordEntity.F_WorkedHours = (endTime - startTime).ToString();
+                        }
                     }
                 }
                 //6、对于迟到早退（正常上下班），工作时长满8小时且下班时间在19：30之前的，计8小时，其他的为上班时间-下班时间-1H
@@ -269,7 +295,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                     {
                         workDailyRecordEntity.F_WorkedHours = "8";
                     }
-                    else if(endTime >= 13)
+                    else if(endTime >= 13 && endTime <= 17.5)
                     {
                         workDailyRecordEntity.F_WorkedHours = (endTime - startTime - 0.5).ToString();
                     }
@@ -279,7 +305,16 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                     }
                     else
                     {
-                        workDailyRecordEntity.F_WorkedHours = (endTime - startTime).ToString();
+                        float span = endTime - startTime;
+                        if (span >= 8)
+                        {
+                            workDailyRecordEntity.F_WorkedHours = "8";
+                        }
+                        else
+                        {
+                            workDailyRecordEntity.F_WorkedHours = (endTime - startTime).ToString();
+                        }
+                        
                     }
                 }
             }
@@ -417,7 +452,17 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             {
                 keyword = LoginInfo.UserName;
             }
-            
+        
+            //非行政部管理人员只能查询本部门日志
+            UserEntity user = userApp.GetForm(LoginInfo.UserId);
+            if (!LoginInfo.UserCode.Equals("admin"))
+            {
+                var organizeName = oraginzeApp.GetForm(user.F_DepartmentId).F_FullName;
+                if (!organizeName.Equals("行政部"))
+                {
+                    organize = organizeName;
+                }
+            }
             List<V_WorkDailyRecordEntity> list = workDailyRecordApp.GetListNoPage(keyword, startTime, endTime, organize, filiale);
             if (list.Count < 1)
             {
@@ -479,6 +524,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             dataTable.Columns.Remove("F_ItemName");
             dataTable.Columns.Remove("F_WorkCategory");
             dataTable.Columns.Remove("F_OtherAddress");
+            dataTable.Columns.Remove("F_CurrentDayMark");
 
 
             //设置列排序
@@ -696,6 +742,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                     model.F_RestHours = "0";
                     model.F_DeductHours = "0";
                     model.F_MealSubsidy = 0;
+                    model.F_CurrentDayMark = false;
                     //工作时长按照上下班时间计算
                     SetWorkedHours(model);
                     //1、支付工时 2、考核扣除工时
@@ -754,7 +801,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             catch (Exception ee)
             {
                 ImportResult = false;
-                ErrorInfo = ee.Message;
+                ErrorInfo = "导入错误，请重试或者联系管理员！";
                 return ErrorInfo;
             }
         }
@@ -794,7 +841,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
         /// 项目列表
         /// </summary>
         /// <returns></returns>
-        [HttpGet]
+        [HttpPost]
         [HandlerAjaxOnly]
         public ActionResult GetProjectJson()
         {
@@ -893,7 +940,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
         /// <returns></returns>
         private string getUserId(string userName)
         {
-            UserEntity user = userApp.GetUser(userName);
+            UserEntity user = userApp. GetUser(userName);
             if(user == null || string.IsNullOrEmpty(user.F_Id)){
                 
                 return null;

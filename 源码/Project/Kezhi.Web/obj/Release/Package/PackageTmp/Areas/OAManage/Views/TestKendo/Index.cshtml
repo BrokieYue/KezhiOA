@@ -1,0 +1,101 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+    <link rel="stylesheet" href="~/Content/kendoui.for.jquery.2019.2.619.trial/styles/kendo.common.min.css">
+    <link rel="stylesheet" href="~/Content/kendoui.for.jquery.2019.2.619.trial/styles/kendo.default.min.css">
+    <link rel="stylesheet" href="~/Content/kendoui.for.jquery.2019.2.619.trial/styles/kendo.default.mobile.min.css" />
+    <script src="~/Content/kendoui.for.jquery.2019.2.619.trial/js/jquery.min.js"></script>
+    <script src="~/Content/kendoui.for.jquery.2019.2.619.trial/js/kendo.all.min.js"></script>
+<div id="example">
+    <div id="grid"></div>
+</div>
+<script>
+    $(document).ready(function () {
+        var element = $("#grid").kendoGrid({
+            dataSource: {
+                //type: "odata",
+                transport: {
+                    //read: "https://demos.telerik.com/kendo-ui/service/Northwind.svc/Employees"
+                    read: {
+                        url: "/TestKendo/getUser",
+                        dataType: "json",
+                        type: "get"
+                    },
+             
+                },
+                //data:{ url: "/TestKendo/getUser", dataType: "json", type: "get" },
+                pageSize: 6,
+                //serverPaging: true,
+                //serverSorting: true,
+            },
+            height: 600,
+            //sortable: true,
+            pageable: {
+                pageSizes: [2, 3, 4, "all"],
+                numeric: true
+            },
+            //pageable: true,
+            detailInit: detailInit,
+            dataBound: function () {
+                //    this.expandRow(this.tbody.find("tr.k-master-row").first());
+            },
+            columns: [
+                {
+                    field: "F_Account",
+                    title: "账号",
+                    width: "110px"
+                },
+                {
+                    field: "F_RealName",
+                    title: "姓名",
+                    width: "110px"
+                },
+                {
+                    field: "F_Gender",
+                    title: "性别",
+                    width: "110px"
+                },
+                {
+                    field: "F_MobilePhone",
+                    title: "电话",
+                    width: "110px"
+                }
+            ]
+        });
+    });
+
+    function detailInit(e) {
+        console.log(e)
+        $("<div/>").appendTo(e.detailCell).kendoGrid({
+            dataSource: {
+                //type: "odata",
+                transport: {
+                    read: { url: "/TestKendo/getWork?keyvalue=" + e.data.F_RealName, dataType: "json", type: "get" }
+                    //read: {url:"https://demos.telerik.com/kendo-ui/service/Northwind.svc/Orders"}
+                },
+                //serverPaging: true,
+                //serverSorting: true,
+                //serverFiltering: true,
+                pageSize: 10,
+                //filter: { field: "EmployeeID", operator: "eq", value: e.data.EmployeeID }
+                filter: { field: "F_WorkUserId", operator: "eq", value: e.data.F_Id }
+                
+            },
+            //scrollable: false,
+            //sortable: true,
+            //pageable: true,
+            pageable: {
+                pageSizes: [2, 3, 4, "all"],
+                numeric: true
+            },
+            columns: [
+                { field: "F_WorkDate", title: "工作日期", width: "110px" },
+                { field: "F_WorkType", title: "日志类型", width: "300px" },
+                { field: "F_DailyRecord", title: "工作日志" },
+                { field: "F_WorkAddress", title: "工作地点", width: "110px" },
+            ]
+        });
+    }
+</script>
+

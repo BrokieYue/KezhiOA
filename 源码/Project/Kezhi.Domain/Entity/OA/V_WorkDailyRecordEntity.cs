@@ -30,7 +30,7 @@ namespace Kezhi.Domain.Entity.OA
         public int? F_MealSubsidy { get; set; }
         public int? F_WorkSubsidy { get; set; }
         public bool? F_CreatType { get; set; }
-      
+        public bool? F_CurrentDayMark { get; set; }
         public bool? F_DeleteMark { get; set; }
         public bool? F_EnabledMark { get; set; }
         public string F_Description { get; set; }
