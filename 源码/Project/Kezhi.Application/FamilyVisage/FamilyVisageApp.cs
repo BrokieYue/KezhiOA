@@ -4,6 +4,7 @@ using Kezhi.Domain.IRepository.FamilyVisage;
 using Kezhi.Repository.FamilyVisage;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace Kezhi.Application.FamilyVisage
     {
         private IFamilyVisageRepository service = new FamilyRecordRepository();
         private IV_FamilyVisageRepository service1 = new V_FamilyRecordRepository();
+        private static string path = AppDomain.CurrentDomain.BaseDirectory + "Files\\Photo\\";
 
         /// <summary>
         /// 获取所有员工风采
@@ -48,6 +50,10 @@ namespace Kezhi.Application.FamilyVisage
             }
             return service1.FindList(expression, null);
         }
+        public T_OA_FamilyVisageEntity GetEntity(string keyValue)
+        {
+            return service.FindEntity(keyValue);
+        }
 
         /// <summary>
         /// 根据主键删除对象
@@ -55,7 +61,20 @@ namespace Kezhi.Application.FamilyVisage
         /// <param name="keyValue"></param>
         public void DeleteForm(string keyValue)
         {
+           
+            T_OA_FamilyVisageEntity entity = service.FindEntity(keyValue);
             service.DeleteForm(keyValue);
+            if (entity != null)
+            {
+                if (!string.IsNullOrEmpty(entity.F_PhotoUrl) && File.Exists(path + entity.F_PhotoUrl))
+                {
+                    File.Delete(path + entity.F_PhotoUrl);
+                }
+                if (!string.IsNullOrEmpty(entity.F_PictureUrl) && File.Exists(path + entity.F_PictureUrl))
+                {
+                    File.Delete(path + entity.F_PictureUrl);
+                }
+            }
         }
         /// <summary>
         /// 提交新增/修改数据到数据库

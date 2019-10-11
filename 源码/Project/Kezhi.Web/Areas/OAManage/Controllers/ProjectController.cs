@@ -57,7 +57,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
         /// 用户列表
         /// </summary>
         /// <returns></returns>
-        [HttpGet]
+        [HttpPost]
         [HandlerAjaxOnly]
         public ActionResult GetUserSelectJson()
         {
@@ -91,6 +91,12 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult SubmitForm(ProjectEntity projectEntity, string keyValue, string provence,string city)
         {
+            string userID = projectEntity.F_ProjectManagerId;
+            UserEntity user = userApp.GetForm(userID);
+            if (user == null)
+            {
+                return Error("该项目经理对应的人员不在系统中，请先添加员工");
+            }
             if (string.IsNullOrEmpty(keyValue))
             {
                 string projectCode = projectEntity.F_ProjectCode;

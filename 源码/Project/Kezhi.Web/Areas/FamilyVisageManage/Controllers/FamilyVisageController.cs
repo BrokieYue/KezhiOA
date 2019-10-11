@@ -94,6 +94,7 @@ namespace Kezhi.Web.Areas.FamilyVisageManage.Controllers
         {
           
             familyApp.DeleteForm(keyValue);
+         
             return Success("操作成功。");
         }
         /// <summary>

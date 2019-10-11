@@ -51,7 +51,6 @@
             valueField: 'F_Id',
             textField: 'F_ProjectName',
             onChange: function (record) {
-                debugger;
                 $("#F_WorkAddressFirst > option").remove();
                 var project = $('#F_Project').combobox('getValue');;
                 $("#F_ProjectId").val(project);

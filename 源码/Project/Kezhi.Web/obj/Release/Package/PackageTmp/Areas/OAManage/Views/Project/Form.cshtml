@@ -28,6 +28,11 @@
                         $("#projectAddress").css("display", "table-row");
                         $("#projectOtherAddress").css("display", "none");
                     }
+                    $('#F_ProjectManager').combobox({
+                        onLoadSuccess: function () {
+                            $('#F_ProjectManager').combobox('setValue', data.F_ProjectManagerId);
+                        }
+                    })
                     $("#form1").formSerialize(data);
                 }
             });
@@ -52,10 +57,15 @@
             });
         });
        
-        $("#F_ProjectManagerId").bindSelect({
+        //$("#F_ProjectManagerId").bindSelect({
+        //    url: "/OAManage/Project/GetUserSelectJson",
+        //    id: "F_Id",
+        //    text: "F_RealName"
+        //});
+        $('#F_ProjectManager').combobox({
             url: "/OAManage/Project/GetUserSelectJson",
-            id: "F_Id",
-            text: "F_RealName"
+            valueField: 'F_Id',
+            textField: 'F_RealName'
         });
         $("#F_ProjectType").bindSelect({
             url: "/SystemManage/ItemsData/GetProjectType",
@@ -84,6 +94,8 @@
         if (!$('#form1').formValid()) {
             return false;
         }
+        var projectManager = $('#F_ProjectManager').combobox('getValue');;
+        $("#F_ProjectManagerId").val(projectManager);
         $.submitForm({
             url: "/OAManage/Project/SubmitForm?keyValue=" + keyValue + "&provence=" + $("#F_ProjectProvence option:selected").text() + "&city=" + $("#F_ProjectCity option:selected").text(),
             param: $("#form1").formSerialize(),
@@ -135,9 +147,8 @@
                 <tr>
                     <th class="formTitle">项目经理<span class="fontStyle">*</span></th>
                     <td class="formValue">
-                        <select id="F_ProjectManagerId" name="F_ProjectManagerId" class="form-control required">
-                            <option value="">==请选择==</option>
-                        </select>
+                        <select id="F_ProjectManager" name="F_ProjectManager" class="form-control required"></select>
+                        <input type="text" id="F_ProjectManagerId" hidden/>
                     </td>
                     <th class="formTitle">项目类型<span class="fontStyle">*</span></th>
                     <td class="formValue">

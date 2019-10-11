@@ -146,6 +146,12 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult SubmitFormDailyRecord(WorkDailyRecordEntity workDailyRecordEntity, string keyValue)
         {
+            string projectId = workDailyRecordEntity.F_ProjectId;
+            ProjectEntity project = projectApp.GetForm(projectId);
+            if (project == null)
+            {
+                return Error("当前项目不存在，请联系管理员添加项目");
+            }
             //check工作日期
             string workDateStr = workDailyRecordEntity.F_WorkDate.ToString();
             DateTime workDate;
