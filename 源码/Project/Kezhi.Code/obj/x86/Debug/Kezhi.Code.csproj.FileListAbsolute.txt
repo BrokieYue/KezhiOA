@@ -31,4 +31,3 @@ E:\上海科致OA管理\kezhiOA\源码\Project\Kezhi.Code\bin\x86\Debug\NPOI.OOX
 E:\上海科致OA管理\kezhiOA\源码\Project\Kezhi.Code\bin\x86\Debug\NPOI.OpenXml4Net.xml
 E:\上海科致OA管理\kezhiOA\源码\Project\Kezhi.Code\obj\x86\Debug\Kezhi.Code.dll
 E:\上海科致OA管理\kezhiOA\源码\Project\Kezhi.Code\obj\x86\Debug\Kezhi.Code.pdb
-E:\上海科致OA管理\kezhiOA\源码\Project\Kezhi.Code\obj\x86\Debug\Kezhi.Code.csprojResolveAssemblyReference.cache

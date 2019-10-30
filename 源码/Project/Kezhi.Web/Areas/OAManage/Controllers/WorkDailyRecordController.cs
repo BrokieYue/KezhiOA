@@ -146,12 +146,39 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult SubmitFormDailyRecord(WorkDailyRecordEntity workDailyRecordEntity, string keyValue)
         {
-            string projectId = workDailyRecordEntity.F_ProjectId;
-            ProjectEntity project = projectApp.GetForm(projectId);
-            if (project == null)
+            #region 去空格(前台问题，暂时找不到解决办法，由后台处理)
+            string desc = workDailyRecordEntity.F_Description;
+            if (desc.Equals("&nbsp"))
             {
-                return Error("当前项目不存在，请联系管理员添加项目");
+                workDailyRecordEntity.F_Description = "";
             }
+            string otherAdd = workDailyRecordEntity.F_OtherAddress;
+            if (otherAdd.Equals("&nbsp"))
+            {
+                workDailyRecordEntity.F_OtherAddress = "";
+            }
+            #endregion
+            //项目id管理
+            bool flag = true;
+            ItemsEntity itemEntity = itemApp.GetItemByFullName("其他工作");
+            List<ItemsDetailEntity> list = itemsDetailApp.GetList(itemEntity.F_Id, "");
+            string projectId = workDailyRecordEntity.F_ProjectId;
+            foreach (ItemsDetailEntity item in list)
+            {
+                if (item.F_ItemName.Equals(projectId))
+                {
+                    flag = false;
+                }
+            }
+            if (flag)
+            {
+                ProjectEntity project = projectApp.GetForm(projectId);
+                if (project == null && !projectId.Equals("&nbsp") && !string.IsNullOrEmpty(projectId))
+                {
+                    return Error("当前项目不存在，请联系管理员添加项目");
+                } 
+            }
+          
             //check工作日期
             string workDateStr = workDailyRecordEntity.F_WorkDate.ToString();
             DateTime workDate;
@@ -165,7 +192,11 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             }
             else if (workDate == DateTime.Now.Date || worktype.Contains(workDailyRecordEntity.F_WorkType))
             {
-                workDailyRecordEntity.F_CurrentDayMark = true;
+                if (string.IsNullOrEmpty(keyValue) || "".Equals(keyValue))
+                {
+                    workDailyRecordEntity.F_CurrentDayMark = true;
+                }
+                
             }
             if(workDate < oldDate){
                 return Error("创建日期距离当前时间太久，无法创建");
@@ -710,7 +741,6 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                     {
                         st_worktype = "双休";
                     }
-                    
                     string st_workhours = ToStr(dt.Rows[i][7]);
                     if (string.IsNullOrEmpty(st_workhours) || !Common.CheckIsNumByString(st_workhours))
                     {
@@ -753,10 +783,10 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                     SetWorkedHours(model);
                     //1、支付工时 2、考核扣除工时
                     string weekDate = CommonUtil.GetWeekByTime(model.F_WorkDate.ToString());
-                    if (weekDate.Equals("星期六") || weekDate.Equals("星期日"))
+                    if (weekDate.Equals("星期六") || weekDate.Equals("星期日") || !model.F_WorkType.Equals("正常"))
                     {
                         model.F_PayHours = "0";
-                        model.F_DeductHours = model.F_WorkedHours;
+                        model.F_DeductHours = "0";
                     }
                     else
                     {

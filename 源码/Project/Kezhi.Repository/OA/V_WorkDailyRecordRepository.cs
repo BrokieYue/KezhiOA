@@ -66,7 +66,11 @@ namespace Kezhi.Repository.OA
             {
                 strSql.Append(@"and [F_WorkUserName] = '" + keyword + "'");
             }
-            if (!string.IsNullOrEmpty(projectCode) && !projectCode.Equals(" "))
+            if (!string.IsNullOrEmpty(projectCode) && (projectCode.Equals("管理工作") || projectCode.Equals("售前工作")))
+            {
+                strSql.Append(@"and [F_ProjectId] = '" + projectCode + "'");
+            }
+            else if (!string.IsNullOrEmpty(projectCode))
             {
                 strSql.Append(@"and [F_ProjectCode] = '" + projectCode + "'");
             }
@@ -89,7 +93,7 @@ namespace Kezhi.Repository.OA
                 strSql.Append(@"and [F_FilialeId] = '" + filiale + "'");
             }
             //strSql.Append(@" order by F_WorkUserId desc,F_WorkDate asc");
-            strSql.Append(@" order by F_ProjectCode,F_WorkUserId,F_WorkDate asc");
+            strSql.Append(@" order by F_ProjectId,F_WorkUserId,F_WorkDate asc");
 
             return this.FindList(strSql.ToString()); 
 
