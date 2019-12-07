@@ -40,8 +40,13 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
         /// <returns></returns>
         [HttpGet]
         [HandlerAjaxOnly]
-        public ActionResult GetGridJson(Pagination pagination, string keyword, DateTime? startTime, DateTime? endTime, string organize, string filiale)
+        public ActionResult GetGridJson(Pagination pagination, string keyword, DateTime? startTime, DateTime? endTime, string organize, string filiale,string weekflag)
         {
+            if (weekflag != null && weekflag.Equals("true"))
+            {
+                startTime = DateTime.Parse(DateTime.Now.ToString("yyyy-MM-01")).AddMonths(-1);
+                endTime = Common.GetMonthStartTime(DateTime.Now.Date).AddMinutes(-1);
+            }
             //设置项目（非项目实施的，项目编号为工作类型）
             ItemsEntity itenEntity = itemApp.GetItemByFullName("其他工作");
             List<ItemsDetailEntity> itemList = itemsDetailApp.GetList(itenEntity.F_Id, "");
@@ -286,13 +291,13 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                 float endTime = Common.SetNumberByDateTime(workDailyRecordEntity.F_WorkTimeEnd);
                 //1、上班时间在8:30之前，按8:30计算
                 startTime = startTime > 8.5 ? startTime : 8.5F;
-                //2、8:30—19:30 工时8H（周末加班9.5H）
-                if (startTime == 8.5F && endTime >= 19.5F && endTime <= 20.0F && workDailyRecordEntity.F_WorkType.Equals("加班"))
+                //2、8:30—19:30 工时10H）
+                if (startTime == 8.5F && endTime == 19.5F)
                 {
-                    workDailyRecordEntity.F_WorkedHours = "9.5";
+                    workDailyRecordEntity.F_WorkedHours = "10";
                 }
                 else
-                if (startTime == 8.5F && endTime <= 19.5F && endTime >= 17F)
+                if (startTime == 8.5F && endTime < 19.5F && endTime >= 17F)
                 {
                     workDailyRecordEntity.F_WorkedHours = "8";
                 }
@@ -478,16 +483,21 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
         /// <param name="organize"></param>
         /// <param name="filiale"></param>
         /// <returns></returns>
-        public ActionResult ExcelDailyRecord(string keyword, DateTime? startTime, DateTime? endTime, string organize, string filiale)
+        public ActionResult ExcelDailyRecord(string keyword, DateTime? startTime, DateTime? endTime, string organize, string filiale,string weekflag)
         {
-            var LoginInfo = OperatorProvider.Provider.GetCurrent();
-            if ("admin".Equals(LoginInfo.UserCode) || !getRole(LoginInfo.UserName).F_FullName.Equals("员工"))
+            if (weekflag != null && weekflag.Equals("true"))
             {
-                keyword = null;
+                startTime = DateTime.Parse(DateTime.Now.ToString("yyyy-MM-01")).AddMonths(-1); 
+                endTime = Common.GetMonthStartTime(DateTime.Now.Date).AddMinutes(-1);
             }
-            else
+            var LoginInfo = OperatorProvider.Provider.GetCurrent();
+            if (!"admin".Equals(LoginInfo.UserCode) && getRole(LoginInfo.UserName).F_FullName.Equals("员工"))
             {
                 keyword = LoginInfo.UserName;
+            }
+            else if ("admin".Equals(LoginInfo.UserCode))
+            {
+                keyword = null;
             }
         
             //非行政部管理人员只能查询本部门日志
@@ -506,10 +516,6 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                 return Error("没有需要导出的数据");
             }
             DataTable dataTable = KezhiExcel.ListToDataTable(list, true);
-
-            GetWorkDailyRecord(dataTable);
-     
-
             //添加星期列
             for (var i = 0; i < dataTable.Rows.Count; i++)
             {
@@ -520,7 +526,21 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                     continue;
                 }
                 dataTable.Rows[i]["F_WorkDate"] = CommonUtil.ConvertDate(date).ToString("yyyy-MM-dd");
+                if (dataTable.Rows[i]["F_WorkAddress"].Equals("其他"))
+                {
+                    dataTable.Rows[i]["F_WorkAddress"] = dataTable.Rows[i]["F_OtherAddress"];
+                    
+                }
+                if(string.IsNullOrEmpty(dataTable.Rows[i]["F_ProjectCode"].ToString()))
+                {
+
+                    dataTable.Rows[i]["F_ProjectCode"] = dataTable.Rows[i]["F_WorkCategory"]; 
+                }
             }
+            GetWorkDailyRecord(dataTable);
+     
+
+            
             return File(KezhiExcel.DataTableToMS(dataTable, "WorkDailyRecord", ""), "application/vnd.ms-excel", "上海科致工作日志" + DateTime.Now.ToShortDateString().ToString() + ".xls");
         }
       

@@ -51,8 +51,9 @@
 
         });
         $("#btn_search").click(function () {
+            var prevWeek = $("#F_WeekSelect").is(":checked");
             $gridList.jqGrid('setGridParam', {
-                postData: { keyword: $("#txt_WorkUser").val(), startTime: $("#startTime").val(), endTime: $("#endTime").val(), organize: $("#F_OrganizeId").val(), filiale: $("#F_FilialeId").val() },
+                postData: { keyword: $("#txt_WorkUser").val(), startTime: $("#startTime").val(), endTime: $("#endTime").val(), organize: $("#F_OrganizeId").val(), filiale: $("#F_FilialeId").val(), weekflag: prevWeek },
             }).trigger('reloadGrid');
         });
     }
@@ -127,6 +128,7 @@
         var organize = $("#F_OrganizeId").val();
         var filiale = $("#F_FilialeId").val();
         var rows = document.getElementById("gridList").rows.length;
+        var prevWeek = $("#F_WeekSelect").is(":checked");
         if (rows <= 1) {
             $.modalAlert("没有要导出的数据", "error");
             return false;
@@ -137,7 +139,7 @@
         form.attr('target', '');
         form.attr('id', 'formDownload');
         form.attr('method', 'post');
-        var url = "/OAManage/WorkDailyRecord/ExcelDailyRecord?keyword=" + user + "&startTime=" + startTime + "&endTime=" + endTime + "&organize=" + organize + "&filiale=" + filiale;
+        var url = "/OAManage/WorkDailyRecord/ExcelDailyRecord?keyword=" + user + "&startTime=" + startTime + "&endTime=" + endTime + "&organize=" + organize + "&filiale=" + filiale + "&weekflag=" + prevWeek;
         form.attr('action', url);
         $('body').append(form);  //将表单放置在web中
         form.submit();
@@ -185,6 +187,7 @@
                         <input id="txt_WorkUser" type="text" class="form-control" placeholder="人员" style="width: 200px;">
                         <input id="startTime" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ skin: 'whyGreen' })" placeholder="开始日期" style="width: 140px; margin-left: 30px">
                         <input id="endTime" type="text" class="form-control input-wdatepicker required" onfocus="WdatePicker({ skin: 'whyGreen'})" placeholder="结束日期" style="width: 140px;margin-left:20px;">
+                        <input type="checkbox" id="F_WeekSelect" class="form-control" style="width:26px;height:26px;margin-left:10px;margin-right:5px;" value="week" /><span style="margin-right: 30px;">上月</span>
                         <span class="input-group-btn">
                             <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
                         </span>

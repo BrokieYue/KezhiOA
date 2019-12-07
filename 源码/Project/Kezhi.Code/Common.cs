@@ -342,12 +342,10 @@ namespace Kezhi.Code
                     //}
                     float mm = Convert.ToSingle(time[1]) / 60;
                     //在0分-25分,25分-45分，45分-0分
-                    if(mm <= 0.25){
+                    if(mm < 0.5){
                         mm = 0F;
-                    }else if(mm > 0.25 && mm <= 0.75){
+                    }else if(mm >= 0.5){
                         mm = 0.5F;
-                    }else {
-                        mm = 1F;
                     }
                     workHours = Convert.ToSingle(time[0]) + mm;
                 }
