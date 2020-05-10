@@ -47,19 +47,23 @@ namespace Kezhi.Repository.OA
             return this.FindList(strSql.ToString()); 
         }
 
-        public List<ProjectEntity> GetListByStatus(string[] status)
+        public List<ProjectEntity> GetListByStatus(string[] status,string parentId)
         {
             List<ProjectEntity> list = new List<ProjectEntity>();
             StringBuilder strSql = new StringBuilder();
 
             strSql.Append(@"SELECT * FROM [KezhiOADB].[dbo].[T_OA_Project] where 1 =1  ");
+            if (parentId != null && parentId != ""){
+                strSql.Append(@"and F_ProjectType = '" + parentId + "'");
+            }
+
             if (status.Length > 0)
             {
                 for (var i = 0; i < status.Length; i++)
                 {
                     if (i == 0)
                     {
-                        strSql.Append(@" and F_ProjectStatus != '"+ status[0] +"'");
+                        strSql.Append(@" and (F_ProjectStatus != '"+ status[0] +"'");
                     }
                     else
                     {
@@ -67,7 +71,7 @@ namespace Kezhi.Repository.OA
                     }
                     
                 }
-                strSql.Append(@"OR F_ProjectStatus is null");
+                strSql.Append(@"OR F_ProjectStatus is null)");
             }
             return this.FindList(strSql.ToString());
         }

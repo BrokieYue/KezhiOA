@@ -36,5 +36,7 @@ namespace Kezhi.Domain.Entity.OA
         public string F_WorkCategory{get;set;}
         public string F_OtherAddress { get; set; }
 
+        public string F_LodgingHouse { get; set; }
+
     }
 }

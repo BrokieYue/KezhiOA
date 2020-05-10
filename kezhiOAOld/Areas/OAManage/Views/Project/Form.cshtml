@@ -1,0 +1,193 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<style>
+    .fontStyle {
+        color: #f00;
+        font-size: 16px;
+    }
+</style>
+
+<script>
+
+    var keyValue = $.request("keyValue");
+    $(function () {
+        initControl();
+        if (!!keyValue) {
+            $.ajax({
+                url: "/OAManage/Project/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    if (data.F_ProjectProvence == undefined || data.F_ProjectProvence == "") {
+                        $("#projectAddress").css("display", "none");
+                        $("#projectOtherAddress").css("display", "table-row");
+                    } else {
+                        $("#projectAddress").css("display", "table-row");
+                        $("#projectOtherAddress").css("display", "none");
+                    }
+                    $('#F_ProjectManager').combobox({
+                        onLoadSuccess: function () {
+                            $('#F_ProjectManager').combobox('setValue', data.F_ProjectManagerId);
+                        }
+                    })
+                    $("#form1").formSerialize(data);
+                }
+            });
+        }
+    });
+    function initControl() {
+        
+        $("#F_ProjectProvence").bindSelect({
+            url: "/OAManage/Project/GetAddressSelectJson?layers= 1&parentid = 0",
+            id: "F_Id",
+            text: "F_FullName"
+        });
+        $("#F_ProjectProvence").change(function () {
+            
+            $("#F_ProjectCity").empty();
+            $("#F_ProjectCity").append("<option value=''>==市级行政区==</option>");
+            var parentId = $(this).val();
+            $("#F_ProjectCity").bindSelect({
+                url: "/OAManage/Project/GetAddressSelectJson?layers=2&parentid=" + parentId +"",
+                id: "F_Id",
+                text: "F_FullName"
+            });
+        });
+       
+        //$("#F_ProjectManagerId").bindSelect({
+        //    url: "/OAManage/Project/GetUserSelectJson",
+        //    id: "F_Id",
+        //    text: "F_RealName"
+        //});
+        $('#F_ProjectManager').combobox({
+            url: "/OAManage/Project/GetUserSelectJson",
+            valueField: 'F_Id',
+            textField: 'F_RealName'
+        });
+        $("#F_ProjectType").bindSelect({
+            url: "/SystemManage/ItemsData/GetProjectType",
+            id: "F_ItemName",
+            text: "F_ItemName"
+        });
+
+        $("#F_ProjectStatus").bindSelect({
+            url: "/SystemManage/ItemsData/GetProjectStatusJson",
+            id: "F_ItemName",
+            text: "F_ItemName"
+        });
+        if (keyValue == undefined || keyValue == "") {
+            $("#projectAddress").css("display", "table-row");
+            $("#projectOtherAddress").css("display", "none");
+
+        }
+    }
+    function showProvence() {
+        $("#projectOtherAddress").css("display", "none");
+        $("#projectAddress").css("display", "table-row");
+        $("#F_ProjectAddress").val("");
+       
+    }
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        var projectManager = $('#F_ProjectManager').combobox('getValue');;
+        $("#F_ProjectManagerId").val(projectManager);
+        $.submitForm({
+            url: "/OAManage/Project/SubmitForm?keyValue=" + keyValue + "&provence=" + $("#F_ProjectProvence option:selected").text() + "&city=" + $("#F_ProjectCity option:selected").text(),
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+  
+</script>
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form">
+                <tr id="projectAddress">
+                    <th class="formTitle">项目地点<span class="fontStyle">*</span></th>
+                    <td class="formValue">
+                        <select id="F_ProjectProvence" name="F_ProjectProvence" class="form-control required">
+                            <option value="">==省级行政区==</option>
+                        </select>
+                    </td>
+                    <th class="formTitle"></th>
+                    <td class="formValue">
+                        <select id="F_ProjectCity" name="F_ProjectAddress" class="form-control required">
+                            <option value="">==市级行政区==</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr id="projectOtherAddress">
+                    <th class="formTitle">项目地点<span class="fontStyle">*</span></th>
+                    <td class="formValue">
+                        <input id="F_ProjectAddress" name="F_ProjectAddress" type="text" class="form-control required"/>
+                    </td>
+                    <th class="formTitle"></th>
+                    <td class="formValue">
+                        <input type="button" value="修改项目地址" onclick="showProvence()"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">项目编号<span class="fontStyle">*</span></th>
+                    <td class="formValue">
+                        <input id="F_ProjectCode" name="F_ProjectCode" type="text" class="form-control required" placeholder="项目编号" />
+                    </td>
+                    <th class="formTitle">项目名称<span class="fontStyle">*</span></th>
+                    <td class="formValue">
+                        <input id="F_ProjectName" name="F_ProjectName" type="text" class="form-control required" placeholder="项目名称" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">项目经理<span class="fontStyle">*</span></th>
+                    <td class="formValue">
+                        <select id="F_ProjectManager" name="F_ProjectManager" class="form-control required"></select>
+                        <input type="text" id="F_ProjectManagerId" hidden/>
+                    </td>
+                    <th class="formTitle">项目类型<span class="fontStyle">*</span></th>
+                    <td class="formValue">
+                        <select id="F_ProjectType" name="F_ProjectType" class="form-control">
+                            
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">项目状态<span class="fontStyle">*</span></th>
+                    <td class="formValue">
+                        <select id="F_ProjectStatus" name="F_ProjectStatus" class="form-control required">
+                            <option value="">==请选择==</option>
+                        </select>
+                    </td>
+                    <th class="formTitle">客户</th>
+                    <td class="formValue">
+                        <input id="F_ProjectClient" name="F_ProjectClient" type="text" class="form-control" placeholder="客户名称" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">开始时间</th>
+                    <td class="formValue">
+                        <input id="F_ProjectTimeStart" type="text" class="form-control input-wdatepicker" onfocus="WdatePicker({ maxDate: '#F{$dp.$D(\'F_ProjectTimeEnd\')}', skin: 'whyGreen', dateFmt: 'yyyy-MM-dd' })" placeholder="计划时间（开始）" />
+                    </td>
+                    <th class="formTitle">结束时间</th>
+                    <td class="formValue">
+                        <input id="F_ProjectTimeEnd" type="text" class="form-control input-wdatepicker" onfocus="WdatePicker({ minDate: '#F{$dp.$D(\'F_ProjectTimeStart\')}', skin: 'whyGreen', dateFmt: 'yyyy-MM-dd' })" placeholder="计划时间（结束）" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle" valign="top" style="padding-top: 5px;">
+                        备注
+                    </th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="F_Description" name="F_Description" class="form-control" style="height: 50px;"></textarea>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>

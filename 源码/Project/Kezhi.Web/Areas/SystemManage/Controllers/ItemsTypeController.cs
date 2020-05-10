@@ -73,6 +73,16 @@ namespace Kezhi.Web.Areas.SystemManage.Controllers
             }
             return Content(treeList.TreeGridJson());
         }
+
+        [HttpGet]
+        [HandlerAjaxOnly]
+        public ActionResult GetItemTypeById(string keyValue)
+        {
+            var data = itemsApp.GetForm(keyValue);
+            return Content(data.ToJson());
+        }
+
+
         [HttpGet]
         [HandlerAjaxOnly]
         public ActionResult GetFormJson(string keyValue)

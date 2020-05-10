@@ -48,13 +48,13 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                 endTime = Common.GetMonthStartTime(DateTime.Now.Date).AddMinutes(-1);
             }
             //设置项目（非项目实施的，项目编号为工作类型）
-            ItemsEntity itenEntity = itemApp.GetItemByFullName("其他工作");
-            List<ItemsDetailEntity> itemList = itemsDetailApp.GetList(itenEntity.F_Id, "");
-            string category = "项目实施";
-            if (itemList.Count > 0)
-            {
-                category = itemList[0].F_ItemName;
-            }
+            //ItemsEntity itenEntity = itemApp.GetItemByFullName("其他工作");
+            //List<ItemsDetailEntity> itemList = itemsDetailApp.GetList(itenEntity.F_Id, "");
+            //string category = "项目实施";
+            //if (itemList.Count > 0)
+            //{
+            //    category = itemList[0].F_ItemName;
+            //}
             var LoginInfo = OperatorProvider.Provider.GetCurrent();
             //非行政部管理人员只能查询本部门日志
             UserEntity user = userApp.GetForm(LoginInfo.UserId);
@@ -74,11 +74,11 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                 {
                     entity.F_WorkAddress = entity.F_OtherAddress;
                 }
-                if (!string.IsNullOrEmpty(entity.F_WorkCategory) && !entity.F_WorkCategory.Equals(category))
-                {
-                    entity.F_ProjectCode = entity.F_ProjectId;
-                    entity.F_ProjectName = entity.F_ProjectId;
-                }
+                //if (!string.IsNullOrEmpty(entity.F_WorkCategory) && !entity.F_WorkCategory.Equals(category))
+                //{
+                //    entity.F_ProjectCode = entity.F_ProjectId;
+                //    entity.F_ProjectName = entity.F_ProjectId;
+                //}
             }
             var data = new
             {
@@ -135,8 +135,8 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             entity.F_WorkUserName = data.F_WorkUserName;
             entity.F_WorkType = data.F_WorkType;
             entity.F_WorkAddressFirst = data.F_WorkAddress;
-            entity.F_WorkAddressFirst1 = data.F_WorkAddress;
             entity.F_WorkSubsidy = data.F_WorkSubsidy;
+            entity.F_LodgingHouse = data.F_LodgingHouse;
 
             return Content(entity.ToJson());
         }
@@ -165,25 +165,29 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             #endregion
             //项目id管理
             bool flag = true;
-            ItemsEntity itemEntity = itemApp.GetItemByFullName("其他工作");
-            List<ItemsDetailEntity> list = itemsDetailApp.GetList(itemEntity.F_Id, "");
+            //ItemsEntity itemEntity = itemApp.GetItemByFullName("其他工作");
+            //List<ItemsDetailEntity> list = itemsDetailApp.GetList(itemEntity.F_Id, "");
             string projectId = workDailyRecordEntity.F_ProjectId;
-            foreach (ItemsDetailEntity item in list)
+            //foreach (ItemsDetailEntity item in list)
+            //{
+            //    if (item.F_ItemName.Equals(projectId))
+            //    {
+            //        flag = false;
+            //    }
+            //}
+            //if (flag)
+            //{
+            //    ProjectEntity project = projectApp.GetForm(projectId);
+            //    if (project == null && !projectId.Equals("&nbsp") && !string.IsNullOrEmpty(projectId))
+            //    {
+            //        return Error("当前项目不存在，请联系管理员添加项目");
+            //    } 
+            //}
+            ProjectEntity project = projectApp.GetForm(projectId);
+            if (project == null || string.IsNullOrEmpty(project.F_Id))
             {
-                if (item.F_ItemName.Equals(projectId))
-                {
-                    flag = false;
-                }
-            }
-            if (flag)
-            {
-                ProjectEntity project = projectApp.GetForm(projectId);
-                if (project == null && !projectId.Equals("&nbsp") && !string.IsNullOrEmpty(projectId))
-                {
-                    return Error("当前项目不存在，请联系管理员添加项目");
-                } 
-            }
-          
+                return Error("当前项目不存在，请联系管理员添加项目");
+            } 
             //check工作日期
             string workDateStr = workDailyRecordEntity.F_WorkDate.ToString();
             DateTime workDate;
@@ -195,14 +199,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             {
                 return Error("无法创建未工作的日志");
             }
-            else if (workDate == DateTime.Now.Date || worktype.Contains(workDailyRecordEntity.F_WorkType))
-            {
-                if (string.IsNullOrEmpty(keyValue) || "".Equals(keyValue))
-                {
-                    workDailyRecordEntity.F_CurrentDayMark = true;
-                }
-                
-            }
+            
             if(workDate < oldDate){
                 return Error("创建日期距离当前时间太久，无法创建");
             }
@@ -216,17 +213,17 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                 workDailyRecordEntity.F_WorkTimeEnd = "\\";
             }
             //设置项目（非项目实施的，项目编号为工作类型）
-            ItemsEntity entity = itemApp.GetItemByFullName("其他工作");
-            List<ItemsDetailEntity> itemList = itemsDetailApp.GetList(entity.F_Id, "");
-            string category = "项目实施";
-            if (itemList.Count > 0)
-            {
-                category = itemList[0].F_ItemName;
-            }
-            if (!workDailyRecordEntity.F_WorkCategory.Equals(category))
-            {
-                workDailyRecordEntity.F_ProjectId = workDailyRecordEntity.F_WorkCategory;
-            }
+            //ItemsEntity entity = itemApp.GetItemByFullName("其他工作");
+            //List<ItemsDetailEntity> itemList = itemsDetailApp.GetList(entity.F_Id, "");
+            //string category = "项目实施";
+            //if (itemList.Count > 0)
+            //{
+            //    category = itemList[0].F_ItemName;
+            //}
+            //if (!workDailyRecordEntity.F_WorkCategory.Equals(category))
+            //{
+            //    workDailyRecordEntity.F_ProjectId = workDailyRecordEntity.F_WorkCategory;
+            //}
            //添加日志
             if (string.IsNullOrEmpty(keyValue) || "".Equals(keyValue))
             {
@@ -236,6 +233,15 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                 workDailyRecordEntity.F_PayHours = "0";
                 workDailyRecordEntity.F_RestHours = "0";
                 workDailyRecordEntity.F_DeductHours = "0";
+
+                if (workDate == DateTime.Now.Date || worktype.Contains(workDailyRecordEntity.F_WorkType))
+                {
+                    if (string.IsNullOrEmpty(keyValue) || "".Equals(keyValue))
+                    {
+                        workDailyRecordEntity.F_CurrentDayMark = true;
+                    }
+
+                }
             }
             //津贴设置
             if (workDailyRecordEntity.F_WorkSubsidy == 10)
@@ -313,9 +319,42 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                 {
                     if (endTime >= 13 && endTime <= 17.5)
                     {
-                        workDailyRecordEntity.F_WorkedHours = (endTime - startTime - 0.5).ToString();
-                    }else if(endTime >= 17.5 ){
-                        workDailyRecordEntity.F_WorkedHours = (endTime - startTime - 1).ToString();
+                        if (startTime < 13)
+                        {
+                            workDailyRecordEntity.F_WorkedHours = (endTime - startTime - 0.5).ToString();
+                        }
+                        else
+                        {
+                            workDailyRecordEntity.F_WorkedHours = (endTime - startTime).ToString();
+                        }
+                    }else if(endTime >= 19.5 ){
+                        if (startTime < 17.5 && startTime > 13)
+                        {
+                            workDailyRecordEntity.F_WorkedHours = (endTime - startTime - 0.5).ToString();
+                        }
+                        else if (startTime < 13)
+                        {
+                            workDailyRecordEntity.F_WorkedHours = (endTime - startTime - 1).ToString();
+                        }
+                        else
+                        {
+                            workDailyRecordEntity.F_WorkedHours = (endTime - startTime).ToString();
+                        }
+                        
+                    }else if(endTime >=17.5 && endTime < 19.5){//这是个特殊的时间段，很坑
+                        if (startTime < 17.5 && startTime > 13)
+                        {
+                            workDailyRecordEntity.F_WorkedHours = (endTime - startTime - 0.5).ToString();
+                        }
+                        else if (startTime < 13)
+                        {
+                            float hours = (endTime - startTime - 1) > 8 ? 8:(endTime - startTime - 1);
+                            workDailyRecordEntity.F_WorkedHours = hours.ToString();
+                        }
+                        else
+                        {
+                            workDailyRecordEntity.F_WorkedHours = (endTime - startTime).ToString();
+                        }
                     }
                     else
                     {
@@ -610,13 +649,13 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             string strMessage = ImportData(fileName);
             if (ImportResult)
             {
-                RemoveFile(filePath);
+                FileHelper.RemoveFile(filePath);
                 return Success(strMessage);
             }
             else
             {
                 //数据检查失败，删除临时文件
-                RemoveFile(filePath);
+                FileHelper.RemoveFile(filePath);
                 return Error(strMessage);
             }
         }
@@ -646,9 +685,9 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                 DataTable dt = KezhiExcel.GetExcelDataTable(file);
                 List<WorkDailyRecordEntity> list = new List<WorkDailyRecordEntity>();
                 var LoginInfo = OperatorProvider.Provider.GetCurrent();
-                //获取其他工作
-                ItemsEntity entity = itemApp.GetItemByFullName("其他工作");
-                List<ItemsDetailEntity> itemList = itemsDetailApp.GetList(entity.F_Id, "");
+                ////获取其他工作
+                //ItemsEntity entity = itemApp.GetItemByFullName("其他工作");
+                //List<ItemsDetailEntity> itemList = itemsDetailApp.GetList(entity.F_Id, "");
                 //遍历行数据
                 var row = dt.Rows[2];
                 var user = row.ItemArray[7];
@@ -666,8 +705,8 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                     {
                         return "姓名不能为空";
                     }
-                 
-                    string st_userid = getUserId(st_username);
+
+                    string st_userid = CommonUtil.getUserId(st_username);
                     if (string.IsNullOrEmpty(st_userid))
                     {
                         return "用户：" + st_username + "不存在";
@@ -687,51 +726,40 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                     {
                         return "工作日期(" + dt_workdate.ToString("yyyy-MM-dd") + ")距离当前时间太久，无法创建";
                     }
-                    string st_projectcode = ToStr(dt.Rows[i][4]);
+                    string st_projectcode = CommonUtil.ToStr(dt.Rows[i][4]);
                     string st_projectid = "";
                     string st_projectname = "";
                     string st_category = "";
                     ProjectEntity project = null;
-                    project = getProjectid(st_projectcode);
+                    project = CommonUtil.getProjectid(st_projectcode);
 
                     if (project == null)
                     {
-                        var flag = true;
-                        if(itemList.Count > 0){
-                            foreach(var item in itemList){
-                                if (st_projectcode.Equals(item.F_ItemName))
-                                {
-                                    st_projectid = item.F_ItemName;
-                                    st_category = item.F_ItemName;
-                                    flag = false;
-                                    break;
-                                }
-                            }
-                        }
-                       
-                        if (flag)
-                        {
-                            return "编号为：" + st_projectcode + "的项目不存在";
-                        }
+                       return "编号为：" + st_projectcode + "的项目不存在";
                     }
                     else
                     {
                         st_projectname = project.F_ProjectName;
                         st_projectid = project.F_Id;
-                        st_category = itemList[0].F_ItemName;
+                        ItemsDetailEntity item = itemsDetailApp.GetItemsByProjectType(project.F_ProjectType);
+                        if (item != null)
+                        {
+                            st_category = item.F_Id;
+                        }
+                      
                     }
-                    string st_workaddress = ToStr(dt.Rows[i][2]);
+                    string st_workaddress = CommonUtil.ToStr(dt.Rows[i][2]);
                     if (string.IsNullOrEmpty(st_workaddress))
                     {
                         return "工作地点不能为空";
                     }
-                    
-                    string st_DailyRecord = ToStr(dt.Rows[i][3]);
+
+                    string st_DailyRecord = CommonUtil.ToStr(dt.Rows[i][3]);
                     if (string.IsNullOrEmpty(st_DailyRecord))
                     {
                         return "工作内容不能为空";
                     }
-                    string workDate = ToStr(dt.Rows[i][6]);
+                    string workDate = CommonUtil.ToStr(dt.Rows[i][6]);
                     if (string.IsNullOrEmpty(workDate))
                     {
                         ErrorInfo = "上下班时间不能为空";
@@ -747,7 +775,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                     }else{
                         return "上下班时间格式不正确";
                     }
-                    string st_Description = ToStr(dt.Rows[i][5]);
+                    string st_Description = CommonUtil.ToStr(dt.Rows[i][5]);
                     string st_worktype = "正常";
                     if (st_Description.Contains("加班"))
                     {
@@ -761,13 +789,13 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                     {
                         st_worktype = "双休";
                     }
-                    string st_workhours = ToStr(dt.Rows[i][7]);
+                    string st_workhours = CommonUtil.ToStr(dt.Rows[i][7]);
                     if (string.IsNullOrEmpty(st_workhours) || !Common.CheckIsNumByString(st_workhours))
                     {
                         return "工作时长不能为空且必须是数字";
                     }
-                    
-                    string st_worksubsidy = ToStr(dt.Rows[i][8]);
+
+                    string st_worksubsidy = CommonUtil.ToStr(dt.Rows[i][8]);
                     if (string.IsNullOrEmpty(st_worksubsidy) || !Common.CheckIsNumByString(st_worksubsidy))
                     {
                         return "津贴不能为空且必须是数字";
@@ -989,51 +1017,9 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             return View();
         }
         #region 获取其他对象方法
-        /// <summary>
-        /// 根据用户名获取Id
-        /// </summary>
-        /// <param name="userName"></param>
-        /// <returns></returns>
-        private string getUserId(string userName)
-        {
-            UserEntity user = userApp. GetUser(userName);
-            if(user == null || string.IsNullOrEmpty(user.F_Id)){
-                
-                return null;
-            }
-            else
-            {
-                return user.F_Id;
-            }
-            //return userApp.GetUser(userName).F_Id;
-        }
+       
 
-        /// <summary>
-        /// 根据项目编号获取项目Id
-        /// </summary>
-        /// <param name="projectCode"></param>
-        /// <returns></returns>
-        private ProjectEntity getProjectid(string projectCode)
-        {
-            ProjectEntity project = new ProjectEntity();
-            if (string.IsNullOrEmpty(projectCode))
-            {
-                project.F_ProjectName = "";
-                project.F_Id = "";
-                return project;
-            }
-            project = projectApp.GetProject(projectCode);
-            if (project == null || string.IsNullOrEmpty(project.F_Id))
-            {
-                return null;
-            }
-            else
-            {
-                return project;
-            }
-            //return projectApp.GetProject(projectCode).F_Id;
-        }
-
+       
         /// <summary>
         /// 根据用户名查询岗位
         /// </summary>
@@ -1045,28 +1031,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             return roleApp.GetForm(user.F_DutyId);
         }
 
-        /// <summary>
-        /// 删除文件
-        /// </summary>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        private bool RemoveFile(string fileName)
-        {
-            try
-            {
-                if (!System.IO.File.Exists(fileName))
-                {
-                    return true;
-                }
-                System.IO.File.Delete(fileName);
-            }
-            catch
-            {
-                return false;
-            }
-
-            return true;
-        }
+       
          /// <summary>
         /// 地点列表
         /// </summary>
@@ -1076,22 +1041,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
 
 
         #region 工具方法
-        /// <summary>
-        /// 转字符串处理NULL值问题
-        /// </summary>
-        /// <param name="v"></param>
-        /// <returns></returns>
-        public static string ToStr(object v)
-        {
-            if (v is System.DBNull || v == null)
-            {
-                return "";
-            }
-            else
-            {
-                return Convert.ToString(v);
-            }
-        }
+
         /// <summary>
         /// 转整型处理NULL值问题
         /// </summary>

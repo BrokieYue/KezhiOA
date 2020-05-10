@@ -15,6 +15,7 @@ namespace Kezhi.Domain.Entity.SystemManage
         public string F_ParentId { get; set; }
         public string F_ItemCode { get; set; }
         public string F_ItemName { get; set; }
+        //在项目类型中，为其他工作的id，目的是与其他工作关联
         public string F_SimpleSpelling { get; set; }
         public bool? F_IsDefault { get; set; }
         public int? F_Layers { get; set; }

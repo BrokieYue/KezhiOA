@@ -16,5 +16,7 @@ namespace Kezhi.Code
         public bool expanded { get; set; }
         public bool loaded { get; set; }
         public string entityJson { get; set; }
+
+        public bool? deleteMark { get; set; }
     }
 }

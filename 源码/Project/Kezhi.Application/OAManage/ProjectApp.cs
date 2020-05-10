@@ -37,7 +37,7 @@ namespace Kezhi.Application.OAManage
         /// <param name="pagination"></param>
         /// <param name="keyword"></param>
         /// <returns></returns>
-        public List<V_ProjectEntity> GetList(Pagination pagination, string keyword, string projectStatus)
+        public List<V_ProjectEntity> GetList(Pagination pagination, string keyword, string projectStatus,string projectType)
         {
             var expression = ExtLinq.True<V_ProjectEntity>();
             if (!string.IsNullOrEmpty(keyword))
@@ -58,6 +58,10 @@ namespace Kezhi.Application.OAManage
                 }
                 
             }
+            if (!string.IsNullOrEmpty(projectType))
+            {
+                expression = expression.And(t => t.F_ProjectType.Equals(projectType));
+            }
             return service.FindList(expression, pagination);
         }
         /// <summary>
@@ -66,9 +70,9 @@ namespace Kezhi.Application.OAManage
         /// <param name="pagination"></param>
         /// <param name="keyword"></param>
         /// <returns></returns>
-        public List<V_ProjectEntity> GetLists(string keyword,string projectStatus)
+        public List<V_ProjectEntity> GetLists(string keyword,string projectStatus,string projectType)
         {
-            return service.GetListsNoPage(keyword, projectStatus);
+            return service.GetListsNoPage(keyword, projectStatus, projectType);
         }
         /// <summary>
         /// 根据项目编号或项目名称模糊查获取项目列表，不带分页
@@ -78,11 +82,11 @@ namespace Kezhi.Application.OAManage
         public List<V_ProjectEntity> GetList(string keyword)
         {
 
-            return GetList(null,keyword,null);
+            return GetList(null,keyword,null,null);
         }
-        public List<ProjectEntity> GetListByStatus(string[] status)
+        public List<ProjectEntity> GetListByStatus(string[] status,string parentId)
         {
-            return service1.GetListByStatus(status);
+            return service1.GetListByStatus(status, parentId);
         }
         /// <summary>
         /// 根据主键获取对象
@@ -155,6 +159,7 @@ namespace Kezhi.Application.OAManage
             }
 
         }
+
 
     }
 }

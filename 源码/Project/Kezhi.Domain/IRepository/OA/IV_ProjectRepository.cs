@@ -7,12 +7,13 @@
 using Kezhi.Data;
 using Kezhi.Domain.Entity.OA;
 using System.Collections.Generic;
+using System.Data;
 
 namespace Kezhi.Domain.IRepository.OA
 {
     public interface IV_ProjectRepository : IRepositoryBase<V_ProjectEntity>
     {
-        List<V_ProjectEntity> GetListsNoPage(string keyword, string projectStatus);
+        List<V_ProjectEntity> GetListsNoPage(string keyword, string projectStatus, string projectType);
     }
    
 }

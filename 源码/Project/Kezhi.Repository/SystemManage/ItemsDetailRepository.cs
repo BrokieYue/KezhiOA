@@ -34,5 +34,6 @@ namespace Kezhi.Repository.SystemManage
             };
             return this.FindList(strSql.ToString(), parameter);
         }
+
     }
 }

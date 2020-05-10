@@ -42,6 +42,12 @@
     }
     function btn_edit() {
         var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        var itemDesc = $("#gridList").jqGridRowValue().F_Description;
+        if (itemDesc.indexOf("不可修改") > -1) {
+            //后台有根据名称查询的语句，无法删除
+            $.modalAlert("该数据字典分类不能修改，请联系开发人员", "error")
+            return;
+        }
         $.modalOpen({
             id: "Form",
             title: "修改分类",
@@ -54,6 +60,12 @@
         });
     }
     function btn_delete() {
+        var itemDesc = $("#gridList").jqGridRowValue().F_Description;
+        if (itemDesc.indexOf("不可修改") > -1) {
+            //后台有根据名称查询的语句，无法删除
+            $.modalAlert("该数据字典分类不能删除，请联系开发人员", "error")
+            return;
+        }
         $.deleteForm({
             url: "/SystemManage/ItemsType/DeleteForm",
             param: { keyValue: $("#gridList").jqGridRowValue().F_Id },

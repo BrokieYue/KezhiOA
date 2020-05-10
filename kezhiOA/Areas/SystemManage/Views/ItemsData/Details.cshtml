@@ -5,6 +5,8 @@
 <script>
     var keyValue = $.request("keyValue");
     $(function () {
+        console.log(1)
+        console.log(keyValue)
         $.ajax({
             url: "/SystemManage/ItemsData/GetFormJson",
             data: { keyValue: keyValue },
@@ -12,6 +14,7 @@
             async: false,
             success: function (data) {
                 $("#form1").formSerialize(data);
+                console.log(data)
                 $("#form1").find('.form-control,select,input').attr('readonly', 'readonly');
                 $("#form1").find('div.ckbox label').attr('for', '');
             }
@@ -37,6 +40,12 @@
                 <th class="formTitle">排序</th>
                 <td class="formValue">
                     <input id="F_SortCode" name="F_SortCode" type="text" class="form-control" />
+                </td>
+            </tr>
+            <tr id="otherProject" hidden>
+                <th class="formTitle">其他工作</th>
+                <td class="formValue">
+                    <select id="F_SimpleSpelling" name="F_SimpleSpelling" class="form-control required"></select>
                 </td>
             </tr>
             <tr>

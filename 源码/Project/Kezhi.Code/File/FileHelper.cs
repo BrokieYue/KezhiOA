@@ -242,6 +242,29 @@ namespace Kezhi.Code
                 File.Delete(System.Web.HttpContext.Current.Request.PhysicalApplicationPath + file);
             }
         }
+
+        /// <summary>
+        /// 删除文件
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public static bool RemoveFile(string fileName)
+        {
+            try
+            {
+                if (!System.IO.File.Exists(fileName))
+                {
+                    return true;
+                }
+                System.IO.File.Delete(fileName);
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
         #endregion
 
         #region 创建文件

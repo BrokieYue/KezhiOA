@@ -21,6 +21,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
         private AreaApp areaApp = new AreaApp();
         private UserApp userApp = new UserApp();
         private bool ImportResult = false;
+        private ItemsDetailApp itemApp = new ItemsDetailApp();
         
         /// <summary>
         /// 界面模糊查询功能
@@ -30,11 +31,11 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
         /// <returns></returns>
         [HttpGet]
         [HandlerAjaxOnly]
-        public ActionResult GetGridJson(Pagination pagination, string keyword,string projectStatus)
+        public ActionResult GetGridJson(Pagination pagination, string keyword, string projectStatus, string projectType)
         {
             var data = new
             {
-                rows = projectApp.GetList(pagination, keyword, projectStatus),
+                rows = projectApp.GetList(pagination, keyword, projectStatus, projectType),
                 total = pagination.total,
                 page = pagination.page,
                 records = pagination.records
@@ -91,6 +92,14 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult SubmitForm(ProjectEntity projectEntity, string keyValue, string provence,string city)
         {
+            if ("&nbsp".Equals(projectEntity.F_ProjectClient))
+            {
+                projectEntity.F_ProjectClient = null;
+            }
+            if ("&nbsp".Equals(projectEntity.F_Description))
+            {
+                projectEntity.F_Description = null;
+            }
             string userID = projectEntity.F_ProjectManagerId;
             UserEntity user = userApp.GetForm(userID);
             if (user == null)
@@ -286,10 +295,10 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
         /// <param name="organize"></param>
         /// <param name="filiale"></param>
         /// <returns></returns>
-        public ActionResult ExcelDailyRecord(string keyword, string projectStatus)
+        public ActionResult ExcelDailyRecord(string keyword, string projectStatus,string projectType)
         {
 
-            List<V_ProjectEntity> list = projectApp.GetLists(keyword, projectStatus);
+            List<V_ProjectEntity> list = projectApp.GetLists(keyword, projectStatus, projectType);
             if (list.Count < 1)
             {
                 return Error("没有需要导出的数据");
@@ -338,6 +347,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             dataTable.Columns.Remove("F_DeleteUserName");
             dataTable.Columns.Remove("F_CreatorTime");
             dataTable.Columns.Remove("F_CreatorUserId");
+            dataTable.Columns.Remove("F_ProjectType");
 
 
             //设置列排序
@@ -347,7 +357,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             dataTable.Columns["F_ProjectClient"].SetOrdinal(3);
             dataTable.Columns["F_ProjectAddress"].SetOrdinal(5);
             dataTable.Columns["F_ProjectManagerName"].SetOrdinal(6);
-            dataTable.Columns["F_ProjectType"].SetOrdinal(4);
+            dataTable.Columns["F_ProjectTypeName"].SetOrdinal(4);
             dataTable.Columns["F_ProjectStatus"].SetOrdinal(7);
             dataTable.Columns["F_ProjectTimeStart"].SetOrdinal(8);
             dataTable.Columns["F_ProjectTimeEnd"].SetOrdinal(9);
@@ -377,13 +387,20 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             return true;
         }
 
+        
         [HttpPost]
         [HandlerAjaxOnly]
-        public ActionResult GetProjectJson()
+        public ActionResult GetProjectJson(string parentId)
         {
-            string[] status = new string[] { "已关闭", "已结束"};
-            var data = projectApp.GetListByStatus(status);
-            return Content(data.ToJson());
+            string[] status = new string[] { "已关闭", "已结束" };
+            List<ItemsDetailEntity> itemDetails = itemApp.GetItemListBySimple(parentId);
+            var projects = new List<ProjectEntity>();
+            foreach (var item in itemDetails)
+            {
+               var project = projectApp.GetListByStatus(status, item.F_Id);
+               projects.AddRange(project);
+            }
+            return Content(projects.ToJson());
         }
         /// <summary>
         /// 转字符串处理NULL值问题

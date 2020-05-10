@@ -124,11 +124,11 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                 {
                     entity.F_WorkAddress = entity.F_OtherAddress;
                 }
-                if (!string.IsNullOrEmpty(entity.F_WorkCategory) && !entity.F_WorkCategory.Equals("项目实施"))
-                {
-                    entity.F_ProjectCode = entity.F_ProjectId;
-                    entity.F_ProjectName = entity.F_ProjectId;
-                }
+                //if (!string.IsNullOrEmpty(entity.F_WorkCategory) && !entity.F_WorkCategory.Equals("项目实施"))
+                //{
+                //    entity.F_ProjectCode = entity.F_ProjectId;
+                //    entity.F_ProjectName = entity.F_ProjectId;
+                //}
             }
             DataTable dataTable = KezhiExcel.ListToDataTable(list, true);
 

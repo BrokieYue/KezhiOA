@@ -335,11 +335,11 @@ namespace Kezhi.Code
                     {
                         time[0] = "24";
                     }
-                    //    //早晨8点以后为新的一天，不计入加班时间
-                    //else if (Convert.ToInt32(time[0]) > 0 && Convert.ToInt32(time[0]) < 8)
-                    //{
-                    //    time[0] = (Convert.ToInt32(time[0]) + 24).ToString();
-                    //}
+                    //早晨8点以后为新的一天，不计入加班时间
+                    else if (Convert.ToInt32(time[0]) > 0 && Convert.ToInt32(time[0]) < 8)
+                    {
+                        time[0] = (Convert.ToInt32(time[0]) + 24).ToString();
+                    }
                     float mm = Convert.ToSingle(time[1]) / 60;
                     //在0分-25分,25分-45分，45分-0分
                     if(mm < 0.5){

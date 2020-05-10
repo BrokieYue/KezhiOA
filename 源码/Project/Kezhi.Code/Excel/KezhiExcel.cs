@@ -277,7 +277,7 @@ namespace Kezhi.Code.Excel
                     CellRangeAddress region2 = new CellRangeAddress(rowUserStart, rowUserEnd, 5, 5);
                     sheet.AddMergedRegion(region2);
                     //周工作数
-                    CellRangeAddress region3 = new CellRangeAddress(rowUserStart, rowUserEnd, 14, 14);
+                    CellRangeAddress region3 = new CellRangeAddress(rowUserStart, rowUserEnd, 15, 15);
                     sheet.AddMergedRegion(region3);
                     Userflag = false;
                 }
@@ -815,6 +815,9 @@ namespace Kezhi.Code.Excel
                     case "F_ProjectCodeUser":
                         HeaderName = "项目编号";
                         break;
+                    case "F_WorkSubsidy":
+                        HeaderName = "津贴";
+                        break;
                     default:
                         break;
                 }
@@ -855,6 +858,38 @@ namespace Kezhi.Code.Excel
                         break;
                     case "F_ProjectStatus":
                         HeaderName = "项目状态";
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else if (Type.Equals("HouseMessage"))
+            {
+                switch (HeaderCode)
+                {
+                    case "F_Id":
+                        HeaderName = "序号";
+                        break;
+                    case "F_HouseCode":
+                        HeaderName = "宿舍编号";
+                        break;
+                    case "F_HouseName":
+                        HeaderName = "宿舍名称";
+                        break;
+                    case "F_ProjectId":
+                        HeaderName = "所属项目编号";
+                        break;
+                    case "F_ProjectName":
+                        HeaderName = "所属项目名称";
+                        break;
+                    case "F_HouseAddress":
+                        HeaderName = "宿舍详细地址";
+                        break;
+                    case "F_HouseManageName":
+                        HeaderName = "宿舍负责人";
+                        break;
+                    case "F_Description":
+                        HeaderName = "备注";
                         break;
                     default:
                         break;

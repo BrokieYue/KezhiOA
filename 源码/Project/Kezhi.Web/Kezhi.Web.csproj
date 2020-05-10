@@ -126,6 +126,7 @@
     <Compile Include="Areas\FamilyVisageManage\Controllers\FamilyVisageController.cs" />
     <Compile Include="Areas\FamilyVisageManage\FamilyVisageManageAreaRegistration.cs" />
     <Compile Include="Areas\OAManage\CommonUtils\CommonUtil.cs" />
+    <Compile Include="Areas\OAManage\Controllers\LodgingHouseController.cs" />
     <Compile Include="Areas\OAManage\Controllers\TestKendoController.cs" />
     <Compile Include="Areas\OAManage\Controllers\ProjectController.cs" />
     <Compile Include="Areas\OAManage\Controllers\JobPerformanceController.cs" />
@@ -695,6 +696,9 @@
     <Content Include="Areas\FamilyVisageManage\Views\FamilyVisage\UpdateForm.cshtml" />
     <Content Include="Areas\FamilyVisageManage\Views\FamilyVisage\Delete.cshtml" />
     <Content Include="Areas\OAManage\Views\Project\Import.cshtml" />
+    <Content Include="Areas\OAManage\Views\LodgingHouse\Form.cshtml" />
+    <Content Include="Areas\OAManage\Views\LodgingHouse\Import.cshtml" />
+    <Content Include="Areas\OAManage\Views\LodgingHouse\Index.cshtml" />
     <None Include="Properties\PublishProfiles\NFine.Framework.Release.pubxml" />
   </ItemGroup>
   <PropertyGroup>

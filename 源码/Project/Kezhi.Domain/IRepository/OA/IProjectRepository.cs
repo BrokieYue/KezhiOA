@@ -17,6 +17,6 @@ namespace Kezhi.Domain.IRepository.OA
 
         List<ProjectEntity> GetListOrderByDate();
 
-        List<ProjectEntity> GetListByStatus(string[] status);
+        List<ProjectEntity> GetListByStatus(string[] status,string parentId);
     }
 }

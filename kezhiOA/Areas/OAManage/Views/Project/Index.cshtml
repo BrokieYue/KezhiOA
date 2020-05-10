@@ -5,9 +5,21 @@
 <script>
     $(function () {
         loadSelect();
-        gridList();
+
+        $.ajax({
+            url: "/SystemManage/ItemsData/GetProjectType",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                gridList(data);
+            }
+        });
+        
     })
-    function gridList() {
+    function gridList(projectData) {
+
+
+
         var $gridList = $("#gridList");
         $gridList.dataGrid({
             url: "/OAManage/Project/GetGridJson",
@@ -19,7 +31,17 @@
                 { label: '项目地点', name: 'F_ProjectAddress', width: 150, align: 'left' },
                 { label: '项目经理ID', name: 'F_ProjectManagerId', hidden: true },
                 { label: '项目经理', name: 'F_ProjectManagerName', width: 80, align: 'left' },
-                { label: "项目类型", name: "F_ProjectType", width: 60, align: "left" },
+                {
+                    label: "项目类型", name: "F_ProjectType", width: 60, align: "left",
+                    formatter: function (cellvalue, options, rowObject) {
+                        debugger;
+                        for (var i = 0; i < projectData.length;i++) {
+                            if (cellvalue == projectData[i].F_Id) {
+                                return projectData[i].F_ItemName;
+                            }
+                        }
+                    }
+                },
                 {
                     label: '开始时间', name: 'F_ProjectTimeStart', width: 100, align: 'left',formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
                 },
@@ -46,13 +68,15 @@
             sortname: 'F_Id',
             viewrecords: true,
             multiSort: false,
+            rowNum: 100,
+            rowList: [30, 50, 100, 200],
             //multiSort: true,
             sortable: false,
             remoteSort: false,
         });
         $("#btn_search").click(function () {
             $gridList.jqGrid('setGridParam', {
-                postData: { keyword: $("#txt_ProjectCode").val(), projectStatus: $("#F_ProjectStatus").val() },
+                postData: { keyword: $("#txt_ProjectCode").val(), projectStatus: $("#F_ProjectStatus").val(), projectType: $("#F_ProjectType").val() },
             }).trigger('reloadGrid');
         });
     }
@@ -68,6 +92,12 @@
             id: "F_ItemName",
             text: "F_ItemName"
         });
+        $("#F_ProjectType").bindSelect({
+            url: "/SystemManage/ItemsData/GetProjectType",
+            id: "F_Id",
+            text: "F_ItemName"
+        });
+        
 
     }
     function btn_add() {
@@ -131,7 +161,7 @@
         form.attr('target', '');
         form.attr('id', 'formDownload');
         form.attr('method', 'post');
-        var url = "/OAManage/Project/ExcelDailyRecord?keyword=" + keyvalue +"&projectStatus="+ $("#F_ProjectStatus").val();
+        var url = "/OAManage/Project/ExcelDailyRecord?keyword=" + keyvalue +"&projectStatus="+ $("#F_ProjectStatus").val()+"&projectType="+ $("#F_ProjectType").val();
         form.attr('action', url);
         $('body').append(form);  //将表单放置在web中
         form.submit();
@@ -173,6 +203,9 @@
                         <input id="txt_ProjectCode" type="text" class="form-control" placeholder="项目编号或名称" style="width: 200px;">
                         <select id="F_ProjectStatus" name="F_ProjectStatus" class="form-control" style="width:120px; margin-left:10px">
                             <option value="">==项目状态==</option>
+                        </select>
+                        <select id="F_ProjectType" name="F_ProjectType" class="form-control" style="width:120px; margin-left:10px">
+                            <option value="">==项目类型==</option>
                         </select>
                         <span class="input-group-btn">
                             <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>

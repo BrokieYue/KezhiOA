@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="FamilyVisage\FamilyVisageApp.cs" />
     <Compile Include="Infrastructure\DbLogType.cs" />
+    <Compile Include="OAManage\LodgingHouseApp.cs" />
     <Compile Include="OAManage\ProjectApp.cs" />
     <Compile Include="OAManage\WorkDailyRecordApp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

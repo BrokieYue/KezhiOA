@@ -20,6 +20,21 @@
     var keyValue = $.request("keyValue");
     $(function () {
         initControl();
+        //设置项目下拉框    
+        var workFlag = false;//修改页面第一次不让变化
+        $.ajax({
+            url: "/OAManage/Project/GetProjectJson",
+            data: { parentId: $("#F_WorkCategory").val() },
+            type: "post",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                init();
+            }
+        });
+        
+    });
+    function init() {
         if (!!keyValue) {
             $.ajax({
                 url: "/OAManage/WorkDailyRecord/GetUpdateFormJson",
@@ -29,36 +44,36 @@
                 success: function (data) {
                     var workType = data.F_WorkType;
                     var project = data.F_ProjectId;
-                        $.ajax({
-                            url: "/OAManage/WorkDailyRecord/GetProjectId",
-                            data: { projectId: project },
-                            datatype: "json",
-                            async: false,
-                            success: function (data1) {
-                                if (data1 != null && data1 != "null") {
-                                    var obj = eval("(" + data1 + ")");
-                                    $("#F_WorkAddressFirst > option").remove();
-                                    if (obj != null && obj.F_ProjectAddress != undefined && obj.F_ProjectAddress != null) {
-                                        $("#F_WorkAddressFirst").append("<option  value='" + obj.F_ProjectAddress + "'>" + obj.F_ProjectAddress + "</option>");
-                                    }
-                                    if (workType != "加班" && workType != "正常") {
-                                        $("#F_WorkAddressFirst").append("<option  value='在家休息'>在家休息</option>");
-                                        $("#F_WorkAddressFirst1").append("<option  value='在家休息'>在家休息</option>");
-                                    }
-                                    $("#F_WorkAddressFirst").bindSelect({
-                                        url: "/SystemManage/ItemsData/GetKezhiJson",
-                                        id: "F_ItemName",
-                                        text: "F_ItemName"
-                                    });
-                                    $("#F_WorkAddressFirst").append("<option value='其他'>其他</option>");
+                    $.ajax({
+                        url: "/OAManage/WorkDailyRecord/GetProjectId",
+                        data: { projectId: project },
+                        datatype: "json",
+                        async: false,
+                        success: function (data1) {
+                            if (data1 != null && data1 != "null") {
+                                var obj = eval("(" + data1 + ")");
+                                $("#F_WorkAddressFirst > option").remove();
+                                if (obj != null && obj.F_ProjectAddress != undefined && obj.F_ProjectAddress != null) {
+                                    $("#F_WorkAddressFirst").append("<option  value='" + obj.F_ProjectAddress + "'>" + obj.F_ProjectAddress + "</option>");
                                 }
+                                if (workType != "加班" && workType != "正常") {
+                                    $("#F_WorkAddressFirst").append("<option  value='在家休息'>在家休息</option>");
+                                    $("#F_WorkAddressFirst1").append("<option  value='在家休息'>在家休息</option>");
+                                }
+                                $("#F_WorkAddressFirst").bindSelect({
+                                    url: "/SystemManage/ItemsData/GetKezhiJson",
+                                    id: "F_ItemName",
+                                    text: "F_ItemName"
+                                });
+                                $("#F_WorkAddressFirst").append("<option value='其他'>其他</option>");
                             }
-                        });
-                        $('#F_Project').combobox({
-                            onLoadSuccess: function () {
-                                $('#F_Project').combobox('setValue', project);
-                            }
-                        })
+                        }
+                    });
+                    $('#F_Project').combobox({
+                        onLoadSuccess: function () {
+                            $('#F_Project').combobox('setValue', project);
+                        }
+                    })
                     $("#form1").formSerialize(data);
                     $("#F_WorkUserId").append("<option  value='" + data.F_WorkUserId + "' selected>" + data.F_WorkUserName + "</option>")
                     $("#F_WorkUserId").attr("disabled", "disabled")
@@ -78,7 +93,7 @@
                 }
             });
         }
-    });
+    }
     function initControl() {
         //设置用户为登录用户
         $.ajax({
@@ -91,40 +106,7 @@
             }
         });
         //设置项目下拉框    
-        //设置项目下拉框    
-        var workFlag = false;//修改页面第一次不让变化
-        $('#F_Project').combobox({
-            url: "/OAManage/Project/GetProjectJson",
-            valueField: 'F_Id',
-            textField: 'F_ProjectName',
-            onChange: function (record) {
-                $("#F_WorkAddressFirst > option").remove();
-                var project = $('#F_Project').combobox('getValue');;
-                $("#F_ProjectId").val(project);
-                $.ajax({
-                    url: "/OAManage/WorkDailyRecord/GetProjectId",
-                    data: { projectId: project },
-                    datatype: "json",
-                    async: false,
-                    success: function (data) {
-                        var obj = eval("(" + data + ")");
-                        var workType = $("#F_WorkType").val();
-                        $("#F_WorkAddressFirst").append("<option  value='" + obj.F_ProjectAddress + "'>" + obj.F_ProjectAddress + "</option>");
-                        if (workType != "加班" && workType != "正常") {
-                            $("#F_WorkAddressFirst").append("<option  value='在家休息'>在家休息</option>");
-                        }
-                        $("#F_WorkAddressFirst").bindSelect({
-                            url: "/SystemManage/ItemsData/GetKezhiJson",
-                            id: "F_ItemName",
-                            text: "F_ItemName"
-                        });
-                        $("#F_WorkAddressFirst").append("<option value='其他'>其他</option>");
-                    }
-                });
-              
-            }
-            
-        });
+    
         //设置津贴
         $("#F_WorkSubsidy").bindSelect({
             url: "/SystemManage/ItemsData/GetSebsidyJson",
@@ -134,7 +116,7 @@
         //设置工作类型
         $("#F_WorkCategory").bindSelect({
             url: "/SystemManage/ItemsData/GetWorkCategoryJson",
-            id: "F_ItemName",
+            id: "F_Id",
             text: "F_ItemName"
         });
         //设置地点
@@ -159,7 +141,9 @@
             }
         })
         //其他工作地点
+    
         $("#F_WorkAddressFirst").change(function () {
+           
             var address = $("#F_WorkAddressFirst").val();
             if (address == "其他") {
                 $("#F_WorkAddressOther").css("display", "table-row");
@@ -181,37 +165,28 @@
             $("#F_WorkAddress").val(address);
         })
         //项目类型设置
-        var categoryFlag = false;
+        var step = 0;//记录第几次变化
         $("#F_WorkCategory").change(function () {
-                var otherProject = $("#F_WorkCategory").val();
-                if (otherProject != "项目实施") {
-                    $("#F_OtherAddress").val('');
-                    $("#F_WorkAddressOther").css("display", "none");
-                    $(".otherwork").css('display', 'table-cell');
-                    $(".projectStyle").css('display', 'none');
-                    if (categoryFlag) {
-                        $("#F_WorkAddressFirst1 > option").remove();
-                        var workType = $("#F_WorkType").val();
-                        if (workType != "加班" && workType != "正常") {
-                            $("#F_WorkAddressFirst1").append("<option  value='在家休息'>在家休息</option>");
-                        }
-                        $("#F_WorkAddressFirst1").bindSelect({
-                            url: "/SystemManage/ItemsData/GetKezhiJson",
-                            id: "F_ItemName",
-                            text: "F_ItemName"
-                        });
-                        $("#F_WorkAddressFirst1").append("<option value='其他'>其他</option>");
-                    }else {
-                        categoryFlag = true;
-                    }
-                } else {
-                    $(".otherwork").css('display', 'none');
-                    $(".projectStyle").css('display', 'table-row');
-                    $("#F_OtherAddress").val("");
-                    $("#F_WorkAddressOther").css("display", "none");
-                    $("#F_ProjectId").val("");
+            var otherProject = $("#F_WorkCategory").val();
+            step++;
+            $(".otherwork").css('display', 'none');
+            $(".projectStyle").css('display', 'table-row');
+            $("#F_OtherAddress").val("");
+            $("#F_WorkAddressOther").css("display", "none");
+            $('#F_ProjectId').val("")
+            $.ajax({
+                url: "/OAManage/Project/GetProjectJson",
+                data: { parentId: otherProject },
+                type: "post",
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    setProject(data, false);
                 }
+            });
         })
+        var categoryFlag = false;
+        
         //cookie设置
         var keyValue = $.request("keyValue");
         if (keyValue == null || keyValue == "") {
@@ -232,6 +207,51 @@
             $("#F_WorkDate").val(year + "-" + month + "-" + date);
         }
     
+    }
+    //设置项目下拉
+    function setProject(data,flag) {
+        $('#F_Project').combobox({
+            data: data,
+            valueField: 'F_Id',
+            textField: 'F_ProjectName',
+            //onLoadSuccess: function (flag) {
+            //    //第一次赋值为默认赋值，不应该给空值
+            //    if (!flag) {
+            //        $('#F_Project').combobox('setValue', '');
+            //    }
+                
+            //},
+            onChange: function (record) {
+                $("#F_WorkAddressFirst > option").remove();
+                var project = $('#F_Project').combobox('getValue');
+                $('#F_ProjectId').val(project)
+                console.log(project)
+                console.log($('#F_ProjectId').val(project))
+                $.ajax({
+                    url: "/OAManage/WorkDailyRecord/GetProjectId",
+                    data: { projectId: project },
+                    datatype: "json",
+                    async: false,
+                    success: function (data) {
+                        var obj = eval("(" + data + ")");
+                        var workType = $("#F_WorkType").val();
+
+                        if (obj != null && obj.F_ProjectAddress != undefined && obj.F_ProjectAddress != null) {
+                            $("#F_WorkAddressFirst").append("<option  value='" + obj.F_ProjectAddress + "'>" + obj.F_ProjectAddress + "</option>");
+                        }
+                        if (workType != "加班" && workType != "正常") {
+                            $("#F_WorkAddressFirst").append("<option  value='在家休息'>在家休息</option>");
+                        }
+                        $("#F_WorkAddressFirst").bindSelect({
+                            url: "/SystemManage/ItemsData/GetKezhiJson",
+                            id: "F_ItemName",
+                            text: "F_ItemName"
+                        });
+                        $("#F_WorkAddressFirst").append("<option value='其他'>其他</option>");
+                    }
+                });
+            }
+        });
     }
     //获取当天日期
     function getNowFormatDate() {
@@ -373,12 +393,12 @@
                         <select id="F_WorkCategory" name="F_WorkCategory" class="form-control">
                         </select>
                     </td>
-                    <th class="formTitle otherwork">工作地点&nbsp;&nbsp;<span class="fontStyle">*</span></th>
+                    @*<th class="formTitle otherwork">工作地点&nbsp;&nbsp;<span class="fontStyle">*</span></th>
                     <td class="formValue otherwork">
                         <select id="F_WorkAddressFirst1" name="F_WorkAddressFirst1" class="form-control">
                             <option value=""></option>
                         </select>
-                    </td>
+                    </td>*@
                 </tr>
                 <tr class="projectStyle">
                     <th class="formTitle">项目&nbsp;&nbsp;<span class="fontStyle">*</span></th>

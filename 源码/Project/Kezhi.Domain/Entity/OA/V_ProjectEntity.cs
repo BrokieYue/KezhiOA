@@ -14,6 +14,7 @@ namespace Kezhi.Domain.Entity.OA
         public string F_ProjectCity { get; set; }
         public string F_ProjectManagerId { get; set; }
         public string F_ProjectType { get; set; }
+        public string F_ProjectTypeName { get; set; }
         public DateTime? F_ProjectTimeStart { get; set; }
         public DateTime? F_ProjectTimeEnd { get; set; }
         public string F_ProjectClient { get; set; }

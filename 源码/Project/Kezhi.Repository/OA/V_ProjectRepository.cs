@@ -15,7 +15,7 @@ namespace Kezhi.Repository.OA
 {
     public class V_ProjectRepository : RepositoryBase<V_ProjectEntity>, IV_ProjectRepository
     {
-        public List<V_ProjectEntity> GetListsNoPage(string keyword, string projectStatus)
+        public List<V_ProjectEntity> GetListsNoPage(string keyword, string projectStatus,string projectType)
         {
             List<V_ProjectEntity> list = new List<V_ProjectEntity>();
             StringBuilder strSql = new StringBuilder();
@@ -35,6 +35,11 @@ namespace Kezhi.Repository.OA
                     strSql.Append(@"and F_ProjectStatus = '" + projectStatus + "'");
                 }
                 
+            }
+            if (!string.IsNullOrEmpty(projectType))
+            {
+                
+                strSql.Append(@"and F_ProjectType = '" + projectType + "'");
             }
 
             strSql.Append(@" order by F_CreatorTime desc");

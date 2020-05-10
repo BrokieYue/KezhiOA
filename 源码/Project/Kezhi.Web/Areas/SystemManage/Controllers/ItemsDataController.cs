@@ -40,7 +40,7 @@ namespace Kezhi.Web.Areas.SystemManage.Controllers
         public ActionResult GetWorkCategoryJson()
         {
             string keyword = "";
-            ItemsEntity entity = itemApp.GetItemByFullName("其他工作");
+            ItemsEntity entity = itemApp.GetItemByFullName("工作类型");
             var data = itemsDetailApp.GetList(entity.F_Id, keyword);
             return Content(data.ToJson());
         }

@@ -71,6 +71,8 @@
   <ItemGroup>
     <Compile Include="FamilyVisage\FamilyVisageMap.cs" />
     <Compile Include="FamilyVisage\V_FamilyVisageMap.cs" />
+    <Compile Include="OA\V_LodgingHouseMap.cs" />
+    <Compile Include="OA\LodgingHouseMap.cs" />
     <Compile Include="OA\V_ProjectMap.cs" />
     <Compile Include="OA\V_WorkDailyRecordMap.cs" />
     <Compile Include="OA\WorkDailyRecordMap.cs" />

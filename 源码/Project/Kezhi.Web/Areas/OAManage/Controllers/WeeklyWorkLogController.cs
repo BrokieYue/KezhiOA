@@ -69,11 +69,13 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                 {
                     entity.F_WorkAddress = entity.F_OtherAddress;
                 }
-                if (!string.IsNullOrEmpty(entity.F_WorkCategory) && !entity.F_WorkCategory.Equals("项目实施"))
-                {
-                    entity.F_ProjectCode = entity.F_ProjectId;
-                    entity.F_ProjectName = entity.F_ProjectId;
-                }
+                //if (!string.IsNullOrEmpty(entity.F_WorkCategory) && !entity.F_WorkCategory.Equals("项目实施"))
+                //{
+                //    entity.F_ProjectCode = entity.F_ProjectId;
+                //    entity.F_ProjectName = entity.F_ProjectId;
+                //}
+                //津贴=津贴 + 饭贴
+                entity.F_WorkSubsidy += entity.F_MealSubsidy;
             }
             var data = new
             {
@@ -209,24 +211,6 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             return View();
         }
 
-        /// <summary>
-        /// 导出模板
-        /// </summary>
-        /// <returns></returns>
-        public ActionResult Excel()
-        {
-          
-            DataTable table = new DataTable();
-            try
-            {
-                return File(KezhiExcel.TemplateExcelToMs("上海科致工作日志模板.xls"), "application/vnd.ms-excel", "上海科致工作日志模板.xls");
-            }
-            catch (Exception ex)
-            {
-                return Error("下载出错，请重新下载");
-            }
-           
-        }
 
         /// <summary>
         /// 导出周报
@@ -269,11 +253,12 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                 {
                     entity.F_WorkAddress = entity.F_OtherAddress;
                 }
-                if (!string.IsNullOrEmpty(entity.F_WorkCategory) && !entity.F_WorkCategory.Equals("项目实施"))
-                {
-                    entity.F_ProjectCode = entity.F_ProjectId;
-                    entity.F_ProjectName = entity.F_ProjectId;
-                }
+                //if (!string.IsNullOrEmpty(entity.F_WorkCategory) && !entity.F_WorkCategory.Equals("项目实施"))
+                //{
+                //    entity.F_ProjectCode = entity.F_ProjectId;
+                //    entity.F_ProjectName = entity.F_ProjectId;
+                //}
+                entity.F_WorkSubsidy += entity.F_MealSubsidy;
             }
             if (list.Count < 1)
             {
@@ -390,7 +375,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                 }
                 else
                 {
-                    dataTable.Rows[i]["F_WeekWorkedHours"] = "SUM(N" + weekHoursStart + ":N" + weekHoursEnd + ")";
+                    dataTable.Rows[i]["F_WeekWorkedHours"] = "SUM(O" + weekHoursStart + ":O" + weekHoursEnd + ")";
                 }
             }
         }
@@ -423,7 +408,6 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             dataTable.Columns.Remove("F_RestHours");
             dataTable.Columns.Remove("F_DeductHours");
             dataTable.Columns.Remove("F_MealSubsidy");
-            dataTable.Columns.Remove("F_WorkSubsidy");
             dataTable.Columns.Remove("F_CreatType");
             dataTable.Columns.Remove("F_IfLocal");
             dataTable.Columns.Remove("F_PayHours");
@@ -451,11 +435,12 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             dataTable.Columns["F_ProjectCodeUser"].SetOrdinal(7);
             dataTable.Columns["F_WorkAddress"].SetOrdinal(8);
             dataTable.Columns["F_DailyRecord"].SetOrdinal(9);
-            dataTable.Columns["F_Description"].SetOrdinal(10);
-            dataTable.Columns["F_WorkTimeStart"].SetOrdinal(11);
-            dataTable.Columns["F_WorkTimeEnd"].SetOrdinal(12);
-            dataTable.Columns["F_WorkedHours"].SetOrdinal(13);
-            dataTable.Columns["F_WeekWorkedHours"].SetOrdinal(14);
+            dataTable.Columns["F_WorkSubsidy"].SetOrdinal(10);
+            dataTable.Columns["F_Description"].SetOrdinal(11);
+            dataTable.Columns["F_WorkTimeStart"].SetOrdinal(12);
+            dataTable.Columns["F_WorkTimeEnd"].SetOrdinal(13);
+            dataTable.Columns["F_WorkedHours"].SetOrdinal(14);
+            dataTable.Columns["F_WeekWorkedHours"].SetOrdinal(15);
             
         }
 

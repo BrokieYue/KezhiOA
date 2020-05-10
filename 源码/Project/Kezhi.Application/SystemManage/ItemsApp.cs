@@ -35,6 +35,7 @@ namespace Kezhi.Application.SystemManage
             }
             return service.FindEntity(expression );
         }
+
         public void DeleteForm(string keyValue)
         {
             if (service.IQueryable().Count(t => t.F_ParentId.Equals(keyValue)) > 0)

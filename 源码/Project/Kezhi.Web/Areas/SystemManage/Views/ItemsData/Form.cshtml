@@ -6,7 +6,9 @@
     var keyValue = $.request("keyValue");
     var itemId = $.request("itemId");
     $(function () {
+        init();
         if (!!keyValue) {
+            
             $.ajax({
                 url: "/SystemManage/ItemsData/GetFormJson",
                 data: { keyValue: keyValue },
@@ -14,10 +16,45 @@
                 async: false,
                 success: function (data) {
                     $("#form1").formSerialize(data);
+                    if (data != null && data.F_SimpleSpelling != null && data.F_SimpleSpelling != "") {
+                        $("#otherProject").removeAttr("hidden");
+                    } else {
+                        $("#otherProject").setAttribute("hidden", true);
+                    }
                 }
             });
         }
+      
     });
+    function init() {
+        $.ajax({
+            url: "/SystemManage/ItemsType/GetItemTypeById",
+            data: { keyValue: itemId },
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                $("#form1").formSerialize(data);
+                if (data != null) {
+                    var itemName = data.F_FullName;
+                    if (itemName == "项目类型") {
+                        $("#otherProject").removeAttr("hidden");
+                    } else {
+                        $("#otherProject").setAttribute("hidden", true);
+                    }
+                }
+            }
+        });
+        //获取其他工作类型
+        $("#F_SimpleSpelling").bindSelect({
+            url: "/SystemManage/ItemsData/GetWorkCategoryJson",
+            id: "F_Id",
+            text: "F_ItemName"
+        });
+        $("#F_SortCode").val("")
+        $("#F_Description").val("")
+
+
+    }
     function submitForm() {
         if (!$('#form1').formValid()) {
             return false;
@@ -53,6 +90,12 @@
                 <th class="formTitle">排序</th>
                 <td class="formValue">
                     <input id="F_SortCode" name="F_SortCode" type="text" class="form-control required" />
+                </td>
+            </tr>
+            <tr id="otherProject" hidden>
+                <th class="formTitle">其他工作</th>
+                <td class="formValue">
+                    <select id="F_SimpleSpelling" name="F_SimpleSpelling" class="form-control required"></select>
                 </td>
             </tr>
             <tr>

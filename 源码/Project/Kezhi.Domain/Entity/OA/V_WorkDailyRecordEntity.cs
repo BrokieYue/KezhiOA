@@ -47,5 +47,7 @@ namespace Kezhi.Domain.Entity.OA
         public string F_CreateorUserName { get; set; }
         public string F_LastModifyUserName { get; set; }
         public string F_DeleteUserName { get; set; }
+        public string F_LodgingHouse { get; set; }
+        public string F_LodgingHouseName { get; set; }
     }
 }
