@@ -13,5 +13,7 @@ namespace Kezhi.Domain.IRepository.OA
         void SubmitForm(LodgingHouseEntity lodgingHouseEntity, string keyValue);
 
         List<LodgingHouseEntity> FindByCode(string code);
+
+        List<LodgingHouseEntity> GetListNoPage(string keyword);
     }
 }

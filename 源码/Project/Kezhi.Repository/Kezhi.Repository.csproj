@@ -62,7 +62,6 @@
   <ItemGroup>
     <Compile Include="FamilyVisage\V_FamilyRecordRepository.cs" />
     <Compile Include="FamilyVisage\FamilyRecordRepository.cs" />
-    <Compile Include="OA\V_LodgingHouseRepository.cs" />
     <Compile Include="OA\LodgingHouseRepository.cs" />
     <Compile Include="OA\V_ProjectRepository.cs" />
     <Compile Include="OA\V_WorkDailyRecordRepository.cs" />

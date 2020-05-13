@@ -66,7 +66,7 @@
                 $("#workDate").css("display", "table-row");
             }
         })
-        //
+        //项目下拉框
         $.ajax({
             url: "/OAManage/Project/GetProjectJson",
             data: { parentId: $("#F_WorkCategory").val() },
@@ -78,8 +78,8 @@
             }
         });
         //其他工作地点
-        $("#F_WorkAddressFirst").change(function () {
-            var address = $("#F_WorkAddressFirst").val();
+        $("#F_WorkAddress").change(function () {
+            var address = $("#F_WorkAddress").val();
             if (address == "其他") {
                 $("#F_WorkAddressOther").css("display", "table-row");
             } else {
@@ -87,15 +87,7 @@
             }
             $("#F_WorkAddress").val(address);
         })
-        $("#F_WorkAddressFirst1").change(function () {
-            var address = $("#F_WorkAddressFirst1").val();
-            if (address == "其他") {
-                $("#F_WorkAddressOther").css("display", "table-row");
-            } else {
-                $("#F_WorkAddressOther").css("display", "none");
-            }
-            $("#F_WorkAddress").val(address);
-        })
+   
         //项目类型设置
         $("#F_WorkCategory").change(function () {
             var otherProject = $("#F_WorkCategory").val();
@@ -106,7 +98,7 @@
             $("#F_WorkAddressOther").css("display", "none");
             $('#F_Project').val("")
             $('#F_ProjectId').val("")
-            $("#F_WorkAddressFirst > option").remove();
+           
             $.ajax({
                 url: "/OAManage/Project/GetProjectJson",
                 data: { parentId: otherProject },
@@ -124,10 +116,11 @@
                 valueField: 'F_Id',
                 textField: 'F_ProjectName',
                 onLoadSuccess: function () {
-                    $('#F_Project').combobox('setValue', '');
+                    var project = getCookie("Project");
+                    $('#F_Project').combobox('setValue', project);
                 },
                 onChange: function (record) {
-                    $("#F_WorkAddressFirst > option").remove();
+                    $("#F_WorkAddress > option").remove();
                     var project = $('#F_Project').combobox('getValue');
                     $('#F_ProjectId').val(project)
                     $.ajax({
@@ -138,46 +131,45 @@
                         success: function (data) {
                             var obj = eval("(" + data + ")");
                             var workType = $("#F_WorkType").val();
-                            //设置住宿地点下拉框
-                            getLodgingHouse(obj.F_ProjectCode);
+                         
 
                             //设置工作地点下拉框
                             if (obj != null && obj.F_ProjectAddress != undefined && obj.F_ProjectAddress != null) {
-                                $("#F_WorkAddressFirst").append("<option  value='" + obj.F_ProjectAddress + "'>" + obj.F_ProjectAddress + "</option>");
+                                $("#F_WorkAddress").append("<option  value='" + obj.F_ProjectAddress + "'>" + obj.F_ProjectAddress + "</option>");
                             }
                             if (workType != "加班" && workType != "正常") {
-                                $("#F_WorkAddressFirst").append("<option  value='在家休息'>在家休息</option>");
+                                $("#F_WorkAddress").append("<option  value='在家休息'>在家休息</option>");
                             }
-                            $("#F_WorkAddressFirst").bindSelect({
+                            $("#F_WorkAddress").bindSelect({
                                 url: "/SystemManage/ItemsData/GetKezhiJson",
                                 id: "F_ItemName",
                                 text: "F_ItemName"
                             });
-                            $("#F_WorkAddressFirst").append("<option value='其他'>其他</option>");
+                            $("#F_WorkAddress").append("<option value='其他'>其他</option>");
                         }
                     });
                 }
             });
         }
-        //获取宿舍信息
-        function getLodgingHouse(projectCode) {
-            $("#F_LodgingHouse > option").remove();
-            $.ajax({
-                url: "/OAManage/LodgingHouse/GetHouseByProject",
-                data: { projectId: projectCode },
-                datatype: "json",
-                async: false,
-                success: function (data) {
-                    debugger;
-                    var obj = eval("(" + data + ")");
-                    for (var i = 0; i < obj.length; i++) {
-                        $("#F_LodgingHouse").append("<option  value='" + obj[i].F_Id + "'>" + obj[i].F_HouseName + "</option>");
-                    }
-                    
-                    $("#F_LodgingHouse").append("<option  value='0001'>家</option>");
-                    $("#F_LodgingHouse").append("<option  value='0002'>宾馆</option>");
-                 
-                }
+        //宿舍下拉框
+        $.ajax({
+            url: "/OAManage/LodgingHouse/GetHouses",
+            type: "get",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                setLodgingHouse(data);
+            }
+        });
+        function setLodgingHouse(data) {
+            $('#F_LodgingHouseId').combobox({
+                data: data,
+                valueField: 'F_Id',
+                textField: 'F_HouseName',
+                onLoadSuccess: function () {
+                    var LodgingHouse = getCookie("LodgingHouse");
+                    $('#F_LodgingHouseId').combobox('setValue', LodgingHouse);
+                },
             });
         }
         //cookie设置
@@ -185,8 +177,8 @@
         if (keyValue == null || keyValue == "") {
             var F_WorkTimeStart = getCookie("WorkTimeStart");
             var F_WorkTimeEnd = getCookie("WorkTimeEnd");
-            var LodgingHouse = getCookie("LodgingHouse");
-            $("#LodgingHouse").val(LodgingHouse)
+            
+   
             
             if (F_WorkTimeStart == undefined || F_WorkTimeStart == '\\') {
                 $("#F_WorkTimeStart").val("8:00")
@@ -228,8 +220,10 @@
         //创建cookie
         setCookie("WorkTimeStart", $("#F_WorkTimeStart").val());
         setCookie("WorkTimeEnd", $("#F_WorkTimeEnd").val());
-        setCookie("Project", $("#F_ProjectId").val());
-        setCookie("LodgingHouse", $("#F_LodgingHouse").val());
+        setCookie("Project", $('#F_Project').combobox('getValue'));
+        var houseID = $('#F_LodgingHouseId').combobox('getValue');
+        $('#F_LodgingHouse').val(houseID)
+        setCookie("LodgingHouse", houseID);
         var flag = true;
         var userName = $.trim($("#F_WorkUserId").text());
         if (userName == "超级管理员") {
@@ -242,14 +236,14 @@
         if (!$('#form1').formValid()) {
             return false;
         }
-        //设置工作地点
-        var Address = $("#F_WorkAddress").val();
-        var address1 = $("#F_WorkAddressFirst").val();
-        var address2 = $("#F_WorkAddressFirst1").val();
-        if (Address == null || Address == '') {
-            var realAddress = (address1 == null || address1 == '') ? address2 : address1
-            $("#F_WorkAddress").val(realAddress)
-        }
+        ////设置工作地点
+        //var Address = $("#F_WorkAddress").val();
+        //var address1 = $("#F_WorkAddressFirst").val();
+        //var address2 = $("#F_WorkAddressFirst1").val();
+        //if (Address == null || Address == '') {
+        //    var realAddress = (address1 == null || address1 == '') ? address2 : address1
+        //    $("#F_WorkAddress").val(realAddress)
+        //}
         //修改
         if (keyValue != null && keyValue != "") {
             $.submitForm({
@@ -358,13 +352,13 @@
                 <tr class="projectStyle">
                     <th class="formTitle">工作地点&nbsp;&nbsp;<span class="fontStyle">*</span></th>
                     <td class="formValue">
-                        <select id="F_WorkAddressFirst" class="form-control ">
+                        <select id="F_WorkAddress" name="F_WorkAddress" class="form-control ">
                             <option value=""></option>
                         </select>
                     </td>
-                    <th class="formTitle">住宿地点&nbsp;&nbsp;<span class="fontStyle">*</span></th>
+                    <th class="formTitle">宿舍编号&nbsp;&nbsp;<span class="fontStyle">*</span></th>
                     <td class="formValue">
-                        <select id="F_LodgingHouse" class="form-control ">
+                        <select id="F_LodgingHouseId" class="form-control ">
                             <option value=""></option>
                         </select>
                     </td>
@@ -378,13 +372,14 @@
                     </td>
                 </tr>
                 <tr hidden>
-                    <th class="formTitle"></th>
-                    <td class="formValue">
+                    @*<td class="formValue">
                         <input id="F_WorkAddress" name="F_WorkAddress" type="text" class="form-control required" >
-                    </td>
-                    <th class="formTitle"></th>
+                    </td>*@
                     <td class="formValue">
                         <input type="text" id="F_ProjectId" name="F_ProjectId" class="form-control required" />
+                    </td>
+                    <td class="formValue">
+                        <input type="text" id="F_LodgingHouse" name="F_LodgingHouse" class="form-control required" />
                     </td>
                 </tr>
                 <tr>

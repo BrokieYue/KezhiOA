@@ -13,15 +13,12 @@
         $gridList.dataGrid({
             height: $(window).height() - 128,
             colModel: [
-                { label: '宿舍编号', name: 'F2', width: 80, align: 'left' },
-                { label: '宿舍名称', name: 'F3', width: 150, align: 'left' },
-                { label: '项目编号', name: 'F4', width: 120, align: 'left' },
-                { label: '详细地址', name: 'F5', width: 150, align: 'left' },
-                { label: '负责人', name: 'F6', width: 100, align: 'left' },
-                { label: '备注', name: 'F7', width: 200, align: 'left' },
+                { label: '宿舍编号', name: 'F2', width: 150, align: 'left' },
+                { label: '宿舍名称', name: 'F3', width: 350, align: 'left' },
+                { label: '备注', name: 'F4', width: 200, align: 'left' },
             ],
             pager: "#gridPager",
-            sortname: 'F2 asc',
+            sortname: 'F1 asc',
             rowNum: 1000,
             viewrecords: true
         });

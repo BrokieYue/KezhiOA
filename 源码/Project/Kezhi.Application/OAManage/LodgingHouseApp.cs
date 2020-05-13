@@ -13,7 +13,6 @@ namespace Kezhi.Application.OAManage
     public class LodgingHouseApp
     {
         private ILodgingHouseRepository service = new LodgingHouseRepository();
-        private IV_LodgingHouseRepository v_service = new V_LodgingHouseRepository();
 
 
         /// <summary>
@@ -30,21 +29,16 @@ namespace Kezhi.Application.OAManage
         /// <param name="pagination"></param>
         /// <param name="keyword"></param>
         /// <returns></returns>
-        public List<V_LodgingHouseEntity> GetList(Pagination pagination, string keyword, string projectCode)
+        public List<LodgingHouseEntity> GetList(Pagination pagination, string keyword)
         {
-            var expression = ExtLinq.True<V_LodgingHouseEntity>();
+            var expression = ExtLinq.True<LodgingHouseEntity>();
             if (!string.IsNullOrEmpty(keyword))
             {
                 expression = expression.And(t => t.F_HouseCode.Contains(keyword));
                 expression = expression.Or(t => t.F_HouseName.Contains(keyword));
             }
-            if (!string.IsNullOrEmpty(projectCode))
-            {
-                expression = expression.And(t => t.F_ProjectId.Contains(projectCode));
-                expression = expression.Or(t => t.F_ProjectName.Contains(projectCode));
-            }
             expression = expression.And(t => t.F_EnabledMark == true);
-            return v_service.FindList(expression, pagination);
+            return service.FindList(expression, pagination);
         }
         /// <summary>
         /// 不分页查询
@@ -52,27 +46,19 @@ namespace Kezhi.Application.OAManage
         /// <param name="keyword"></param>
         /// <param name="projectCode"></param>
         /// <returns></returns>
-        public List<V_LodgingHouseEntity> GetLists(string keyword, string projectCode)
+        public List<LodgingHouseEntity> GetLists(string keyword)
         {
-            return v_service.GetListNoPage(keyword, projectCode,null);
+            return service.GetListNoPage(keyword);
         }
-        /// <summary>
-        /// 根据项目编号获取宿舍信息
-        /// </summary>
-        /// <param name="projectId"></param>
-        /// <returns></returns>
-        public List<V_LodgingHouseEntity> GetLoadginHouse(string projectId)
-        {
-            return v_service.GetListNoPage(null, null, projectId);
-        }
+ 
         /// <summary>
         /// 根据ID查询宿舍信息
         /// </summary>
         /// <param name="keyword"></param>
         /// <returns></returns>
-        public V_LodgingHouseEntity GetFormById(string keyword)
+        public LodgingHouseEntity GetFormById(string keyword)
         {
-            return v_service.FindEntity(keyword);
+            return service.FindEntity(keyword);
         }
         /// <summary>
         /// 根据宿舍号查询宿舍信息
@@ -91,26 +77,6 @@ namespace Kezhi.Application.OAManage
         /// <param name="keyValue"></param>
         public void SubmitForm(LodgingHouseEntity lodgingHouseEntity, string keyValue)
         {
-            if ("&nbsp".Equals(lodgingHouseEntity.F_HouseProvince))
-            {
-                lodgingHouseEntity.F_HouseProvince = null;
-            }
-            if ("&nbsp".Equals(lodgingHouseEntity.F_HouseCity))
-            {
-                lodgingHouseEntity.F_HouseCity = null;
-            }
-            if ("&nbsp".Equals(lodgingHouseEntity.F_HouseManage))
-            {
-                lodgingHouseEntity.F_HouseManage = null;
-            }
-            if ("&nbsp".Equals(lodgingHouseEntity.F_Description))
-            {
-                lodgingHouseEntity.F_Description = null;
-            }
-            if ("&nbsp".Equals(lodgingHouseEntity.F_DetailsAddress))
-            {
-                lodgingHouseEntity.F_DetailsAddress = null;
-            }
             if (!string.IsNullOrEmpty(keyValue))
             {
                 lodgingHouseEntity.Modify(keyValue);

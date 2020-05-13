@@ -14,7 +14,6 @@ namespace Kezhi.Domain.Entity.OA
         public DateTime? F_WorkDate { get; set; }
         public string F_ProjectName { get; set; }
         public string F_WorkAddressFirst { get; set; }
-        public string F_WorkAddressFirst1 { get; set; }
         public string F_DailyRecord { get; set; }
         public string F_WorkUserId { get; set; }
         public string F_ProjectId { get; set; }

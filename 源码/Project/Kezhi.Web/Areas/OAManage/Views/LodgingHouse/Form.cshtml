@@ -55,17 +55,6 @@
                 text: "F_FullName"
             });
         });
-       
-        $('#F_HouseManageId').combobox({
-            url: "/OAManage/Project/GetUserSelectJson",
-            valueField: 'F_Id',
-            textField: 'F_RealName'
-        });
-        $('#F_Project').combobox({
-            url: "/OAManage/Project/GetProjectJson",
-            valueField: 'F_ProjectCode',
-            textField: 'F_ProjectName'
-        });
      
     }
 
@@ -73,14 +62,7 @@
         if (!$('#form1').formValid()) {
             return false;
         }
-        var F_HouseManageId = $('#F_HouseManageId').combobox('getValue');;
-        $("#F_HouseManage").val(F_HouseManageId);
-        var F_ProjectId = $('#F_Project').combobox('getValue');
-        if (F_ProjectId == '') {
-            $.modalAlert("请选择项目！", "error")
-            return;
-        }
-        $("#F_ProjectId").val(F_ProjectId);
+ 
         $.submitForm({
             url: "/OAManage/LodgingHouse/SubmitForm?keyValue=" + keyValue,
             param: $("#form1").formSerialize(),
@@ -95,46 +77,16 @@
     <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
         <div style="padding-top: 20px; margin-right: 30px;">
             <table class="form">
-                <tr id="projectAddress">
-                    <th class="formTitle">宿舍住址</th>
-                    <td class="formValue">
-                        <select id="F_HouseProvince" name="F_HouseProvince" class="form-control ">
-                            <option value="">==省级行政区==</option>
-                        </select>
-                    </td>
-                    <th class="formTitle"></th>
-                    <td class="formValue">
-                        <select id="F_HouseCity" name="F_HouseCity" class="form-control ">
-                            <option value="">==市级行政区==</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr id="projectOtherAddress">
-                    <th class="formTitle">详细地址</th>
-                    <td class="formValue">
-                        <input id="F_DetailsAddress" name="F_DetailsAddress" type="text" class="form-control" />
-                    </td>
-                </tr>
                 <tr>
                     <th class="formTitle">宿舍编号<span class="fontStyle">*</span></th>
-                    <td class="formValue">
+                    <td class="formValue" colspan="3">
                         <input id="F_HouseCode" name="F_HouseCode" type="text" class="form-control required" placeholder="宿舍编号" />
-                    </td>
-                    <th class="formTitle">宿舍名称<span class="fontStyle">*</span></th>
-                    <td class="formValue">
-                        <input id="F_HouseName" name="F_HouseName" type="text" class="form-control required" placeholder="宿舍名称" />
                     </td>
                 </tr>
                 <tr>
-                    <th class="formTitle">宿舍负责人</th>
-                    <td class="formValue">
-                        <select id="F_HouseManageId" name="F_HouseManageId" class="form-control"></select>
-                        <input type="text" id="F_HouseManage" hidden />
-                    </td>
-                    <th class="formTitle">所属项目<span class="fontStyle">*</span></th>
-                    <td class="formValue">
-                        <select id="F_Project" name="F_Project" class="form-control"></select>
-                        <input type="text" id="F_ProjectId" hidden />
+                    <th class="formTitle">宿舍名称<span class="fontStyle">*</span></th>
+                    <td class="formValue" colspan="3">
+                        <input id="F_HouseName" name="F_HouseName" type="text" class="form-control required" placeholder="宿舍名称" />
                     </td>
                 </tr>
                 <tr>

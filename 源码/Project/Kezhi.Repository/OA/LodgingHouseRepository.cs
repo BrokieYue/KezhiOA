@@ -34,5 +34,20 @@ namespace Kezhi.Repository.OA
 
             return this.FindList(strSql.ToString()); 
         }
+
+
+        public List<LodgingHouseEntity> GetListNoPage(string keyword)
+        {
+            List<LodgingHouseEntity> list = new List<LodgingHouseEntity>();
+            StringBuilder strSql = new StringBuilder();
+            strSql.Append(@"  SELECT * FROM [KezhiOADB].[dbo].[T_OA_LodgingHouse] where F_EnabledMark = 1 ");
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                strSql.Append(@"and (F_HouseCode like '%" + keyword + "%' or F_HouseName like '%" + keyword + "%')");
+            }
+            strSql.Append(@" order by F_CreatorTime desc");
+
+            return this.FindList(strSql.ToString()); ;
+        }
     }
 }

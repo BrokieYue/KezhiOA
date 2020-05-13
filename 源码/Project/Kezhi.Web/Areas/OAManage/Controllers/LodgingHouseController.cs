@@ -33,11 +33,11 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
         /// <returns></returns>
         [HttpGet]
         [HandlerAjaxOnly]
-        public ActionResult GetGridJson(Pagination pagination, string keyword, string projectCode)
+        public ActionResult GetGridJson(Pagination pagination, string keyword)
         {
             var data = new
             {
-                rows = app.GetList(pagination, keyword, projectCode),
+                rows = app.GetList(pagination, keyword),
                 total = pagination.total,
                 page = pagination.page,
                 records = pagination.records
@@ -55,14 +55,26 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             return Content(data.ToJson());
         }
         /// <summary>
-        /// 根据项目号获取宿舍信息
+        /// 查询全部宿舍
         /// </summary>
-        /// <param name="projectId"></param>
         /// <returns></returns>
-        public ActionResult GetHouseByProject(string projectId)
+        [HttpGet]
+        [HandlerAjaxOnly]
+        public ActionResult GetHouses()
         {
-            var data = app.GetLoadginHouse(projectId);
-            return Content(data.ToJson());
+            List<LodgingHouseEntity> list = app.GetLists(null);
+           
+            LodgingHouseEntity entity = new LodgingHouseEntity();
+            entity.F_Id = "0001";
+            entity.F_HouseName = "家";
+
+            LodgingHouseEntity entity1 = new LodgingHouseEntity();
+            entity1.F_Id = "0002";
+            entity1.F_HouseName = "宾馆";
+
+            list.Add(entity);
+            list.Add(entity1);
+            return Content(list.ToJson());
         }
         /// <summary>
         /// 添加宿舍
@@ -201,42 +213,19 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                     LodgingHouseEntity model = new LodgingHouseEntity();
                     //宿舍编号
                     string houseCode = dt.Rows[i][1].ToString();
-
-                    //项目编号
-                    string projectCode = dt.Rows[i][3].ToString();
-
-                    if (string.IsNullOrEmpty(houseCode) && string.IsNullOrEmpty(projectCode))
+                   
+                    //宿舍名称
+                    string houseName = CommonUtil.ToStr(dt.Rows[i][2]);
+                    if (string.IsNullOrEmpty(houseCode) && string.IsNullOrEmpty(houseName))
                     {
                         break;
                     }
-                    else if (string.IsNullOrEmpty(houseCode) && !string.IsNullOrEmpty(projectCode))
+                    else if (string.IsNullOrEmpty(houseCode))
                     {
                         return "宿舍编号不能为空";
-                    }
 
-                    //项目编号
-                    string project = null;
-                    project = CommonUtil.getProjectid(projectCode).ToString();
-                    if (project == null)
-                    {
-                        return "编号为：" + projectCode + "的项目不存在";
-                    }
-
-                    //负责人
-                    string st_username = dt.Rows[i][5].ToString();
-                    string st_userid = null;
-                    if (!string.IsNullOrEmpty(st_username))
-                    {
-                        st_userid = CommonUtil.getUserId(st_username);
-                        if (string.IsNullOrEmpty(st_userid))
-                        {
-                            return "宿舍负责人：" + st_username + "不存在";
-                        }
-                    }
-
-                    //宿舍名称
-                    string houseName = CommonUtil.ToStr(dt.Rows[i][2]);
-                    if (string.IsNullOrEmpty(houseName))
+                     }
+                    else if (string.IsNullOrEmpty(houseName))
                     {
                         return "宿舍名称不能为空";
                     }
@@ -244,11 +233,8 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                     //新增
                     model.F_Id = Guid.NewGuid().ToString();
                     model.F_HouseCode = houseCode;
-                    model.F_ProjectId = projectCode;
                     model.F_HouseName = houseName;
-                    model.F_HouseManage = st_userid;
-                    model.F_DetailsAddress = dt.Rows[i][4].ToString();
-                    model.F_Description = dt.Rows[i][6].ToString();
+                    model.F_Description = dt.Rows[i][3].ToString();
                     model.F_EnabledMark = true;
                     model.F_DeleteMark = false;
                     model.F_CreatorTime = DateTime.Now;
@@ -293,7 +279,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
         public ActionResult ExcelDailyRecord(string keyword, string projectCode)
         {
 
-            List<V_LodgingHouseEntity> list = app.GetLists(keyword, projectCode);
+            List<LodgingHouseEntity> list = app.GetLists(keyword);
             if (list.Count < 1)
             {
                 return Error("没有需要导出的数据");
@@ -310,10 +296,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
         public void HouseRecord(DataTable dataTable)
         {
             //删除多与的列
-            dataTable.Columns.Remove("F_HouseManage");
-            dataTable.Columns.Remove("F_HouseProvince");
-            dataTable.Columns.Remove("F_HouseCity");
-            dataTable.Columns.Remove("F_DetailsAddress");
+ 
             dataTable.Columns.Remove("F_EnabledMark");
             dataTable.Columns.Remove("F_DeleteMark");
             dataTable.Columns.Remove("F_LastModifyTime");
@@ -329,11 +312,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             dataTable.Columns["F_Id"].SetOrdinal(0);
             dataTable.Columns["F_HouseCode"].SetOrdinal(1);
             dataTable.Columns["F_HouseName"].SetOrdinal(2);
-            dataTable.Columns["F_ProjectId"].SetOrdinal(3);
-            dataTable.Columns["F_ProjectName"].SetOrdinal(4);
-            dataTable.Columns["F_HouseAddress"].SetOrdinal(5);
-            dataTable.Columns["F_HouseManageName"].SetOrdinal(6);
-            dataTable.Columns["F_Description"].SetOrdinal(7);
+            dataTable.Columns["F_Description"].SetOrdinal(3);
         }
         public ActionResult Import()
         {

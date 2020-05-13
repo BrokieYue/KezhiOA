@@ -50,8 +50,17 @@
     <File Include="Areas/OAManage/Views/JobPerformance/Index.cshtml">
       <publishTime>01/06/2020 16:54:34</publishTime>
     </File>
+    <File Include="Areas/OAManage/Views/LodgingHouse/Form.cshtml">
+      <publishTime>05/11/2020 18:51:43</publishTime>
+    </File>
+    <File Include="Areas/OAManage/Views/LodgingHouse/Import.cshtml">
+      <publishTime>05/11/2020 18:54:41</publishTime>
+    </File>
+    <File Include="Areas/OAManage/Views/LodgingHouse/Index.cshtml">
+      <publishTime>05/11/2020 18:49:05</publishTime>
+    </File>
     <File Include="Areas/OAManage/Views/Project/Form.cshtml">
-      <publishTime>04/05/2020 14:39:46</publishTime>
+      <publishTime>05/09/2020 23:37:11</publishTime>
     </File>
     <File Include="Areas/OAManage/Views/Project/Import.cshtml">
       <publishTime>09/13/2019 21:58:22</publishTime>
@@ -72,16 +81,16 @@
       <publishTime>04/06/2020 12:04:34</publishTime>
     </File>
     <File Include="Areas/OAManage/Views/WorkDailyRecord/Form.cshtml">
-      <publishTime>04/06/2020 17:43:05</publishTime>
+      <publishTime>05/11/2020 23:39:31</publishTime>
     </File>
     <File Include="Areas/OAManage/Views/WorkDailyRecord/Import.cshtml">
-      <publishTime>09/09/2019 20:04:37</publishTime>
+      <publishTime>05/12/2020 22:08:18</publishTime>
     </File>
     <File Include="Areas/OAManage/Views/WorkDailyRecord/Index.cshtml">
       <publishTime>01/06/2020 16:52:56</publishTime>
     </File>
     <File Include="Areas/OAManage/Views/WorkDailyRecord/UpdateForm.cshtml">
-      <publishTime>04/06/2020 18:20:29</publishTime>
+      <publishTime>05/11/2020 23:51:04</publishTime>
     </File>
     <File Include="Areas/ReportManage/Views/Highcharts/Sample1.cshtml">
       <publishTime>08/19/2016 22:25:16</publishTime>
@@ -264,25 +273,25 @@
       <publishTime>08/19/2016 22:25:16</publishTime>
     </File>
     <File Include="bin/Kezhi.Application.dll">
-      <publishTime>04/08/2020 22:40:54</publishTime>
+      <publishTime>05/12/2020 22:16:19</publishTime>
     </File>
     <File Include="bin/Kezhi.Code.dll">
-      <publishTime>04/06/2020 14:59:04</publishTime>
+      <publishTime>05/12/2020 22:16:17</publishTime>
     </File>
     <File Include="bin/Kezhi.Data.dll">
-      <publishTime>04/06/2020 14:59:04</publishTime>
+      <publishTime>05/12/2020 22:16:18</publishTime>
     </File>
     <File Include="bin/Kezhi.Domain.dll">
-      <publishTime>04/06/2020 14:59:04</publishTime>
+      <publishTime>05/12/2020 22:16:18</publishTime>
     </File>
     <File Include="bin/Kezhi.Mapping.dll">
-      <publishTime>04/06/2020 14:59:05</publishTime>
+      <publishTime>05/12/2020 22:16:19</publishTime>
     </File>
     <File Include="bin/Kezhi.Repository.dll">
-      <publishTime>04/06/2020 14:59:05</publishTime>
+      <publishTime>05/12/2020 22:16:18</publishTime>
     </File>
     <File Include="bin/Kezhi.Web.dll">
-      <publishTime>04/08/2020 22:40:54</publishTime>
+      <publishTime>05/12/2020 22:16:20</publishTime>
     </File>
     <File Include="bin/log4net.dll">
       <publishTime>08/19/2016 22:25:16</publishTime>

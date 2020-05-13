@@ -163,53 +163,10 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             var data = projectApp.GetForm(projectId);
             return Content(data.ToJson());
         }
-        /// <summary>
-        /// 编辑界面根据主键获取日志对象
-        /// </summary>
-        /// <param name="keyValue"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [HandlerAjaxOnly]
-        public ActionResult GetFormJson(string keyValue)
-        {
-            var data = workDailyRecordApp.GetForm(keyValue);
-            return Content(data.ToJson());
-        }
+  
      
 
-        /// <summary>
-        /// 删除
-        /// </summary>
-        /// <param name="keyValue"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [HandlerAuthorize]
-        [HandlerAjaxOnly]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteForm(string keyValue)
-        {
-            workDailyRecordApp.DeleteForm(keyValue);
-            return Success("删除成功。");
-        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        public ActionResult Info()
-        {
-            return View();
-        }
-
-        /// <summary>
-        /// 进入导入界面
-        /// </summary>
-        /// <returns></returns>
-        public ActionResult Import()
-        {
-            return View();
-        }
 
 
         /// <summary>
@@ -444,50 +401,8 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             
         }
 
-        /// <summary>
-        /// 根据用户名获取Id
-        /// </summary>
-        /// <param name="userName"></param>
-        /// <returns></returns>
-        private string getUserId(string userName)
-        {
-            UserEntity user = userApp.GetUser(userName);
-            if(user == null || string.IsNullOrEmpty(user.F_Id)){
-                
-                return null;
-            }
-            else
-            {
-                return user.F_Id;
-            }
-            //return userApp.GetUser(userName).F_Id;
-        }
+   
 
-        /// <summary>
-        /// 根据项目编号获取项目Id
-        /// </summary>
-        /// <param name="projectCode"></param>
-        /// <returns></returns>
-        private ProjectEntity getProjectid(string projectCode)
-        {
-            ProjectEntity project = new ProjectEntity();
-            if (string.IsNullOrEmpty(projectCode))
-            {
-                project.F_ProjectName = "";
-                project.F_Id = "";
-                return project;
-            }
-            project = projectApp.GetProject(projectCode);
-            if (project == null || string.IsNullOrEmpty(project.F_Id))
-            {
-                return null;
-            }
-            else
-            {
-                return project;
-            }
-            //return projectApp.GetProject(projectCode).F_Id;
-        }
 
         /// <summary>
         /// 根据用户名查询岗位
@@ -523,22 +438,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             return true;
         }
 
-        /// <summary>
-        /// 转字符串处理NULL值问题
-        /// </summary>
-        /// <param name="v"></param>
-        /// <returns></returns>
-        public static string ToStr(object v)
-        {
-            if (v is System.DBNull || v == null)
-            {
-                return "";
-            }
-            else
-            {
-                return Convert.ToString(v);
-            }
-        }
+       
         /// <summary>
         /// 转整型处理NULL值问题
         /// </summary>

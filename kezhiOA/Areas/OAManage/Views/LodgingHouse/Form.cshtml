@@ -1,0 +1,103 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<style>
+    .fontStyle {
+        color: #f00;
+        font-size: 16px;
+    }
+</style>
+
+<script>
+
+    var keyValue = $.request("keyValue");
+    $(function () {
+        initControl();
+        if (!!keyValue) {
+            $.ajax({
+                url: "/OAManage/LodgingHouse/GetFormJson",
+                data: { keyword: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    
+                    $('#F_Project').combobox({
+                        onLoadSuccess: function () {
+                            $('#F_Project').combobox('setValue', data.F_ProjectId);
+                        }
+                    })
+                    $('#F_HouseManageId').combobox({
+                        onLoadSuccess: function () {
+                            $('#F_HouseManageId').combobox('setValue', data.F_HouseManage);
+                        }
+                    })
+                    $("#form1").formSerialize(data);
+                }
+            });
+        }
+    });
+    function initControl() {
+        
+        $("#F_HouseProvince").bindSelect({
+            url: "/OAManage/Project/GetAddressSelectJson?layers= 1&parentid = 0",
+            id: "F_Id",
+            text: "F_FullName"
+        });
+        $("#F_HouseProvince").change(function () {
+            
+            $("#F_HouseCity").empty();
+            $("#F_HouseCity").append("<option value=''>==市级行政区==</option>");
+            var parentId = $(this).val();
+            $("#F_HouseCity").bindSelect({
+                url: "/OAManage/Project/GetAddressSelectJson?layers=2&parentid=" + parentId +"",
+                id: "F_Id",
+                text: "F_FullName"
+            });
+        });
+     
+    }
+
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+ 
+        $.submitForm({
+            url: "/OAManage/LodgingHouse/SubmitForm?keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+  
+</script>
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">宿舍编号<span class="fontStyle">*</span></th>
+                    <td class="formValue" colspan="3">
+                        <input id="F_HouseCode" name="F_HouseCode" type="text" class="form-control required" placeholder="宿舍编号" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">宿舍名称<span class="fontStyle">*</span></th>
+                    <td class="formValue" colspan="3">
+                        <input id="F_HouseName" name="F_HouseName" type="text" class="form-control required" placeholder="宿舍名称" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle" valign="top" style="padding-top: 5px;">
+                        备注
+                    </th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="F_Description" name="F_Description" class="form-control" style="height: 50px;"></textarea>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>

@@ -65,7 +65,6 @@
     <Compile Include="Entity\FamilyVisage\V_OA_FamilyVisageEntity.cs" />
     <Compile Include="Entity\FamilyVisage\T_OA_FamilyVisageEntity.cs" />
     <Compile Include="Entity\OA\JobPerformanceEntitiy.cs" />
-    <Compile Include="Entity\OA\V_LodgingHouseEntity.cs" />
     <Compile Include="Entity\OA\LodgingHouseEntity.cs" />
     <Compile Include="Entity\OA\ProjectEntity.cs" />
     <Compile Include="Entity\OA\V_ProjectEntity.cs" />
@@ -88,7 +87,6 @@
     <Compile Include="Entity\SystemSecurity\LogEntity.cs" />
     <Compile Include="IRepository\FamilyVisage\IV_FamilyVisageRepository.cs" />
     <Compile Include="IRepository\FamilyVisage\IFamilyVisageRepository.cs" />
-    <Compile Include="IRepository\OA\IV_LodgingHouseRepository.cs" />
     <Compile Include="IRepository\OA\ILodgingHouseRepository.cs" />
     <Compile Include="IRepository\OA\IV_ProjectRepository.cs" />
     <Compile Include="IRepository\OA\IV_WorkDailyRecordRepository.cs" />

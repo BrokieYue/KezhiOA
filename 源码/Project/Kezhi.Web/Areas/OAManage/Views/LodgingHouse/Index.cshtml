@@ -16,11 +16,7 @@
             colModel: [
                 { label: '主键', name: 'F_Id', hidden: true },
                 { label: '宿舍编号', name: 'F_HouseCode', width: 150, align: 'left'},
-                { label: '宿舍名称', name: 'F_HouseName', width: 150, align: 'left' },
-                { label: '所属项目编号', name: 'F_ProjectId', width: 150, align: 'left' },
-                { label: '所属项目名称', name: 'F_ProjectName', width: 200, align: 'left' },
-                { label: '宿舍详细地址', name: 'F_HouseAddress', width: 300, align: 'left' },
-                { label: '宿舍负责人', name: 'F_HouseManageName', width: 120, align: 'left' },
+                { label: '宿舍名称', name: 'F_HouseName', width: 550, align: 'left' },
                 { label: '备注', name: 'F_Description', width: 150, align: 'left' }
             ],
             pager: "#gridPager",
@@ -119,7 +115,7 @@
         form.attr('target', '');
         form.attr('id', 'formDownload');
         form.attr('method', 'post');
-        var url = "/OAManage/LodgingHouse/ExcelDailyRecord?keyword=" + $("#txt_HouseCode").val() + "&projectCode=" + $("#txt_projectCode").val();
+        var url = "/OAManage/LodgingHouse/ExcelDailyRecord?keyword=" + $("#txt_HouseCode").val();
         form.attr('action', url);
         $('body').append(form);  //将表单放置在web中
         form.submit();
@@ -159,7 +155,6 @@
                 <td>
                     <div class="input-group">
                         <input id="txt_HouseCode" type="text" class="form-control" placeholder="宿舍编号或名称" style="width: 150px;">
-                        <input id="txt_projectCode" type="text" class="form-control" placeholder="项目编号或名称" style="width: 150px;margin-left:20px">
                         <span class="input-group-btn">
                             <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
                         </span>

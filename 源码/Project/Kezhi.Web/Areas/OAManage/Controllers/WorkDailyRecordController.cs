@@ -31,6 +31,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
         private ItemsDetailApp itemsDetailApp = new ItemsDetailApp();
         private ItemsApp itemApp = new ItemsApp();
         private OrganizeApp oraginzeApp = new OrganizeApp();
+        private LodgingHouseApp lodgingHouseApp = new LodgingHouseApp();
 
         /// <summary>
         /// 界面模糊查询功能
@@ -137,6 +138,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             entity.F_WorkAddressFirst = data.F_WorkAddress;
             entity.F_WorkSubsidy = data.F_WorkSubsidy;
             entity.F_LodgingHouse = data.F_LodgingHouse;
+            entity.F_WorkAddress = data.F_WorkAddress;
 
             return Content(entity.ToJson());
         }
@@ -471,9 +473,9 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
             string file = Request.MapPath("../../Files/Temp/") + fileName;
             var data = KezhiExcel.GetExcelDataTable(file);
             //给dataTable添加列：“F10”
-            if (!data.Columns.Contains("F10"))
+            if (!data.Columns.Contains("F11"))
             {
-                data.Columns.Add("F10", typeof(string));
+                data.Columns.Add("F11", typeof(string));
             }
             var newdata = data.Clone();
             var row = data.Rows[2];
@@ -487,7 +489,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                     continue;
                 }
                 //取出姓名，用于页面展示
-                data.Rows[i]["F10"] = user;
+                data.Rows[i]["F11"] = user;
                 newdata.ImportRow(data.Rows[i]);
             }
 
@@ -800,7 +802,28 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                     {
                         return "津贴不能为空且必须是数字";
                     }
-
+                    //宿舍信息
+                    string st_lodgingHouse = CommonUtil.ToStr(dt.Rows[i][9]);
+                    string lodgingHouseId = "";
+                    if ("家".Equals(st_lodgingHouse))
+                    {
+                        lodgingHouseId = "0001";
+                    }else if( "宾馆".Equals(st_lodgingHouse)){
+                        lodgingHouseId = "0002";
+                    }
+                    else
+                    {
+                        var lodgingHouse = lodgingHouseApp.GetEntityByCode(st_lodgingHouse);
+                        if (lodgingHouse == null || lodgingHouse.Count == 0)
+                        {
+                            return "该宿舍不存在,请验证宿舍编号是否正确";
+                        }
+                        else
+                        {
+                            lodgingHouseId = lodgingHouse[0].F_Id;
+                        }
+                    }
+                    
                     //新增
                     model.F_Id = Guid.NewGuid().ToString();
                     model.F_WorkUserId = st_userid;
@@ -827,6 +850,7 @@ namespace Kezhi.Web.Areas.OAManage.Controllers
                     model.F_DeductHours = "0";
                     model.F_MealSubsidy = 0;
                     model.F_CurrentDayMark = false;
+                    model.F_LodgingHouse = lodgingHouseId;
                     //工作时长按照上下班时间计算
                     SetWorkedHours(model);
                     //1、支付工时 2、考核扣除工时

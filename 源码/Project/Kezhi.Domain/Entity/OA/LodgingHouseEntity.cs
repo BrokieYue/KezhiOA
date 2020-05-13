@@ -11,11 +11,6 @@ namespace Kezhi.Domain.Entity.OA
      public string F_Id{get;set;}
     public string F_HouseCode{get;set;}
     public string F_HouseName{get;set;}
-    public string F_ProjectId{get;set;}
-    public string F_HouseManage{get;set;}
-    public string F_HouseProvince{get;set;}
-    public string F_HouseCity{get;set;}
-    public string F_DetailsAddress{get;set;}
 
 
     public string F_Description{get;set;}
